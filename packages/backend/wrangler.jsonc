@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "backend",
   "main": "src/index.ts",
-  "compatibility_date": "2025-06-06"
+  "compatibility_date": "2025-06-06",
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],
