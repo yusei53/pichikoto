@@ -7,8 +7,6 @@
     "skipLibCheck": true,
     "lib": ["ESNext"],
     "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx",
-    "outDir": "./dist",
-    "rootDir": "./src"
+    "jsxImportSource": "hono/jsx"
   }
 }
