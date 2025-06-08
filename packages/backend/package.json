@@ -2,7 +2,8 @@
   "name": "backend",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "pnpm run build && wrangler versions upload --assets=./dist",
+    "build": "tsc",
+    "deploy": "pnpm run build && wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
   "dependencies": {
