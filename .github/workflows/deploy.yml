@@ -23,7 +23,13 @@ jobs:
 
       - run: pnpm install
 
+      - run: pnpm test
+
+      - name: Install Wrangler
+        run: pnpm add -w -D wrangler@3.90.0
+
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_TOKEN }}
+          workingDirectory: packages/backend
