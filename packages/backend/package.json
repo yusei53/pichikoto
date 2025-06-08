@@ -2,7 +2,7 @@
   "name": "backend",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy --minify --assets=./dist",
+    "deploy": "wrangler versions upload --assets=./dist",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
   "dependencies": {

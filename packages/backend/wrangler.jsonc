@@ -1,0 +1,7 @@
+{
+  "name": "backend",
+  "compatibility_date": "2025-06-08",
+  "assets": {
+    "directory": "./dist",
+  },
+}
