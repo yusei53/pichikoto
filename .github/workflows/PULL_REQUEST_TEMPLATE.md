@@ -1,7 +1,7 @@
 # 変更領域
 
-[] backend
-[] frontend
+- [ ] backend
+- [ ] frontend
 
 # やったこと
 
