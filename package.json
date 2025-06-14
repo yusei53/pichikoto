@@ -12,15 +12,7 @@
     "format": "turbo run lint:fix && pnpm format:prettier"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^8.34.0",
-    "@typescript-eslint/parser": "^8.34.0",
-    "eslint": "^9",
-    "eslint-config-prettier": "^10.1.5",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-prettier": "^5.4.1",
-    "eslint-plugin-unused-imports": "^4.1.4",
     "prettier": "^3.5.1",
-    "prettier-plugin-organize-imports": "^4.1.0",
     "turbo": "2.4.4",
     "typescript": "^5.8.0"
   },

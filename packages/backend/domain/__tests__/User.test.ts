@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { User, DiscordID, Faculty, Department } from "../User";
+import { describe, expect, it } from "vitest";
+import { Department, DiscordID, Faculty, User } from "../User";
 
 describe("UserDomainTest", () => {
   const discordID = new DiscordID("123456789");

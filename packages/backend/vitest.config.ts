@@ -8,7 +8,7 @@ export default defineConfig({
     coverage: {
       reporter: ["text", "json", "html"],
       include: ["domain/**/*.ts"],
-      exclude: ["**/node_modules/**", "**/dist/**"],
-    },
-  },
+      exclude: ["**/node_modules/**", "**/dist/**"]
+    }
+  }
 });
