@@ -12,7 +12,7 @@ export class User {
   ) {}
 
   static create(
-    discordId: DiscordID,
+    discordID: DiscordID,
     discordUserName: string,
     discriminator: string,
     discordAvatar: string,
@@ -21,7 +21,7 @@ export class User {
   ): User {
     return new User(
       UserID.new(),
-      discordId,
+      discordID,
       discordUserName,
       discriminator,
       discordAvatar,
@@ -32,7 +32,7 @@ export class User {
 
   static reconstruct(
     userID: UserID,
-    discordId: DiscordID,
+    discordID: DiscordID,
     discordUserName: string,
     discriminator: string,
     discordAvatar: string,
@@ -41,7 +41,7 @@ export class User {
   ): User {
     return new User(
       userID,
-      discordId,
+      discordID,
       discordUserName,
       discriminator,
       discordAvatar,
