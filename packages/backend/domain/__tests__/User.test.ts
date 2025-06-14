@@ -4,7 +4,7 @@ import { User, DiscordID, Faculty, Department } from "../User";
 describe("UserDomainTest", () => {
   const discordID = new DiscordID("123456789");
   const discordUserName = "TestUserName";
-  const discriminator = "1234";
+  const discordDiscriminator = "1234";
   const discordAvatar =
     "https://cdn.discordapp.com/sample-avatar/123456789/000000000000000000.png";
   const faculty = new Faculty("Test学部");
@@ -15,7 +15,7 @@ describe("UserDomainTest", () => {
       const actual = User.create(
         discordID,
         discordUserName,
-        discriminator,
+        discordDiscriminator,
         discordAvatar,
         faculty,
         department
@@ -25,7 +25,7 @@ describe("UserDomainTest", () => {
         actual.userID,
         discordID,
         discordUserName,
-        discriminator,
+        discordDiscriminator,
         discordAvatar,
         faculty,
         department
@@ -40,7 +40,7 @@ describe("UserDomainTest", () => {
           User.create(
             new DiscordID("InvalidStringID"),
             discordUserName,
-            discriminator,
+            discordDiscriminator,
             discordAvatar,
             faculty,
             department
@@ -55,7 +55,7 @@ describe("UserDomainTest", () => {
           User.create(
             discordID,
             discordUserName,
-            discriminator,
+            discordDiscriminator,
             discordAvatar,
             new Faculty(""),
             department
@@ -70,7 +70,7 @@ describe("UserDomainTest", () => {
           User.create(
             discordID,
             discordUserName,
-            discriminator,
+            discordDiscriminator,
             discordAvatar,
             new Faculty("A".repeat(31)),
             department
@@ -87,7 +87,7 @@ describe("UserDomainTest", () => {
           User.create(
             discordID,
             discordUserName,
-            discriminator,
+            discordDiscriminator,
             discordAvatar,
             faculty,
             new Department("")
@@ -102,7 +102,7 @@ describe("UserDomainTest", () => {
           User.create(
             discordID,
             discordUserName,
-            discriminator,
+            discordDiscriminator,
             discordAvatar,
             faculty,
             new Department("A".repeat(31))

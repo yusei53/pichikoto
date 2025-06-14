@@ -5,7 +5,7 @@ export class User {
     readonly userID: UserID,
     readonly discordID: DiscordID,
     readonly discordUserName: string,
-    readonly discriminator: string,
+    readonly discordDiscriminator: string,
     readonly discordAvatar: string,
     readonly faculty: Faculty,
     readonly department: Department
@@ -14,7 +14,7 @@ export class User {
   static create(
     discordID: DiscordID,
     discordUserName: string,
-    discriminator: string,
+    discordDiscriminator: string,
     discordAvatar: string,
     faculty: Faculty,
     department: Department
@@ -23,7 +23,7 @@ export class User {
       UserID.new(),
       discordID,
       discordUserName,
-      discriminator,
+      discordDiscriminator,
       discordAvatar,
       faculty,
       department
@@ -34,7 +34,7 @@ export class User {
     userID: UserID,
     discordID: DiscordID,
     discordUserName: string,
-    discriminator: string,
+    discordDiscriminator: string,
     discordAvatar: string,
     faculty: Faculty,
     department: Department
@@ -43,7 +43,7 @@ export class User {
       userID,
       discordID,
       discordUserName,
-      discriminator,
+      discordDiscriminator,
       discordAvatar,
       faculty,
       department
