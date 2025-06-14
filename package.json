@@ -7,7 +7,9 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "format:prettier": "prettier --write .",
+    "format": "turbo run lint:fix && pnpm format:prettier"
   },
   "devDependencies": {
     "prettier": "^3.5.1",
