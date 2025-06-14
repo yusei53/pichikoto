@@ -1,5 +1,10 @@
 import { UUID } from "./util/UUID";
 
+export type A = {
+  a: string;
+  b: number;
+};
+
 export class User {
   private constructor(
     readonly userID: UserID,
