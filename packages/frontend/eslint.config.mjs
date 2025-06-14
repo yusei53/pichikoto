@@ -22,6 +22,13 @@ export default [
           disallowTypeAnnotations: false,
           fixStyle: "separate-type-imports"
         }
+      ],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          varsIgnorePattern: "^_",
+          argsIgnorePattern: "^_"
+        }
       ]
     }
   }
