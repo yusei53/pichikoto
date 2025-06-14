@@ -5,20 +5,21 @@
 ```
 /src
 ├── index.ts                # エントリーポイント・ルーティング
-├── controllers/            # コントローラー層（クラスベース）
-│   └── userController.ts
-├── usecase/                # ユースケース層（クラスベース）
-│   ├── request/
-│   │   └── userRequest.ts  # リクエストDTO・バリデーション
-│   ├── response/
-│   │   └── userResponse.ts # レスポンスDTO
-│   └── userUsecase.ts      # ユースケース本体
-├── repositories/           # リポジトリ層（クラスベース）
-│   └── userRepository.ts
-├── entities/               # エンティティ・型定義
-│   └── user.ts
-├── config/
-│   └── container.ts        # DIコンテナ（依存性注入）
+├── controllers/            # コントローラー層
+├── usecase/                # ユースケース層
+│   ├── request/            # リクエストDTO・バリデーション
+│   └── response/           # レスポンスDTO
+├── domain/                 # ドメイン層
+│   ├── entity/             # エンティティ・型定義
+│   │   └── User.ts
+│   │   └── __tests__/      # エンティティのテスト
+│   ├── event/              # ドメインイベント
+│   ├── value-object/       # 値オブジェクト
+│   │   └── UUID.ts
+│   ├── service/            # ドメインサービス
+│   └── repository/         # リポジトリ
+├── config/                 # 設定
+│   └── container.ts        # DIコンテナ（依存性注入の管理。各クラスのインスタンス生成と依存解決を一元管理。ルーティングでコントローラを利用する際は、ここからインスタンスをimport）
 ```
 
 ## 各層の役割
@@ -32,15 +33,17 @@
   - クラスベースで実装し、リポジトリなどをコンストラクタで受け取る（DI）
   - request/response配下でDTOやバリデーションを管理
 
-- **repositories/**
-  - DBや外部APIとのやりとりを担当
-  - クラスベースで実装
-
-- **entities/**
-  - ドメインエンティティや型定義
+- **domain/**
+  - ドメインエンティティ、値オブジェクト、ドメインサービス、リポジトリ、イベントを管理
+  - `entity/`：エンティティ・型定義
+  - `value-object/`：値オブジェクト
+  - `service/`：ドメインサービス
+  - `repository/`：リポジトリ
+  - `event/`：ドメインイベント
 
 - **config/container.ts**
   - 各クラスのインスタンス生成と依存解決を一元管理
+  - DI（依存性注入）の設定を担う
   - ルーティングでコントローラを利用する際は、ここからインスタンスをimport
 
 ## DI（依存性注入）について
