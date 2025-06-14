@@ -1,12 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { A } from "../User";
 import { Department, DiscordID, Faculty, User } from "../User";
 
 describe("UserDomainTest", () => {
-  const aa: A = {
-    a: "a",
-    b: 1
-  };
   const discordID = new DiscordID("123456789");
   const discordUserName = "TestUserName";
   const discordDiscriminator = "1234";
