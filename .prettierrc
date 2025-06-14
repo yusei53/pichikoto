@@ -1,4 +1,4 @@
 {
   "plugins": ["prettier-plugin-organize-imports"],
-  "trailingComma": "es5"
+  "trailingComma": "none"
 }
