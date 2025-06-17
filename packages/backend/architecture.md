@@ -3,45 +3,58 @@
 ## ディレクトリ構成
 
 ```
-/src
-├── index.ts                # エントリーポイント・ルーティング
-├── controllers/            # コントローラー層（クラスベース）
-│   └── userController.ts
-├── usecase/                # ユースケース層（クラスベース）
-│   ├── request/
-│   │   └── userRequest.ts  # リクエストDTO・バリデーション
-│   ├── response/
-│   │   └── userResponse.ts # レスポンスDTO
-│   └── userUsecase.ts      # ユースケース本体
-├── repositories/           # リポジトリ層（クラスベース）
-│   └── userRepository.ts
-├── entities/               # エンティティ・型定義
-│   └── user.ts
-├── config/
-│   └── container.ts        # DIコンテナ（依存性注入）
+src/
+├── domain/
+│   ├── models/           # ドメインモデル（エンティティ）
+│   ├── services/         # ドメインサービス
+│   ├── events/           # ドメインイベント
+│   └── repositories/     # ドメインリポジトリ
+│
+├── application/
+│   ├── dtos/             # DTO（データ転送オブジェクト）
+│   ├── usecases/         # ユースケース（アプリケーションサービス）
+│   └── services/         # アプリケーションサービス
+│
+├── infrastructure/
+│   ├── orm/              # ORMやDBアクセス層
+│   ├── events/           # インフラ層のイベント連携
+│   └── config/           # 設定（DIコンテナ等）
+│
+├── presentation/
+│   ├── controllers/      # コントローラー層
+│   ├── routes/           # ルーティング
+│   └── middleware/       # ミドルウェア
+│
+├── utils/                # 汎用ユーティリティ
+│   └── UUID.ts           # 例: UUID生成など
+│
+└── index.ts              # エントリーポイント
 ```
 
 ## 各層の役割
 
-- **controllers/**
-  - HTTPリクエストを受け取り、バリデーション・ユースケース呼び出し・レスポンス返却を担当
-  - クラスベースで実装し、ユースケースをコンストラクタで受け取る（DI）
+- **domain/**
 
-- **usecase/**
-  - アプリケーション固有のビジネスロジックを記述
-  - クラスベースで実装し、リポジトリなどをコンストラクタで受け取る（DI）
-  - request/response配下でDTOやバリデーションを管理
+  - ビジネスルールの中心。エンティティ（models）、ドメインサービス（services）、ドメインイベント（events）、リポジトリインターフェース（repositories）を管理。
 
-- **repositories/**
-  - DBや外部APIとのやりとりを担当
-  - クラスベースで実装
+- **application/**
 
-- **entities/**
-  - ドメインエンティティや型定義
+  - ユースケースやDTO、アプリケーションサービスを管理。ドメイン層のオブジェクトを組み合わせてアプリケーション固有の処理を実装。
 
-- **config/container.ts**
-  - 各クラスのインスタンス生成と依存解決を一元管理
-  - ルーティングでコントローラを利用する際は、ここからインスタンスをimport
+- **infrastructure/**
+
+  - DBや外部サービス連携、設定など技術的な詳細を管理。ORMやイベント連携、DIコンテナ設定など。
+
+- **presentation/**
+
+  - コントローラー、ルーティング、ミドルウェアなど、外部からの入出力（HTTP等）を担当。
+
+- **utils/**
+
+  - 汎用的なユーティリティ関数やクラスを配置。例: UUID生成など
+
+- **index.ts**
+  - アプリケーションのエントリーポイント。
 
 ## DI（依存性注入）について
 
