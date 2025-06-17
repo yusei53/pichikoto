@@ -6,8 +6,6 @@
 src/
 ├── domain/
 │   ├── models/           # ドメインモデル（エンティティ）
-│   │   └── value-objects/    # 値オブジェクト
-│   │
 │   ├── services/         # ドメインサービス
 │   ├── events/           # ドメインイベント
 │   └── repositories/     # ドメインリポジトリ
