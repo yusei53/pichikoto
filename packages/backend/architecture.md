@@ -37,7 +37,7 @@ src/
 
 - **domain/**
 
-  - ビジネスルールの中心。エンティティ（models）、値オブジェクト（value-objects）、ドメインサービス（services）、ドメインイベント（events）、リポジトリインターフェース（repositories）を管理。
+  - ビジネスルールの中心。エンティティ（models）、ドメインサービス（services）、ドメインイベント（events）、リポジトリインターフェース（repositories）を管理。
 
 - **application/**
 
