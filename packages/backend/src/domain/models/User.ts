@@ -1,4 +1,4 @@
-import { UUID } from "../value-object/UUID";
+import { UUID } from "../../utils/UUID";
 
 export class User {
   private constructor(
