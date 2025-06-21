@@ -32,13 +32,13 @@ vi.mock("../src/utils/CreatedAt", () => {
 });
 
 describe("UserDomainTest", () => {
-  const discordID = new DiscordID("123456789");
+  const discordID = DiscordID.from("123456789");
   const discordUserName = "TestUserName";
   const discordDiscriminator = "1234";
   const discordAvatar =
     "https://cdn.discordapp.com/sample-avatar/123456789/000000000000000000.png";
-  const faculty = new Faculty("Test学部");
-  const department = new Department("Tes学科");
+  const faculty = Faculty.from("Test学部");
+  const department = Department.from("Tes学科");
 
   describe("ユーザードメインの作成", () => {
     it("ユーザーを作成できること", () => {
@@ -69,7 +69,7 @@ describe("UserDomainTest", () => {
       it("数字でないDiscordIDの場合はエラーになること", () => {
         expect(() => {
           User.create(
-            new DiscordID("InvalidStringID"),
+            DiscordID.from("InvalidStringID"),
             discordUserName,
             discordDiscriminator,
             discordAvatar,
@@ -88,7 +88,7 @@ describe("UserDomainTest", () => {
             discordUserName,
             discordDiscriminator,
             discordAvatar,
-            new Faculty(""),
+            Faculty.from(""),
             department
           );
         }).toThrow(
@@ -103,7 +103,7 @@ describe("UserDomainTest", () => {
             discordUserName,
             discordDiscriminator,
             discordAvatar,
-            new Faculty("A".repeat(31)),
+            Faculty.from("A".repeat(31)),
             department
           );
         }).toThrow(
@@ -121,7 +121,7 @@ describe("UserDomainTest", () => {
             discordDiscriminator,
             discordAvatar,
             faculty,
-            new Department("")
+            Department.from("")
           );
         }).toThrow(
           "Invalid Department: length must be between 1 and 30 characters"
@@ -136,7 +136,7 @@ describe("UserDomainTest", () => {
             discordDiscriminator,
             discordAvatar,
             faculty,
-            new Department("A".repeat(31))
+            Department.from("A".repeat(31))
           );
         }).toThrow(
           "Invalid Department: length must be between 1 and 30 characters"

@@ -65,16 +65,21 @@ export class UserID {
 }
 
 export class DiscordID {
-  constructor(private readonly value: string) {
+  private constructor(private readonly value: string) {}
+
+  static from(value: string): DiscordID {
     // NOTE: DiscordIDは数字のみの制約を持つ
     if (!/^\d+$/.test(value)) {
       throw new Error("Invalid Discord ID");
     }
+    return new DiscordID(value);
   }
 }
 
 export class Faculty {
-  constructor(private readonly value: string) {
+  private constructor(private readonly value: string) {}
+
+  static from(value: string): Faculty {
     const MIN_LENGTH = 1;
     const MAX_LENGTH = 30;
 
@@ -84,11 +89,14 @@ export class Faculty {
         `Invalid Faculty: length must be between ${MIN_LENGTH} and ${MAX_LENGTH} characters`
       );
     }
+    return new Faculty(value);
   }
 }
 
 export class Department {
-  constructor(private readonly value: string) {
+  private constructor(private readonly value: string) {}
+
+  static from(value: string): Department {
     const MIN_LENGTH = 1;
     const MAX_LENGTH = 30;
 
@@ -98,5 +106,6 @@ export class Department {
         `Invalid Department: length must be between ${MIN_LENGTH} and ${MAX_LENGTH} characters`
       );
     }
+    return new Department(value);
   }
 }
