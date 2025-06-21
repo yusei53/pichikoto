@@ -1,0 +1,51 @@
+services:
+  backend:
+    container_name: unipos-backend
+    build:
+      context: ../..
+      dockerfile: packages/backend/Dockerfile
+    ports:
+      - "8787:8787"
+      - "5555:5555"
+    volumes:
+      - ../..:/app
+      # node_modulesがホストのもので上書きされるのを防ぐ
+      - /app/node_modules
+      - /app/packages/backend/node_modules
+    working_dir: /app/packages/backend
+    command: sh entrypoint.sh
+    extra_hosts:
+      - "db.localtest.me:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17
+    command: "-d 1"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=main
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  neon-proxy:
+    image: ghcr.io/timowilhelm/local-neon-http-proxy:main
+    environment:
+      - PG_CONNECTION_STRING=postgres://postgres:postgres@postgres:5432/main
+    ports:
+      - "4444:4444"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  db_data:
