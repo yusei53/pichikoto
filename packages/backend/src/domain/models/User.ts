@@ -1,3 +1,4 @@
+import { CreatedAt } from "../../utils/CreatedAt";
 import { UUID } from "../../utils/UUID";
 
 export class User {
@@ -8,7 +9,8 @@ export class User {
     readonly discordDiscriminator: string,
     readonly discordAvatar: string,
     readonly faculty: Faculty,
-    readonly department: Department
+    readonly department: Department,
+    readonly createdAt: CreatedAt
   ) {}
 
   static create(
@@ -26,7 +28,8 @@ export class User {
       discordDiscriminator,
       discordAvatar,
       faculty,
-      department
+      department,
+      CreatedAt.new()
     );
   }
 
@@ -37,7 +40,8 @@ export class User {
     discordDiscriminator: string,
     discordAvatar: string,
     faculty: Faculty,
-    department: Department
+    department: Department,
+    createdAt: CreatedAt
   ): User {
     return new User(
       userID,
@@ -46,7 +50,8 @@ export class User {
       discordDiscriminator,
       discordAvatar,
       faculty,
-      department
+      department,
+      createdAt
     );
   }
 }

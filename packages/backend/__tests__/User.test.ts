@@ -1,5 +1,35 @@
-import { describe, expect, it } from "vitest";
-import { Department, DiscordID, Faculty, User } from "../User";
+import { describe, expect, it, vi } from "vitest";
+import {
+  Department,
+  DiscordID,
+  Faculty,
+  User,
+  UserID
+} from "../src/domain/models/User";
+import { CreatedAt } from "../src/utils/CreatedAt";
+
+const MOCK_UUID = "00000000-0000-0000-0000-000000";
+const MOCK_CREATED_AT = "2025-01-01T00:00:00.000Z";
+
+vi.mock("../src/utils/UUID", () => {
+  return {
+    UUID: {
+      new: vi.fn(() => ({
+        value: MOCK_UUID
+      }))
+    }
+  };
+});
+
+vi.mock("../src/utils/CreatedAt", () => {
+  return {
+    CreatedAt: {
+      new: vi.fn(() => ({
+        value: MOCK_CREATED_AT
+      }))
+    }
+  };
+});
 
 describe("UserDomainTest", () => {
   const discordID = new DiscordID("123456789");
@@ -12,17 +42,18 @@ describe("UserDomainTest", () => {
 
   describe("ユーザードメインの作成", () => {
     it("ユーザーを作成できること", () => {
-      const actual = User.create(
+      const expected = User.reconstruct(
+        UserID.new(),
         discordID,
         discordUserName,
         discordDiscriminator,
         discordAvatar,
         faculty,
-        department
+        department,
+        CreatedAt.new()
       );
 
-      const expected = User.reconstruct(
-        actual.userID,
+      const actual = User.create(
         discordID,
         discordUserName,
         discordDiscriminator,
