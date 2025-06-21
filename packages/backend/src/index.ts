@@ -1,22 +1,21 @@
 import { Hono } from "hono";
-import { newContainer } from "./infrastructure/config/container";
+import { logger } from "hono/logger";
+import "reflect-metadata";
+import type { container } from "./infrastructure/config/inversify.config";
+import type { IAuthController } from "./presentation/controllers/auth";
+import { injectDependencies } from "./presentation/middleware/injectDependencies";
+import { auth } from "./presentation/routes/auth";
 
-const app = new Hono<{
-  Variables: {
-    container: ReturnType<typeof newContainer>;
-  };
-}>();
+export type Variables = {
+  diContainer: typeof container;
+  authController: IAuthController;
+};
 
-// USAGE:
-// const container = c.get("container");
-// const users = await container.dbClient.select().from(user);
-app.use("*", async (c, next) => {
-  c.set("container", newContainer(c));
-  await next();
-});
+const app = new Hono<{ Variables: Variables }>().basePath("/api");
 
-app.get("/", async (c) => {
-  return c.text("Hello yuse retry!");
-});
+app.use("*", injectDependencies);
+app.use("*", logger());
+
+app.route("/auth", auth);
 
 export default app;

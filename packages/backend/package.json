@@ -12,14 +12,17 @@
     "lint:fix": "eslint . --ext .ts --fix",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "typegen": "wrangler types"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
     "@types/pg": "^8.15.4",
     "drizzle-orm": "^0.44.2",
     "hono": "^4.7.11",
+    "inversify": "^7.5.2",
     "pg": "^8.16.2",
+    "reflect-metadata": "^0.2.2",
     "uuid": "^11.1.0",
     "ws": "^8.18.2"
   },
