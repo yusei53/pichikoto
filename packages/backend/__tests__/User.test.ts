@@ -1,28 +1,59 @@
-import { describe, expect, it } from "vitest";
-import { Department, DiscordID, Faculty, User } from "../User";
+import { describe, expect, it, vi } from "vitest";
+import {
+  Department,
+  DiscordID,
+  Faculty,
+  User,
+  UserID
+} from "../src/domain/models/User";
+import { CreatedAt } from "../src/utils/CreatedAt";
+
+const MOCK_UUID = "00000000-0000-0000-0000-000000";
+const MOCK_CREATED_AT = "2025-01-01T00:00:00.000Z";
+
+vi.mock("../src/utils/UUID", () => {
+  return {
+    UUID: {
+      new: vi.fn(() => ({
+        value: MOCK_UUID
+      }))
+    }
+  };
+});
+
+vi.mock("../src/utils/CreatedAt", () => {
+  return {
+    CreatedAt: {
+      new: vi.fn(() => ({
+        value: MOCK_CREATED_AT
+      }))
+    }
+  };
+});
 
 describe("UserDomainTest", () => {
-  const discordID = new DiscordID("123456789");
+  const discordID = DiscordID.from("123456789");
   const discordUserName = "TestUserName";
   const discordDiscriminator = "1234";
   const discordAvatar =
     "https://cdn.discordapp.com/sample-avatar/123456789/000000000000000000.png";
-  const faculty = new Faculty("Test学部");
-  const department = new Department("Tes学科");
+  const faculty = Faculty.from("Test学部");
+  const department = Department.from("Tes学科");
 
   describe("ユーザードメインの作成", () => {
     it("ユーザーを作成できること", () => {
-      const actual = User.create(
+      const expected = User.reconstruct(
+        UserID.new(),
         discordID,
         discordUserName,
         discordDiscriminator,
         discordAvatar,
         faculty,
-        department
+        department,
+        CreatedAt.new()
       );
 
-      const expected = User.reconstruct(
-        actual.userID,
+      const actual = User.create(
         discordID,
         discordUserName,
         discordDiscriminator,
@@ -38,7 +69,7 @@ describe("UserDomainTest", () => {
       it("数字でないDiscordIDの場合はエラーになること", () => {
         expect(() => {
           User.create(
-            new DiscordID("InvalidStringID"),
+            DiscordID.from("InvalidStringID"),
             discordUserName,
             discordDiscriminator,
             discordAvatar,
@@ -57,7 +88,7 @@ describe("UserDomainTest", () => {
             discordUserName,
             discordDiscriminator,
             discordAvatar,
-            new Faculty(""),
+            Faculty.from(""),
             department
           );
         }).toThrow(
@@ -72,7 +103,7 @@ describe("UserDomainTest", () => {
             discordUserName,
             discordDiscriminator,
             discordAvatar,
-            new Faculty("A".repeat(31)),
+            Faculty.from("A".repeat(31)),
             department
           );
         }).toThrow(
@@ -90,7 +121,7 @@ describe("UserDomainTest", () => {
             discordDiscriminator,
             discordAvatar,
             faculty,
-            new Department("")
+            Department.from("")
           );
         }).toThrow(
           "Invalid Department: length must be between 1 and 30 characters"
@@ -105,7 +136,7 @@ describe("UserDomainTest", () => {
             discordDiscriminator,
             discordAvatar,
             faculty,
-            new Department("A".repeat(31))
+            Department.from("A".repeat(31))
           );
         }).toThrow(
           "Invalid Department: length must be between 1 and 30 characters"
