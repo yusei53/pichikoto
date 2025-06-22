@@ -1,5 +1,5 @@
 import { CreatedAt } from "../../utils/CreatedAt";
-import type { UserID } from "./User";
+import { UserID } from "./User";
 
 export class UserAuth {
   private constructor(
@@ -32,22 +32,22 @@ export class UserAuth {
   }
 
   static reconstruct(
-    userId: UserID,
-    accessToken: AccessToken,
-    refreshToken: RefreshToken,
+    userId: string,
+    accessToken: string,
+    refreshToken: string,
     expiresIn: Date,
     scope: string,
     tokenType: string,
-    createdAt: CreatedAt
+    createdAt: Date
   ): UserAuth {
     return new UserAuth(
-      userId,
-      accessToken,
-      refreshToken,
+      UserID.from(userId),
+      AccessToken.from(accessToken),
+      RefreshToken.from(refreshToken),
       ExpiredAt.from(expiresIn),
       scope,
       tokenType,
-      createdAt
+      CreatedAt.from(createdAt)
     );
   }
 }
@@ -68,6 +68,10 @@ export class RefreshToken {
   private constructor(public readonly value: string) {}
 
   static new(value: string): RefreshToken {
+    return new RefreshToken(value);
+  }
+
+  static from(value: string): RefreshToken {
     return new RefreshToken(value);
   }
 }

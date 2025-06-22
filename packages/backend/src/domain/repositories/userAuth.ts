@@ -1,11 +1,14 @@
+import { eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../infrastructure/config/types";
 import type { IDbClient } from "../../infrastructure/database/connection";
 import { userAuth as userAuthSchema } from "../../infrastructure/database/schema";
-import type { UserAuth } from "../models/UserAuth";
+import type { UserID } from "../models/User";
+import { UserAuth } from "../models/UserAuth";
 
 export interface IUserAuthRepository {
   save(userAuth: UserAuth): Promise<void>;
+  getByUserID(userID: UserID): Promise<UserAuth | null>;
 }
 
 @injectable()
@@ -26,5 +29,26 @@ export class UserAuthRepository implements IUserAuthRepository {
       tokenType: userAuth.tokenType,
       createdAt: userAuth.createdAt.value
     });
+  }
+
+  async getByUserID(userID: UserID): Promise<UserAuth | null> {
+    const db = this.dbClient.getDb();
+    const userAuth = await db
+      .select()
+      .from(userAuthSchema)
+      .where(eq(userAuthSchema.userId, userID.value.value))
+      .limit(1);
+    if (userAuth.length === 0) {
+      return null;
+    }
+    return UserAuth.reconstruct(
+      userAuth[0].userId,
+      userAuth[0].accessToken,
+      userAuth[0].refreshToken,
+      userAuth[0].expiresIn,
+      userAuth[0].scope,
+      userAuth[0].tokenType,
+      userAuth[0].createdAt
+    );
   }
 }
