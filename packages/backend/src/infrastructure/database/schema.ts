@@ -19,5 +19,6 @@ export const userAuth = pgTable("user_auth", {
   refreshToken: text("refresh_token").notNull(),
   expiresIn: timestamp("expires_in").notNull(),
   scope: text("scope").notNull(),
-  tokenType: text("token_type").notNull()
+  tokenType: text("token_type").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow()
 });
