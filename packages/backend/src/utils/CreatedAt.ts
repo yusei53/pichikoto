@@ -5,7 +5,7 @@ export class CreatedAt {
     return new CreatedAt(new Date());
   }
 
-  static from(value: string): CreatedAt {
+  static from(value: Date): CreatedAt {
     const date = new Date(value);
     if (isNaN(date.getTime())) {
       throw new Error("Invalid date format");

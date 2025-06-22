@@ -8,8 +8,8 @@ export class User {
     readonly discordUserName: string,
     readonly discordDiscriminator: string,
     readonly discordAvatar: string,
-    readonly faculty: Faculty,
-    readonly department: Department,
+    readonly faculty: Faculty | null,
+    readonly department: Department | null,
     readonly createdAt: CreatedAt
   ) {}
 
@@ -18,8 +18,8 @@ export class User {
     discordUserName: string,
     discordDiscriminator: string,
     discordAvatar: string,
-    faculty: Faculty,
-    department: Department
+    faculty: Faculty | null, // MEMO: Discord認証で作成時はnull
+    department: Department | null
   ): User {
     return new User(
       UserID.new(),
@@ -27,31 +27,31 @@ export class User {
       discordUserName,
       discordDiscriminator,
       discordAvatar,
-      faculty,
-      department,
+      faculty ?? null,
+      department ?? null,
       CreatedAt.new()
     );
   }
 
   static reconstruct(
-    userID: UserID,
-    discordID: DiscordID,
+    userID: string,
+    discordID: string,
     discordUserName: string,
     discordDiscriminator: string,
     discordAvatar: string,
-    faculty: Faculty,
-    department: Department,
-    createdAt: CreatedAt
+    faculty: string | null,
+    department: string | null,
+    createdAt: Date
   ): User {
     return new User(
-      userID,
-      discordID,
+      UserID.from(userID),
+      DiscordID.from(discordID),
       discordUserName,
       discordDiscriminator,
       discordAvatar,
-      faculty,
-      department,
-      createdAt
+      faculty ? Faculty.from(faculty) : null,
+      department ? Department.from(department) : null,
+      CreatedAt.from(createdAt)
     );
   }
 }
@@ -61,6 +61,10 @@ export class UserID {
 
   static new(): UserID {
     return new UserID(UUID.new());
+  }
+
+  static from(value: string): UserID {
+    return new UserID(UUID.from(value));
   }
 }
 
