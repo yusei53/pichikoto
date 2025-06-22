@@ -5,8 +5,9 @@ import { UserAuth } from "../../domain/models/UserAuth";
 import type { IUserRepository } from "../../domain/repositories/user";
 import type { IUserAuthRepository } from "../../domain/repositories/userAuth";
 import type { IDiscordAuthService } from "../../domain/services/discord-auth";
+import type { IJwtService } from "../../domain/services/jwt";
 import { TYPES } from "../../infrastructure/config/types";
-import type { AuthPayloadDTO } from "../dtos/auth.dto";
+import { toAuthPayloadDTO, type AuthPayloadDTO } from "../dtos/auth.dto";
 
 export interface IAuthUsecase {
   redirect(c: Context, code: string): Promise<AuthPayloadDTO>;
@@ -20,7 +21,9 @@ export class AuthUsecase implements IAuthUsecase {
     @inject(TYPES.UserRepository)
     private readonly userRepository: IUserRepository,
     @inject(TYPES.UserAuthRepository)
-    private readonly userAuthRepository: IUserAuthRepository
+    private readonly userAuthRepository: IUserAuthRepository,
+    @inject(TYPES.JwtService)
+    private readonly jwtService: IJwtService
   ) {}
 
   async redirect(c: Context, code: string): Promise<AuthPayloadDTO> {
@@ -37,10 +40,20 @@ export class AuthUsecase implements IAuthUsecase {
     const existsUser = await this.userRepository.getByDiscordID(
       DiscordID.from(discordUserResource.id)
     );
-    if (existsUser) {
-      // MEMO: 既にユーザーが存在する場合はログインとして処理
+    // MEMO: 既にユーザーが存在する場合はログインとして処理
+    if (existsUser !== null) {
+      const userAuth = await this.userAuthRepository.getByUserID(
+        existsUser.userID
+      );
+      if (!userAuth) {
+        throw new Error("UserAuth not found");
+      }
+      const { accessToken, refreshToken } =
+        await this.jwtService.generateTokens(c, existsUser.userID.value.value);
+      return toAuthPayloadDTO(existsUser, accessToken, refreshToken);
     }
 
+    // MEMO: 新規ユーザーの場合はサインアップ
     const user = User.create(
       DiscordID.from(discordUserResource.id),
       discordUserResource.username,
@@ -61,17 +74,11 @@ export class AuthUsecase implements IAuthUsecase {
     );
     await this.userAuthRepository.save(userAuth);
 
-    // TODO: サインアップ処理
+    const { accessToken, refreshToken } = await this.jwtService.generateTokens(
+      c,
+      user.userID.value.value
+    );
 
-    return {
-      user: {
-        id: "dummy-user-id",
-        discordUserName: "dummy-user",
-        discordAvatar: "",
-        faculty: "dummy-faculty",
-        department: "dummy-department"
-      },
-      token: "dummy-jwt-token"
-    };
+    return toAuthPayloadDTO(user, accessToken, refreshToken);
   }
 }
