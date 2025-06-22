@@ -29,22 +29,20 @@ export class DiscordAuthService implements IDiscordAuthService {
     c: Context,
     code: string
   ): Promise<AuthorizationResponse> {
-    const response = await fetch(
-      `${this.discordApiBaseUrl}/oauth2/token?code=${code}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: new URLSearchParams({
-          client_id: c.env.DISCORD_CLIENT_ID,
-          client_secret: c.env.DISCORD_CLIENT_SECRET,
-          grant_type: "authorization_code",
-          code: code,
-          redirect_uri: `${c.env.BASE_URL}/auth/redirect`
-        })
-      }
-    );
+    const params = new URLSearchParams();
+    params.append("client_id", c.env.DISCORD_CLIENT_ID);
+    params.append("client_secret", c.env.DISCORD_CLIENT_SECRET);
+    params.append("grant_type", "authorization_code");
+    params.append("code", code);
+    params.append("redirect_uri", `${c.env.BASE_URL}/auth/redirect`);
+
+    const response = await fetch(`${this.discordApiBaseUrl}/oauth2/token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: params
+    });
     // TODO: status処理
     if (!response.ok) {
       throw new Error("Failed to authorize");
@@ -60,17 +58,18 @@ export class DiscordAuthService implements IDiscordAuthService {
     c: Context,
     refreshToken: string
   ): Promise<AuthorizationResponse> {
+    const params = new URLSearchParams();
+    params.append("client_id", c.env.DISCORD_CLIENT_ID);
+    params.append("client_secret", c.env.DISCORD_CLIENT_SECRET);
+    params.append("grant_type", "refresh_token");
+    params.append("refresh_token", refreshToken);
+
     const response = await fetch(`${this.discordApiBaseUrl}/oauth2/token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded"
       },
-      body: new URLSearchParams({
-        client_id: c.env.DISCORD_CLIENT_ID,
-        client_secret: c.env.DISCORD_CLIENT_SECRET,
-        grant_type: "refresh_token",
-        refresh_token: refreshToken
-      })
+      body: params
     });
     // TODO: status処理
     if (!response.ok) {
@@ -82,18 +81,22 @@ export class DiscordAuthService implements IDiscordAuthService {
   }
 
   async revokeAccessToken(c: Context, accessToken: string): Promise<void> {
-    const response = await fetch(`${this.discordApiBaseUrl}/oauth2/revoke`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: new URLSearchParams({
-        client_id: c.env.DISCORD_CLIENT_ID,
-        client_secret: c.env.DISCORD_CLIENT_SECRET,
-        token: accessToken,
-        token_type_hint: "access_token"
-      })
-    });
+    const params = new URLSearchParams();
+    params.append("client_id", c.env.DISCORD_CLIENT_ID);
+    params.append("client_secret", c.env.DISCORD_CLIENT_SECRET);
+    params.append("token", accessToken);
+    params.append("token_type_hint", "access_token");
+
+    const response = await fetch(
+      `${this.discordApiBaseUrl}/oauth2/token/revoke`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: params
+      }
+    );
     // TODO: status処理
     if (!response.ok) {
       throw new Error("Failed to revoke access token");
