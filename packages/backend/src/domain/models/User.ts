@@ -74,6 +74,10 @@ export class DiscordID {
     }
     return new DiscordID(value);
   }
+
+  getValue(): string {
+    return this.value;
+  }
 }
 
 export class Faculty {
@@ -91,6 +95,10 @@ export class Faculty {
     }
     return new Faculty(value);
   }
+
+  getValue(): string {
+    return this.value;
+  }
 }
 
 export class Department {
@@ -107,5 +115,9 @@ export class Department {
       );
     }
     return new Department(value);
+  }
+
+  getValue(): string {
+    return this.value;
   }
 }
