@@ -8,11 +8,17 @@ export interface IDiscordAuthService {
     c: Context,
     refreshToken: string
   ): Promise<AuthorizationResponse>;
+  getUserResource(
+    c: Context,
+    accessToken: string
+  ): Promise<DiscordUserResource>;
 }
 
 @injectable()
 export class DiscordAuthService implements IDiscordAuthService {
   constructor() {}
+
+  private discordApiBaseUrl = "https://discordapp.com/api";
 
   async getAuthUrl(c: Context) {
     const authUrl = c.env.DISCORD_AUTH_URL;
@@ -24,7 +30,7 @@ export class DiscordAuthService implements IDiscordAuthService {
     code: string
   ): Promise<AuthorizationResponse> {
     const response = await fetch(
-      `https://discordapp.com/api/oauth2/token?code=${code}`,
+      `${this.discordApiBaseUrl}/oauth2/token?code=${code}`,
       {
         method: "POST",
         headers: {
@@ -39,6 +45,7 @@ export class DiscordAuthService implements IDiscordAuthService {
         })
       }
     );
+    // TODO: status処理
     if (!response.ok) {
       throw new Error("Failed to authorize");
     }
@@ -53,7 +60,7 @@ export class DiscordAuthService implements IDiscordAuthService {
     c: Context,
     refreshToken: string
   ): Promise<AuthorizationResponse> {
-    const response = await fetch(`https://discordapp.com/api/oauth2/token`, {
+    const response = await fetch(`${this.discordApiBaseUrl}/oauth2/token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded"
@@ -65,6 +72,7 @@ export class DiscordAuthService implements IDiscordAuthService {
         refresh_token: refreshToken
       })
     });
+    // TODO: status処理
     if (!response.ok) {
       throw new Error("Failed to refresh token");
     }
@@ -74,7 +82,7 @@ export class DiscordAuthService implements IDiscordAuthService {
   }
 
   async revokeAccessToken(c: Context, accessToken: string): Promise<void> {
-    const response = await fetch(`https://discordapp.com/api/oauth2/revoke`, {
+    const response = await fetch(`${this.discordApiBaseUrl}/oauth2/revoke`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded"
@@ -86,11 +94,30 @@ export class DiscordAuthService implements IDiscordAuthService {
         token_type_hint: "access_token"
       })
     });
+    // TODO: status処理
     if (!response.ok) {
       throw new Error("Failed to revoke access token");
     }
 
     return;
+  }
+
+  async getUserResource(
+    c: Context,
+    accessToken: string
+  ): Promise<DiscordUserResource> {
+    const response = await fetch(`${this.discordApiBaseUrl}/users/@me`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+    // TODO: status処理
+    if (!response.ok) {
+      throw new Error("Failed to get user resource");
+    }
+
+    const data = (await response.json()) as DiscordUserResource;
+    return data;
   }
 }
 
@@ -100,4 +127,11 @@ export type AuthorizationResponse = {
   refresh_token: string;
   scope: string;
   token_type: string;
+};
+
+export type DiscordUserResource = {
+  id: string;
+  username: string;
+  discriminator: string;
+  avatar: string;
 };
