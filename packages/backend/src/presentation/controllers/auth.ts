@@ -6,7 +6,7 @@ import { TYPES } from "../../infrastructure/config/types";
 
 export interface IAuthController {
   getAuthUrl(c: Context): Promise<Response>;
-  afterAuth(c: Context): Promise<Response>;
+  redirect(c: Context, code: string | undefined): Promise<Response>;
 }
 
 @injectable()
@@ -23,12 +23,15 @@ export class AuthController implements IAuthController {
     return c.json({ authUrl });
   }
 
-  async afterAuth(c: Context) {
-    const code = c.req.query("code");
+  async redirect(c: Context, code: string | undefined) {
     if (!code) {
       return c.json({ error: "No code provided" }, 400);
     }
-    const data = await this.authUsecase.afterAuth(c, code);
-    return c.json(data);
+    const authPayload = await this.authUsecase.redirect(c, code);
+    if (!authPayload) {
+      return c.json({ error: "Failed to authenticate" }, 500);
+    }
+
+    return c.json(authPayload);
   }
 }
