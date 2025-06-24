@@ -1,7 +1,7 @@
 import { mockUserData } from "@/utils/mockdata";
 import ClientUserPage from "./page.client";
 
-export default function Page() {
+const Page = () => {
   return (
     <ClientUserPage
       username={mockUserData.username}
@@ -9,4 +9,6 @@ export default function Page() {
       image={mockUserData.image}
     />
   );
-}
+};
+
+export default Page;
