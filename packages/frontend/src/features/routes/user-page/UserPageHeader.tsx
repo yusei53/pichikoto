@@ -6,7 +6,7 @@ type UserPageHeaderProps = {
   image: string;
 };
 
-const UserPageHeader: React.FC<UserPageHeaderProps> = ({
+export const UserPageHeader: React.FC<UserPageHeaderProps> = ({
   username,
   name,
   image
@@ -27,5 +27,3 @@ const UserPageHeader: React.FC<UserPageHeaderProps> = ({
     </div>
   );
 };
-
-export default UserPageHeader;
