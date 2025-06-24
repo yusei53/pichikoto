@@ -1,12 +1,12 @@
-import { mockUserData } from "@/utils/mockdata";
+import { mockUser } from "@/mock/user";
 import ClientUserPage from "./page.client";
 
 const Page = () => {
   return (
     <ClientUserPage
-      username={mockUserData.username}
-      name={mockUserData.name}
-      image={mockUserData.image}
+      username={mockUser.discordID}
+      name={mockUser.discordUserName}
+      image={mockUser.discordAvatar}
     />
   );
 };
