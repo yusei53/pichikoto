@@ -1,4 +1,6 @@
-import { UserPageHeader } from "@/features/routes/user-page/UserPageHeader";
+"use client";
+
+import { UserPageHeader } from "@/features/routes/user-page";
 
 type ClientUserPageProps = {
   username: string;
