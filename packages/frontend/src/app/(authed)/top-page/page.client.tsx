@@ -13,7 +13,7 @@ export const ClientTopPage = () => {
   return (
     <TopPage
       sendPoint={data.body.points.sendPoint}
-      receivedPoint={data.body.points.receivePoint}
+      receivedPoint={data.body.points.receivedPoint}
     />
   );
 };
