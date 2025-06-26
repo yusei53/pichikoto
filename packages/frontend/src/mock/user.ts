@@ -1,6 +1,6 @@
-import type { UserProps } from "@/features/common/type";
+import type { User } from "@/model/user";
 
-export const mockUser: UserProps = {
+export const mockUser: User = {
   userID: "1",
   discordID: "test-user-name",
   discordUserName: "test",

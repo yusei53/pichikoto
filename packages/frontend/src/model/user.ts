@@ -1,4 +1,4 @@
-export type UserProps = {
+export type User = {
   userID: string;
   discordID: string;
   discordUserName: string;
