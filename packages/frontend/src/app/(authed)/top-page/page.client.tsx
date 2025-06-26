@@ -12,10 +12,8 @@ export const ClientTopPage = () => {
 
   return (
     <TopPage
-      title1={data.body.points.title1}
-      point1={data.body.points.sendPoint}
-      title2={data.body.points.title2}
-      point2={data.body.points.receivePoint}
+      sendPoint={data.body.points.sendPoint}
+      receivedPoint={data.body.points.receivePoint}
     />
   );
 };

@@ -1,19 +1,17 @@
 import { PointLog } from "@/components/shared/point/PointLog";
 
 type Props = {
-  title1: string;
-  point1: number;
-  title2: string;
-  point2: number;
+  sendPoint: number;
+  receivedPoint: number;
 };
 
-export const TopPageBody: React.FC<Props> = ({
-  title1,
-  point1,
-  title2,
-  point2
-}) => {
+export const TopPageBody: React.FC<Props> = ({ sendPoint, receivedPoint }) => {
   return (
-    <PointLog title={title1} point={point1} title2={title2} point2={point2} />
+    <PointLog
+      sendLabel="今週送れる"
+      sendPoint={sendPoint}
+      receivedLabel="今月もらった"
+      receivedPoint={receivedPoint}
+    />
   );
 };
