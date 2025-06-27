@@ -1,1 +1,1 @@
-export * from "./UserPageHeader";
+export { UserPageHeader } from "./UserPageHeader";
