@@ -7,6 +7,9 @@
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "lint": {},
+    "test-storybook": {
+      "cache": false
+    },
     "format": {
       "outputs": []
     },
