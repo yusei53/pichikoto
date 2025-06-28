@@ -10,6 +10,7 @@
     "lint:fix": "next lint --fix"
   },
   "dependencies": {
+    "@radix-ui/react-avatar": "^1.1.10",
     "@tailwindcss/postcss": "^4.1.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
