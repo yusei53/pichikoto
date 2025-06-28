@@ -16,7 +16,7 @@ export const UserPageHeader: React.FC<UserPageHeaderProps> = ({
       <div className="flex items-center">
         <Avatar className="w-15 h-15">
           <AvatarImage src={image} />
-          <AvatarFallback>XXX</AvatarFallback>
+          <AvatarFallback>YYY</AvatarFallback>
         </Avatar>
         <div className="ml-3">
           <p>{name}</p>
