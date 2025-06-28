@@ -21,4 +21,5 @@ jobs:
         run: pnpm install
       
       - name: Run tests
-        run: pnpm run test-storybook
+        run: pnpm run test-storybook --run
+        working-directory: packages/frontend
