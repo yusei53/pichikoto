@@ -1,13 +1,17 @@
 "use client";
 
 import { TopPage } from "@/features/routes/top-page";
-import type { TopPageData } from "@/features/routes/top-page/type";
 
-export const ClientTopPage = ({ data }: { data: TopPageData }) => {
-  return (
-    <TopPage
-      sendPoint={data.body.points.sendPoint}
-      receivedPoint={data.body.points.receivedPoint}
-    />
-  );
+type ClientTopPageProps = {
+  sendPoint: number;
+  receivedPoint: number;
 };
+
+export const ClientTopPage: React.FC<ClientTopPageProps> = ({
+  sendPoint,
+  receivedPoint
+}) => {
+  return <TopPage sendPoint={sendPoint} receivedPoint={receivedPoint} />;
+};
+
+export default ClientTopPage;

@@ -1,8 +1,4 @@
-export type TopPageData = {
-  body: {
-    points: {
-      sendPoint: number;
-      receivedPoint: number;
-    };
-  };
+export type PointLog = {
+  sendPoint: number;
+  receivedPoint: number;
 };
