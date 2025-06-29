@@ -9,12 +9,5 @@ export const TopPageBody: React.FC<TopPageBodyProps> = ({
   sendPoint,
   receivedPoint
 }) => {
-  return (
-    <PointLog
-      sendLabel="今週送れる"
-      sendPoint={sendPoint}
-      receivedLabel="今月もらった"
-      receivedPoint={receivedPoint}
-    />
-  );
+  return <PointLog sendPoint={sendPoint} receivedPoint={receivedPoint} />;
 };
