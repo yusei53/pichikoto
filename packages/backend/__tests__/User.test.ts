@@ -41,7 +41,7 @@ describe("UserDomainTest", () => {
   const department = Department.from("Tes学科");
 
   describe("ユーザードメインの作成", () => {
-    it("ユーザーを作成できること", () => {
+    it("ユーザードメインオブジェクトを作成できること", () => {
       const expected = User.reconstruct(
         UserID.new(),
         discordID,
