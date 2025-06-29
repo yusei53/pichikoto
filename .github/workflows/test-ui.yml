@@ -3,8 +3,12 @@ name: UI Tests
 on: 
   push:
     branches: [ main ]
+    paths:
+      - 'packages/frontend/**'
   pull_request:
-    branches: [ main ]
+    branches: [ main ]  
+    paths:
+      - 'packages/frontend/**'
 
 jobs:
   test:
