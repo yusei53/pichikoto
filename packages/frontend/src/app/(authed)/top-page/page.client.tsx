@@ -1,15 +1,9 @@
 "use client";
 
 import { TopPage } from "@/features/routes/top-page";
-import { useTopPage } from "@/features/routes/top-page/hooks/useTopPage";
+import type { TopPageData } from "@/features/routes/top-page/type";
 
-export const ClientTopPage = () => {
-  const { data } = useTopPage();
-
-  if (!data) {
-    return null;
-  }
-
+export const ClientTopPage = ({ data }: { data: TopPageData }) => {
   return (
     <TopPage
       sendPoint={data.body.points.sendPoint}
