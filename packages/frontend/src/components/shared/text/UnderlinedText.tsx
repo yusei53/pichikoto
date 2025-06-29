@@ -1,12 +1,15 @@
 import { cn } from "@/lib/utils";
 
-type Props = {
+type UnderlinedTextProps = {
   children: React.ReactNode;
   width: widthStyle;
 };
 type widthStyle = "sm" | "md" | "lg";
 
-export const UnderlinedText: React.FC<Props> = ({ children, width }) => {
+export const UnderlinedText: React.FC<UnderlinedTextProps> = ({
+  children,
+  width
+}) => {
   const widthClasses = {
     sm: "w-[185px]",
     md: "w-[300px]",

@@ -1,14 +1,14 @@
 import { UnderlinedText } from "@/components/shared/text/UnderlinedText";
 import { Gift, SendHorizontal } from "lucide-react";
 
-type Props = {
+type PointLogProps = {
   sendLabel: string;
   sendPoint: number;
   receivedLabel: string;
   receivedPoint: number;
 };
 
-export const PointLog: React.FC<Props> = ({
+export const PointLog: React.FC<PointLogProps> = ({
   sendLabel,
   sendPoint,
   receivedLabel,
