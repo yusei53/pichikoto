@@ -1,4 +1,4 @@
-import { PointLog } from "@/components/shared/point/PointLog";
+import { PointLog } from "@/features/common/PointLog";
 
 type TopPageBodyProps = {
   sendPoint: number;
