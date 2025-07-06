@@ -3,12 +3,12 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../infrastructure/config/types";
 import type { IDbClient } from "../../infrastructure/database/connection";
 import { user as userSchema } from "../../infrastructure/database/schema";
-import type { DiscordID } from "../models/User";
-import { User } from "../models/User";
+import { CreatedAt } from "../../utils/CreatedAt";
+import { Department, DiscordID, Faculty, User, UserID } from "../models/User";
 
 export interface IUserRepository {
+  findBy(discordID: DiscordID): Promise<User | null>;
   save(user: User): Promise<void>;
-  getByDiscordID(discordID: DiscordID): Promise<User | null>;
 }
 
 @injectable()
@@ -17,6 +17,46 @@ export class UserRepository implements IUserRepository {
     @inject(TYPES.DbClient)
     private readonly dbClient: IDbClient
   ) {}
+
+  async findBy(discordID: DiscordID): Promise<User | null> {
+    const userRecord = await this.findByDiscordID(discordID);
+    if (!userRecord) return null;
+    return this.toUser(userRecord);
+  }
+  private async findByDiscordID(
+    discordID: DiscordID
+  ): Promise<UserRecord | null> {
+    const db = this.dbClient.getDb();
+    const user = await db.query.user.findFirst({
+      where: eq(userSchema.discordId, discordID.getValue())
+    });
+
+    if (!user) return null;
+
+    return {
+      id: user.id,
+      discordId: user.discordId,
+      discordUserName: user.discordUserName,
+      discordDiscriminator: user.discordDiscriminator,
+      discordAvatar: user.discordAvatar,
+      faculty: user.faculty,
+      department: user.department,
+      createdAt: user.createdAt
+    };
+  }
+
+  private toUser(userRecord: UserRecord): User {
+    return User.reconstruct(
+      UserID.from(userRecord.id),
+      DiscordID.from(userRecord.discordId),
+      userRecord.discordUserName,
+      userRecord.discordDiscriminator,
+      userRecord.discordAvatar,
+      userRecord.faculty ? Faculty.from(userRecord.faculty) : null,
+      userRecord.department ? Department.from(userRecord.department) : null,
+      CreatedAt.from(userRecord.createdAt)
+    );
+  }
 
   async save(user: User): Promise<void> {
     const db = this.dbClient.getDb();
@@ -31,28 +71,15 @@ export class UserRepository implements IUserRepository {
       createdAt: user.createdAt.value
     });
   }
-
-  async getByDiscordID(discordID: DiscordID): Promise<User | null> {
-    const db = this.dbClient.getDb();
-    const user = await db
-      .select()
-      .from(userSchema)
-      .where(eq(userSchema.discordId, discordID.getValue()))
-      .limit(1);
-
-    if (user.length === 0) {
-      return null;
-    }
-
-    return User.reconstruct(
-      user[0].id,
-      user[0].discordId,
-      user[0].discordUserName,
-      user[0].discordDiscriminator,
-      user[0].discordAvatar,
-      user[0].faculty,
-      user[0].department,
-      user[0].createdAt
-    );
-  }
 }
+
+type UserRecord = {
+  id: string;
+  discordId: string;
+  discordUserName: string;
+  discordDiscriminator: string;
+  discordAvatar: string;
+  faculty: string | null;
+  department: string | null;
+  createdAt: Date;
+};
