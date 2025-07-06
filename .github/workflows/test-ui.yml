@@ -1,0 +1,38 @@
+name: UI Tests
+
+on: 
+  push:
+    branches: [ main ]
+    paths:
+      - 'packages/frontend/**'
+  pull_request:
+    branches: [ main ]  
+    paths:
+      - 'packages/frontend/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      # Make sure to grab the latest version of the Playwright image
+      # https://playwright.dev/docs/docker#pull-the-image
+      image: mcr.microsoft.com/playwright:v1.53.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.12.0
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.7.0
+      
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Run tests
+        run: pnpm run test-storybook --run
+        working-directory: packages/frontend
