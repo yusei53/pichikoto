@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import type { Context } from "hono";
 import { injectable } from "inversify";
 import ws from "ws";
+import * as schema from "./schema";
 
 export interface IDbClient {
   init(c: Context): void;
@@ -48,6 +49,6 @@ export const connectToDatabase = (c: Context) => {
   neonConfig.webSocketConstructor = ws;
   const sql = neon(connectionString);
 
-  const db = drizzle(sql);
+  const db = drizzle(sql, { schema });
   return db;
 };
