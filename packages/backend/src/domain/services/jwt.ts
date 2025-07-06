@@ -7,7 +7,7 @@ type AppJwtPayload = {
   exp: number;
 };
 
-export interface IJwtService {
+export interface JwtServiceInterface {
   generateTokens(
     c: Context,
     userId: string
@@ -16,7 +16,7 @@ export interface IJwtService {
 }
 
 @injectable()
-export class JwtService implements IJwtService {
+export class JwtService implements JwtServiceInterface {
   constructor() {}
 
   private getSecret(c: Context): string {

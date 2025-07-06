@@ -1,7 +1,7 @@
 import type { Context } from "hono";
 import { injectable } from "inversify";
 
-export interface IDiscordAuthService {
+export interface DiscordAuthServiceInterface {
   getAuthUrl(c: Context): Promise<string>;
   authorization(c: Context, code: string): Promise<AuthorizationResponse>;
   refreshToken(
@@ -15,7 +15,7 @@ export interface IDiscordAuthService {
 }
 
 @injectable()
-export class DiscordAuthService implements IDiscordAuthService {
+export class DiscordAuthService implements DiscordAuthServiceInterface {
   constructor() {}
 
   private discordApiBaseUrl = "https://discordapp.com/api";

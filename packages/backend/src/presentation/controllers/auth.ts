@@ -1,21 +1,21 @@
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
-import type { IAuthUsecase } from "../../application/usecases/auth";
-import type { IDiscordAuthService } from "../../domain/services/discord-auth";
+import type { AuthUsecaseInterface } from "../../application/usecases/auth";
+import type { DiscordAuthServiceInterface } from "../../domain/services/discord-auth";
 import { TYPES } from "../../infrastructure/config/types";
 
-export interface IAuthController {
+export interface AuthControllerInterface {
   getAuthUrl(c: Context): Promise<Response>;
   redirect(c: Context, code: string | undefined): Promise<Response>;
 }
 
 @injectable()
-export class AuthController implements IAuthController {
+export class AuthController implements AuthControllerInterface {
   constructor(
     @inject(TYPES.DiscordAuthService)
-    private readonly discordAuthService: IDiscordAuthService,
+    private readonly discordAuthService: DiscordAuthServiceInterface,
     @inject(TYPES.AuthUsecase)
-    private readonly authUsecase: IAuthUsecase
+    private readonly authUsecase: AuthUsecaseInterface
   ) {}
 
   async getAuthUrl(c: Context) {

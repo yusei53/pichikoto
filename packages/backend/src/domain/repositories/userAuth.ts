@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../infrastructure/config/types";
-import type { IDbClient } from "../../infrastructure/database/connection";
+import type { DbClientInterface } from "../../infrastructure/database/connection";
 import { userAuth as userAuthSchema } from "../../infrastructure/database/schema";
 import { CreatedAt } from "../../utils/CreatedAt";
 import { UserID } from "../models/User";
@@ -12,16 +12,16 @@ import {
   UserAuth
 } from "../models/UserAuth";
 
-export interface IUserAuthRepository {
+export interface UserAuthRepositoryInterface {
   findBy(userID: UserID): Promise<UserAuth | null>;
   save(userAuth: UserAuth): Promise<void>;
 }
 
 @injectable()
-export class UserAuthRepository implements IUserAuthRepository {
+export class UserAuthRepository implements UserAuthRepositoryInterface {
   constructor(
     @inject(TYPES.DbClient)
-    private readonly dbClient: IDbClient
+    private readonly dbClient: DbClientInterface
   ) {}
 
   async findBy(userID: UserID): Promise<UserAuth | null> {

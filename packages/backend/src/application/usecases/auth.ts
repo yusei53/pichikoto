@@ -2,28 +2,28 @@ import type { Context } from "hono";
 import { inject, injectable } from "inversify";
 import { DiscordID, User } from "../../domain/models/User";
 import { UserAuth } from "../../domain/models/UserAuth";
-import type { IUserRepository } from "../../domain/repositories/user";
-import type { IUserAuthRepository } from "../../domain/repositories/userAuth";
-import type { IDiscordAuthService } from "../../domain/services/discord-auth";
-import type { IJwtService } from "../../domain/services/jwt";
+import type { UserRepositoryInterface } from "../../domain/repositories/user";
+import type { UserAuthRepositoryInterface } from "../../domain/repositories/userAuth";
+import type { DiscordAuthServiceInterface } from "../../domain/services/discord-auth";
+import type { JwtServiceInterface } from "../../domain/services/jwt";
 import { TYPES } from "../../infrastructure/config/types";
 import { toAuthPayloadDTO, type AuthPayloadDTO } from "../dtos/auth.dto";
 
-export interface IAuthUsecase {
+export interface AuthUsecaseInterface {
   redirect(c: Context, code: string): Promise<AuthPayloadDTO>;
 }
 
 @injectable()
-export class AuthUsecase implements IAuthUsecase {
+export class AuthUsecase implements AuthUsecaseInterface {
   constructor(
     @inject(TYPES.DiscordAuthService)
-    private readonly discordAuthService: IDiscordAuthService,
+    private readonly discordAuthService: DiscordAuthServiceInterface,
     @inject(TYPES.UserRepository)
-    private readonly userRepository: IUserRepository,
+    private readonly userRepository: UserRepositoryInterface,
     @inject(TYPES.UserAuthRepository)
-    private readonly userAuthRepository: IUserAuthRepository,
+    private readonly userAuthRepository: UserAuthRepositoryInterface,
     @inject(TYPES.JwtService)
-    private readonly jwtService: IJwtService
+    private readonly jwtService: JwtServiceInterface
   ) {}
 
   async redirect(c: Context, code: string): Promise<AuthPayloadDTO> {
