@@ -34,24 +34,24 @@ export class User {
   }
 
   static reconstruct(
-    userID: string,
-    discordID: string,
+    userID: UserID,
+    discordID: DiscordID,
     discordUserName: string,
     discordDiscriminator: string,
     discordAvatar: string,
-    faculty: string | null,
-    department: string | null,
-    createdAt: Date
+    faculty: Faculty | null,
+    department: Department | null,
+    createdAt: CreatedAt
   ): User {
     return new User(
-      UserID.from(userID),
-      DiscordID.from(discordID),
+      userID,
+      discordID,
       discordUserName,
       discordDiscriminator,
       discordAvatar,
-      faculty ? Faculty.from(faculty) : null,
-      department ? Department.from(department) : null,
-      CreatedAt.from(createdAt)
+      faculty,
+      department,
+      createdAt
     );
   }
 }

@@ -37,7 +37,7 @@ export class AuthUsecase implements IAuthUsecase {
       authorizationResponse.access_token
     );
 
-    const existsUser = await this.userRepository.getByDiscordID(
+    const existsUser = await this.userRepository.findBy(
       DiscordID.from(discordUserResource.id)
     );
     // MEMO: 既にユーザーが存在する場合はログインとして処理
