@@ -1,21 +1,21 @@
 import { eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../infrastructure/config/types";
-import type { IDbClient } from "../../infrastructure/database/connection";
+import type { DbClientInterface } from "../../infrastructure/database/connection";
 import { user as userSchema } from "../../infrastructure/database/schema";
 import { CreatedAt } from "../../utils/CreatedAt";
 import { Department, DiscordID, Faculty, User, UserID } from "../models/User";
 
-export interface IUserRepository {
+export interface UserRepositoryInterface {
   findBy(discordID: DiscordID): Promise<User | null>;
   save(user: User): Promise<void>;
 }
 
 @injectable()
-export class UserRepository implements IUserRepository {
+export class UserRepository implements UserRepositoryInterface {
   constructor(
     @inject(TYPES.DbClient)
-    private readonly dbClient: IDbClient
+    private readonly dbClient: DbClientInterface
   ) {}
 
   async findBy(discordID: DiscordID): Promise<User | null> {

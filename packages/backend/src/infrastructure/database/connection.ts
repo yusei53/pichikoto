@@ -5,13 +5,13 @@ import { injectable } from "inversify";
 import ws from "ws";
 import * as schema from "./schema";
 
-export interface IDbClient {
+export interface DbClientInterface {
   init(c: Context): void;
   getDb(): ReturnType<typeof connectToDatabase>;
 }
 
 @injectable()
-export class DbClient implements IDbClient {
+export class DbClient implements DbClientInterface {
   private db!: ReturnType<typeof connectToDatabase>;
 
   public init(c: Context): void {

@@ -1,14 +1,16 @@
 import type { MiddlewareHandler } from "hono";
 import { container } from "../../infrastructure/config/inversify.config";
 import { TYPES } from "../../infrastructure/config/types";
-import type { IDbClient } from "../../infrastructure/database/connection";
-import type { IAuthController } from "../controllers/auth";
+import type { DbClientInterface } from "../../infrastructure/database/connection";
+import type { AuthControllerInterface } from "../controllers/auth";
 
 export const injectDependencies: MiddlewareHandler = async (c, next) => {
-  const dbClient = container.get<IDbClient>(TYPES.DbClient);
+  const dbClient = container.get<DbClientInterface>(TYPES.DbClient);
   dbClient.init(c);
 
-  const authController = container.get<IAuthController>(TYPES.AuthController);
+  const authController = container.get<AuthControllerInterface>(
+    TYPES.AuthController
+  );
   c.set("diContainer", container);
   c.set("authController", authController);
 
