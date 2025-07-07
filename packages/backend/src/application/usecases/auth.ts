@@ -42,9 +42,7 @@ export class AuthUsecase implements IAuthUsecase {
     );
     // MEMO: 既にユーザーが存在する場合はログインとして処理
     if (existsUser !== null) {
-      const userAuth = await this.userAuthRepository.getByUserID(
-        existsUser.userID
-      );
+      const userAuth = await this.userAuthRepository.findBy(existsUser.userID);
       if (!userAuth) {
         throw new Error("UserAuth not found");
       }
