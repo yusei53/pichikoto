@@ -1,4 +1,4 @@
-import type { PointLog } from "@/features/routes/top-page/type";
+import type { PointLog } from "@/model/point-log";
 
 export const mockPointLog: PointLog = {
   sendPoint: 13,
