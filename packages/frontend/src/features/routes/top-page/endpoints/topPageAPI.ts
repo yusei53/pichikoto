@@ -1,5 +1,5 @@
-import type { PointLog } from "@/features/routes/top-page/type";
 import { mockPointLog } from "@/mock/point-log";
+import type { PointLog } from "@/model/point-log";
 
 export const topPageAPI = {
   async getPointLog(): Promise<PointLog> {
