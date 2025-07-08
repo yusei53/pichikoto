@@ -1,11 +1,11 @@
 import { PointLog } from "@/features/common/PointLog";
 
-type TopPageBodyProps = {
+type PostComposerProps = {
   sendPoint: number;
   receivedPoint: number;
 };
 
-export const TopPageBody: React.FC<TopPageBodyProps> = ({
+export const PostComposer: React.FC<PostComposerProps> = ({
   sendPoint,
   receivedPoint
 }) => {

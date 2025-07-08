@@ -1,4 +1,4 @@
-import { UnderlinedText } from "@/components/shared/text/UnderlinedText";
+import { UnderlinedText } from "@/components/shared/text";
 import { Gift, SendHorizontal } from "lucide-react";
 
 type PointLogProps = {
