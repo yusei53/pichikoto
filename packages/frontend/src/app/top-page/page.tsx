@@ -1,5 +1,5 @@
 import { topPageAPI } from "@/features/routes/top-page/endpoints/topPageAPI";
-import { ClientTopPage } from "./page.client";
+import ClientTopPage from "./page.client";
 
 const TopPage = async () => {
   const pointLog = await topPageAPI.getPointLog();

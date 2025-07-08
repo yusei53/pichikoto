@@ -7,7 +7,7 @@ type ClientTopPageProps = {
   receivedPoint: number;
 };
 
-export const ClientTopPage: React.FC<ClientTopPageProps> = ({
+const ClientTopPage: React.FC<ClientTopPageProps> = ({
   sendPoint,
   receivedPoint
 }) => {
