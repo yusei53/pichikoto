@@ -1,4 +1,4 @@
-import { PostComposer } from "./PostComposer";
+import { PointLog } from "@/features/common/PointLog";
 
 type TopPageProps = {
   sendPoint: number;
@@ -12,7 +12,7 @@ export const TopPage: React.FC<TopPageProps> = ({
   return (
     <div className="pt-48 pl-16">
       <div className="pt-8">
-        <PostComposer sendPoint={sendPoint} receivedPoint={receivedPoint} />
+        <PointLog sendPoint={sendPoint} receivedPoint={receivedPoint} />
       </div>
     </div>
   );
