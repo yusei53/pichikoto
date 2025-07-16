@@ -3,10 +3,7 @@
   "name": "backend",
   "main": "src/index.ts",
   "compatibility_date": "2025-06-06",
-  "compatibility_flags": ["nodejs_compat"],
-  "alias": {
-    "production": "backend.your-subdomain.workers.dev"
-  }
+  "compatibility_flags": ["nodejs_compat"]
   // "vars": {
   //   "MY_VAR": "my-variable"
   // },
