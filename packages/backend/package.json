@@ -39,6 +39,6 @@
     "prettier-plugin-organize-imports": "^4.1.0",
     "typescript": "^5.0.0",
     "vitest": "^3.2.3",
-    "wrangler": "^4.4.0"
+    "wrangler": "^4.24.4"
   }
 }
