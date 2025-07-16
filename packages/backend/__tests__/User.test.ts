@@ -103,7 +103,7 @@ describe("UserDomainTest", () => {
             discordUserName,
             discordDiscriminator,
             discordAvatar,
-            Faculty.from("A".repeat(31)),
+            Faculty.from("A".repeat(32)),
             department
           );
         }).toThrow(
