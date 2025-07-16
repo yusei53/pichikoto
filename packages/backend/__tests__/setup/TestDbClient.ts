@@ -14,7 +14,7 @@ export class TestDbClient implements DbClientInterface {
       process.env.TEST_DATABASE_URL ||
       "postgres://postgres:postgres@db.localtest.me:5432/main";
 
-    // ローカル開発環境の場合のみNeon設定を適用
+    // ローカル開発環境（db.localtest.me）の場合のみNeon設定を適用
     if (connectionString.includes("db.localtest.me")) {
       neonConfig.fetchEndpoint = (host) => {
         const [protocol, port] =
@@ -24,9 +24,8 @@ export class TestDbClient implements DbClientInterface {
       neonConfig.useSecureWebSocket = false;
       neonConfig.wsProxy = (host) =>
         host === "db.localtest.me" ? `${host}:4444/v2` : `${host}/v2`;
+      neonConfig.webSocketConstructor = ws;
     }
-
-    neonConfig.webSocketConstructor = ws;
 
     const sql = neon(connectionString);
     this.db = drizzle(sql, { schema });
