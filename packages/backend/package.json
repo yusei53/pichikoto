@@ -18,7 +18,7 @@
     "@neondatabase/serverless": "^1.0.1",
     "@types/pg": "^8.15.4",
     "drizzle-orm": "^0.44.2",
-    "hono": "^4.7.11",
+    "hono": "^4.8.5",
     "pg": "^8.16.2",
     "uuid": "^11.1.0",
     "ws": "^8.18.2"
