@@ -26,12 +26,7 @@ jobs:
           version: 10.13.1
       
       - name: Install dependencies
-        run: |
-          if [ "${{ github.actor }}" = "dependabot[bot]" ]; then
-            pnpm install --no-frozen-lockfile
-          else
-            pnpm install --frozen-lockfile
-          fi
+        run: pnpm install --no-frozen-lockfile
       
       - name: Run backend tests
         run: pnpm run test
