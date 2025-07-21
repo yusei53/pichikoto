@@ -9,13 +9,16 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    update-lockfile: true
   
   - package-ecosystem: "npm"
     directory: "/packages/backend"
     schedule:
       interval: "daily"
+    update-lockfile: true
   
   - package-ecosystem: "npm"
     directory: "/packages/frontend"
     schedule:
       interval: "daily"
+    update-lockfile: true

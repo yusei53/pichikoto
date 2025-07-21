@@ -31,7 +31,12 @@ jobs:
           version: 10.13.1
       
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: |
+          if [ "${{ github.actor }}" = "dependabot[bot]" ]; then
+            pnpm install --no-frozen-lockfile
+          else
+            pnpm install --frozen-lockfile
+          fi
       
       - name: Run tests
         run: pnpm run test-storybook --run
