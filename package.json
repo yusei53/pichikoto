@@ -14,11 +14,11 @@
   },
   "devDependencies": {
     "prettier": "^3.5.1",
-    "turbo": "2.4.4",
+    "turbo": "2.5.5",
     "typescript": "^5.8.0"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.7.0"
+  "packageManager": "pnpm@10.13.1"
 }
