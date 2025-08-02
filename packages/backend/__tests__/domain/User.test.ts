@@ -5,8 +5,8 @@ import {
   Faculty,
   User,
   UserID
-} from "../src/domain/models/User";
-import { CreatedAt } from "../src/utils/CreatedAt";
+} from "../../src/domain/models/User";
+import { CreatedAt } from "../../src/utils/CreatedAt";
 
 const MOCK_UUID = "00000000-0000-0000-0000-000000";
 const MOCK_CREATED_AT = "2025-01-01T00:00:00.000Z";
