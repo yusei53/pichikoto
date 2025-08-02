@@ -76,7 +76,7 @@ describe("UserDomainTest", () => {
             faculty,
             department
           );
-        }).toThrow("Invalid Discord ID");
+        }).toThrow("Invalid Discord ID: must contain only digits");
       });
     });
 
@@ -91,9 +91,7 @@ describe("UserDomainTest", () => {
             Faculty.from(""),
             department
           );
-        }).toThrow(
-          "Invalid Faculty: length must be between 1 and 30 characters"
-        );
+        }).toThrow("Faculty cannot be empty");
       });
 
       it("学部名が30文字を超える場合はエラーになること", () => {
@@ -106,9 +104,7 @@ describe("UserDomainTest", () => {
             Faculty.from("A".repeat(31)),
             department
           );
-        }).toThrow(
-          "Invalid Faculty: length must be between 1 and 30 characters"
-        );
+        }).toThrow("Faculty must be 30 characters or less");
       });
     });
 
@@ -123,9 +119,7 @@ describe("UserDomainTest", () => {
             faculty,
             Department.from("")
           );
-        }).toThrow(
-          "Invalid Department: length must be between 1 and 30 characters"
-        );
+        }).toThrow("Department cannot be empty");
       });
 
       it("学科名が30文字を超える場合はエラーになること", () => {
@@ -138,9 +132,7 @@ describe("UserDomainTest", () => {
             faculty,
             Department.from("A".repeat(31))
           );
-        }).toThrow(
-          "Invalid Department: length must be between 1 and 30 characters"
-        );
+        }).toThrow("Department must be 30 characters or less");
       });
     });
   });

@@ -1,5 +1,20 @@
+import z from "zod";
 import { CreatedAt } from "../../utils/CreatedAt";
 import { UUID } from "../../utils/UUID";
+
+const discordIDSchema = z
+  .string()
+  .regex(/^\d+$/, "Invalid Discord ID: must contain only digits");
+
+const facultySchema = z
+  .string()
+  .min(1, "Faculty cannot be empty")
+  .max(30, "Faculty must be 30 characters or less");
+
+const departmentSchema = z
+  .string()
+  .min(1, "Department cannot be empty")
+  .max(30, "Department must be 30 characters or less");
 
 export class User {
   private constructor(
@@ -72,10 +87,7 @@ export class DiscordID {
   private constructor(private readonly value: string) {}
 
   static from(value: string): DiscordID {
-    // NOTE: DiscordIDは数字のみの制約を持つ
-    if (!/^\d+$/.test(value)) {
-      throw new Error("Invalid Discord ID");
-    }
+    discordIDSchema.parse(value);
     return new DiscordID(value);
   }
 
@@ -88,15 +100,7 @@ export class Faculty {
   private constructor(private readonly value: string) {}
 
   static from(value: string): Faculty {
-    const MIN_LENGTH = 1;
-    const MAX_LENGTH = 30;
-
-    // NOTE: 1文字以上30文字以内
-    if (value.length < MIN_LENGTH || value.length > MAX_LENGTH) {
-      throw new Error(
-        `Invalid Faculty: length must be between ${MIN_LENGTH} and ${MAX_LENGTH} characters`
-      );
-    }
+    facultySchema.parse(value);
     return new Faculty(value);
   }
 
@@ -109,15 +113,7 @@ export class Department {
   private constructor(private readonly value: string) {}
 
   static from(value: string): Department {
-    const MIN_LENGTH = 1;
-    const MAX_LENGTH = 30;
-
-    // NOTE: 1文字以上30文字以内
-    if (value.length < MIN_LENGTH || value.length > MAX_LENGTH) {
-      throw new Error(
-        `Invalid Department: length must be between ${MIN_LENGTH} and ${MAX_LENGTH} characters`
-      );
-    }
+    departmentSchema.parse(value);
     return new Department(value);
   }
 

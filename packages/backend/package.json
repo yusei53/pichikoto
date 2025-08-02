@@ -25,7 +25,8 @@
     "postgres": "^3.4.7",
     "reflect-metadata": "^0.2.2",
     "uuid": "^11.1.0",
-    "ws": "^8.18.2"
+    "ws": "^8.18.2",
+    "zod": "^4.0.14"
   },
   "devDependencies": {
     "@types/uuid": "^10.0.0",
