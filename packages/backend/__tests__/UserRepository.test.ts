@@ -8,77 +8,85 @@ import {
 } from "../src/domain/models/User";
 import type { UserRepositoryInterface } from "../src/domain/repositories/user";
 import { UserRepository } from "../src/domain/repositories/user";
-import { TYPES } from "../src/infrastructure/config/types";
 import * as schema from "../src/infrastructure/database/schema";
 import { CreatedAt } from "../src/utils/CreatedAt";
-import { UUID } from "../src/utils/UUID";
-import { createTestContainer } from "./setup/createTestContainer";
 import { TestDbClient } from "./setup/TestDbClient";
 import {
-  assertUserEqualTable,
-  insertUserToDatabase
-} from "./table_helper/UserTableHelper";
+  createUserTableFixture,
+  createUserTableFixtureWithoutFacultyAndDepartment
+} from "./table_fixture/UserTableFixture";
+import {
+  deleteFromDatabase,
+  insertToDatabase
+} from "./utils/GenericTableHelper";
 
 describe("UserRepository Tests", () => {
-  const discordID1 = DiscordID.from("123456789");
-  const discordID2 = DiscordID.from("987654321");
-  const discordUserName = "TestUserName";
-  const discordDiscriminator = "1234";
-  const discordAvatar =
-    "https://cdn.discordapp.com/sample-avatar/123456789/000000000000000000.png";
-  const faculty = Faculty.from("Test学部");
-  const department = Department.from("Test学科");
+  let userRepository: UserRepositoryInterface;
 
-  const user = User.reconstruct(
-    UserID.from(UUID.new().value),
-    discordID1,
-    discordUserName,
-    discordDiscriminator,
-    discordAvatar,
-    faculty,
-    department,
-    CreatedAt.from(new Date())
-  );
-
-  const userWithoutFacultyAndDepartment = User.reconstruct(
-    UserID.from(UUID.new().value),
-    discordID2,
-    discordUserName,
-    discordDiscriminator,
-    discordAvatar,
-    null,
-    null,
-    CreatedAt.from(new Date())
-  );
+  beforeEach(() => {
+    userRepository = getUserRepository();
+  });
 
   describe("findBy", () => {
-    beforeEach(async () => {
-      await insertUserToDatabase(user);
-      await insertUserToDatabase(userWithoutFacultyAndDepartment);
-    });
+    const setupUsers = async () => {
+      const user1 = createUserTableFixture();
+      await insertToDatabase(schema.user, user1);
+
+      const user2 = createUserTableFixtureWithoutFacultyAndDepartment();
+      await insertToDatabase(schema.user, user2);
+
+      return { user1, user2 };
+    };
 
     afterEach(async () => {
-      const dbClient = new TestDbClient();
-      const db = dbClient.getDb();
-      await db.delete(schema.user);
+      await deleteFromDatabase(schema.user);
     });
 
     it("存在するユーザーを取得できること", async () => {
       // arrange
-      const expected = user;
-      const userRepository = getUserRepository();
+      const { user1 } = await setupUsers();
+      const user = User.reconstruct(
+        UserID.from(user1.id),
+        DiscordID.from(user1.discordId),
+        user1.discordUserName,
+        user1.discordDiscriminator,
+        user1.discordAvatar,
+        Faculty.from(user1.faculty),
+        Department.from(user1.department),
+        CreatedAt.from(user1.createdAt)
+      );
 
       // act
       const actual = await userRepository.findBy(user.discordID);
 
       // assert
-      assertUserEqualTable(actual, expected);
+      expect(actual).toEqual(user);
+    });
+
+    it("学部・学科がnullのユーザーを取得できること", async () => {
+      // arrange
+      const { user2 } = await setupUsers();
+      const user = User.reconstruct(
+        UserID.from(user2.id),
+        DiscordID.from(user2.discordId),
+        user2.discordUserName,
+        user2.discordDiscriminator,
+        user2.discordAvatar,
+        user2.faculty,
+        user2.department,
+        CreatedAt.from(user2.createdAt)
+      );
+
+      // act
+      const actual = await userRepository.findBy(user.discordID);
+
+      // assert
+      expect(actual).toEqual(user);
     });
 
     it("存在しないユーザーの場合はnullを返すこと", async () => {
       // arrange
-      const nonExistentDiscordID = DiscordID.from("999999999");
-      const userRepository = getUserRepository();
+      const nonExistentDiscordID = DiscordID.from("000000000");
 
       // act
       const actual = await userRepository.findBy(nonExistentDiscordID);
@@ -86,65 +94,60 @@ describe("UserRepository Tests", () => {
       // assert
       expect(actual).toBeNull();
     });
-
-    it("学部・学科がnullのユーザーを取得できること", async () => {
-      // arrange
-      const expected = userWithoutFacultyAndDepartment;
-      const userRepository = getUserRepository();
-
-      // act
-      const actual = await userRepository.findBy(
-        userWithoutFacultyAndDepartment.discordID
-      );
-
-      // assert
-      assertUserEqualTable(actual, expected);
-    });
   });
 
   describe("save", () => {
     afterEach(async () => {
-      const dbClient = new TestDbClient();
-      const db = dbClient.getDb();
-      await db.delete(schema.user);
+      await deleteFromDatabase(schema.user);
     });
 
     it("ユーザーを保存できること", async () => {
       // arrange
-      const expected = user;
-      const userRepository = getUserRepository();
+      const userRecord = createUserTableFixture();
+      const user = User.reconstruct(
+        UserID.from(userRecord.id),
+        DiscordID.from(userRecord.discordId),
+        userRecord.discordUserName,
+        userRecord.discordDiscriminator,
+        userRecord.discordAvatar,
+        userRecord.faculty ? Faculty.from(userRecord.faculty) : null,
+        userRecord.department ? Department.from(userRecord.department) : null,
+        CreatedAt.from(userRecord.createdAt)
+      );
 
       // act
       await userRepository.save(user);
 
       // assert
       const actual = await userRepository.findBy(user.discordID);
-      assertUserEqualTable(actual, expected);
+      expect(actual).toEqual(user);
     });
 
     it("学部・学科がnullのユーザーを保存できること", async () => {
       // arrange
-      const expected = userWithoutFacultyAndDepartment;
-      const userRepository = getUserRepository();
+      const userRecord = createUserTableFixtureWithoutFacultyAndDepartment();
+      const user = User.reconstruct(
+        UserID.from(userRecord.id),
+        DiscordID.from(userRecord.discordId),
+        userRecord.discordUserName,
+        userRecord.discordDiscriminator,
+        userRecord.discordAvatar,
+        userRecord.faculty ? Faculty.from(userRecord.faculty) : null,
+        userRecord.department ? Department.from(userRecord.department) : null,
+        CreatedAt.from(userRecord.createdAt)
+      );
 
       // act
-      await userRepository.save(userWithoutFacultyAndDepartment);
+      await userRepository.save(user);
 
       // assert
-      const actual = await userRepository.findBy(
-        userWithoutFacultyAndDepartment.discordID
-      );
-      assertUserEqualTable(actual, expected);
+      const actual = await userRepository.findBy(user.discordID);
+      expect(actual).toEqual(user);
     });
   });
 });
 
 const getUserRepository = (): UserRepositoryInterface => {
   const dbClient = new TestDbClient();
-  const container = createTestContainer(dbClient, (c) => {
-    c.bind<UserRepositoryInterface>(TYPES.UserRepository)
-      .to(UserRepository)
-      .inRequestScope();
-  });
-  return container.get<UserRepositoryInterface>(TYPES.UserRepository);
+  return new UserRepository(dbClient);
 };
