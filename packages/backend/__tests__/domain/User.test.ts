@@ -11,7 +11,7 @@ import { CreatedAt } from "../../src/utils/CreatedAt";
 const MOCK_UUID = "00000000-0000-0000-0000-000000";
 const MOCK_CREATED_AT = "2025-01-01T00:00:00.000Z";
 
-vi.mock("../src/utils/UUID", () => {
+vi.mock("../../src/utils/UUID", () => {
   return {
     UUID: {
       new: vi.fn(() => ({
@@ -21,7 +21,7 @@ vi.mock("../src/utils/UUID", () => {
   };
 });
 
-vi.mock("../src/utils/CreatedAt", () => {
+vi.mock("../../src/utils/CreatedAt", () => {
   return {
     CreatedAt: {
       new: vi.fn(() => ({
