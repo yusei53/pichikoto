@@ -8,8 +8,13 @@ auth.get("/", async (c) => {
   return controller.getAuthUrl(c);
 });
 
-auth.get("/redirect", async (c) => {
-  const code = c.req.query("code");
+auth.post("/callback", async (c) => {
+  const { code } = await c.req.json();
   const controller = c.get("authController");
-  return controller.redirect(c, code);
+  return controller.callback(c, code);
+});
+
+auth.post("/refresh", async (c) => {
+  const controller = c.get("authController");
+  return controller.refresh(c);
 });

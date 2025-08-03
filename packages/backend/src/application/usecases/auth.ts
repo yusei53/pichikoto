@@ -10,7 +10,7 @@ import { TYPES } from "../../infrastructure/config/types";
 import { toAuthPayloadDTO, type AuthPayloadDTO } from "../dtos/auth.dto";
 
 export interface AuthUsecaseInterface {
-  redirect(c: Context, code: string): Promise<AuthPayloadDTO>;
+  callback(c: Context, code: string): Promise<AuthPayloadDTO>;
 }
 
 @injectable()
@@ -26,7 +26,7 @@ export class AuthUsecase implements AuthUsecaseInterface {
     private readonly jwtService: JwtServiceInterface
   ) {}
 
-  async redirect(c: Context, code: string): Promise<AuthPayloadDTO> {
+  async callback(c: Context, code: string): Promise<AuthPayloadDTO> {
     const authorizationResponse = await this.discordAuthService.authorization(
       c,
       code
