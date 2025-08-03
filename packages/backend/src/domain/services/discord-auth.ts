@@ -34,7 +34,10 @@ export class DiscordAuthService implements DiscordAuthServiceInterface {
     params.append("client_secret", c.env.DISCORD_CLIENT_SECRET);
     params.append("grant_type", "authorization_code");
     params.append("code", code);
-    params.append("redirect_uri", `${c.env.BASE_URL}/auth/redirect`);
+    params.append(
+      "redirect_uri",
+      `${c.env.FRONTEND_BASE_URL}/auth/callback/discord`
+    );
 
     const response = await fetch(`${this.discordApiBaseUrl}/oauth2/token`, {
       method: "POST",
