@@ -29,7 +29,6 @@ const app = new Hono<{ Variables: Variables; Bindings: Env }>().basePath(
 
 app.use("*", async (c, next) => {
   const origin = c.env.FRONTEND_BASE_URL;
-  console.log("origin", origin);
   const corsMiddlewareHandler = cors({
     origin,
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

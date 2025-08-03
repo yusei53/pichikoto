@@ -1,15 +1,14 @@
 import ClientAuthCallbackDiscordPage from "./page.client";
 
-const AuthCallbackDiscordPage = ({
+const AuthCallbackDiscordPage = async ({
   searchParams
 }: {
-  searchParams: { code?: string; error?: string };
+  searchParams: Promise<{ code?: string; error?: string }>;
 }) => {
+  const params = await searchParams;
+
   return (
-    <ClientAuthCallbackDiscordPage
-      code={searchParams.code}
-      error={searchParams.error}
-    />
+    <ClientAuthCallbackDiscordPage code={params.code} error={params.error} />
   );
 };
 
