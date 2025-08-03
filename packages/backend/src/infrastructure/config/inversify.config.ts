@@ -1,5 +1,4 @@
 import { Container } from "inversify";
-import "reflect-metadata";
 import type { AuthUsecaseInterface } from "../../application/usecases/auth";
 import { AuthUsecase } from "../../application/usecases/auth";
 import type { UserRepositoryInterface } from "../../domain/repositories/user";
@@ -19,7 +18,7 @@ import { TYPES } from "./types";
 const container = new Container();
 
 // Infrastructure
-container.bind<DbClientInterface>(TYPES.DbClient).to(DbClient).inRequestScope();
+container.bind<DbClientInterface>(TYPES.DbClient).to(DbClient).inSingletonScope();
 
 // Repositories
 container

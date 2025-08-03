@@ -12,17 +12,19 @@ export interface DbClientInterface {
 
 @injectable()
 export class DbClient implements DbClientInterface {
-  private db!: ReturnType<typeof connectToDatabase>;
+  private db: ReturnType<typeof connectToDatabase> | null = null;
+  private context: Context | null = null;
 
   public init(c: Context): void {
+    this.context = c;
     if (!this.db) {
       this.db = connectToDatabase(c);
     }
   }
 
   getDb(): ReturnType<typeof connectToDatabase> {
-    if (!this.db) {
-      throw new Error("DbClient not initialized");
+    if (!this.db || !this.context) {
+      throw new Error("DbClient not initialized. Call init() first.");
     }
     return this.db;
   }
