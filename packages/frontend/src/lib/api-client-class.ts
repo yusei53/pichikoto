@@ -10,6 +10,12 @@ type RefreshTokenResponse = {
   refreshToken: string;
 };
 
+type VerifyTokenResponse = {
+  valid: boolean;
+  userId: string;
+  expiresAt: number;
+};
+
 class ApiClient {
   private baseURL: string;
 
@@ -228,11 +234,22 @@ class ApiClient {
     cookieUtils.auth.clearAuth();
   }
 
-  isAuthenticated(): boolean {
-    return !!cookieUtils.auth.getAccessToken();
+  async isAuthenticated(): Promise<boolean> {
+    const token = cookieUtils.auth.getAccessToken();
+    if (!token) return false;
+
+    try {
+      await this.get<VerifyTokenResponse>("/auth/verify");
+      return true;
+    } catch (error) {
+      // 401エラーの場合は自動的にリフレッシュが試行される
+      // それでも失敗した場合は認証が無効
+      console.warn("Token validation failed:", error);
+      return false;
+    }
   }
 }
 
 export const apiClient = new ApiClient();
 export { ApiClient };
-export type { ApiError, RefreshTokenResponse };
+export type { ApiError, RefreshTokenResponse, VerifyTokenResponse };
