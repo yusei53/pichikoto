@@ -1,15 +1,15 @@
 export class CreatedAt {
-  private constructor(public readonly value: string) {}
+  private constructor(public readonly value: Date) {}
 
   static new(): CreatedAt {
-    return new CreatedAt(new Date().toISOString());
+    return new CreatedAt(new Date());
   }
 
-  static from(value: string): CreatedAt {
+  static from(value: Date): CreatedAt {
     const date = new Date(value);
     if (isNaN(date.getTime())) {
       throw new Error("Invalid date format");
     }
-    return new CreatedAt(date.toISOString());
+    return new CreatedAt(date);
   }
 }

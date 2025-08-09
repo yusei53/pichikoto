@@ -10,3 +10,15 @@ export const user = pgTable("user", {
   department: text("department"),
   createdAt: timestamp("created_at").notNull().defaultNow()
 });
+
+export const userAuth = pgTable("user_auth", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  accessToken: text("access_token").notNull(),
+  refreshToken: text("refresh_token").notNull(),
+  expiresIn: timestamp("expires_in").notNull(),
+  scope: text("scope").notNull(),
+  tokenType: text("token_type").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow()
+});

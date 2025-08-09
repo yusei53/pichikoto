@@ -5,13 +5,13 @@ import {
   Faculty,
   User,
   UserID
-} from "../src/domain/models/User";
-import { CreatedAt } from "../src/utils/CreatedAt";
+} from "../../src/domain/models/User";
+import { CreatedAt } from "../../src/utils/CreatedAt";
 
 const MOCK_UUID = "00000000-0000-0000-0000-000000";
 const MOCK_CREATED_AT = "2025-01-01T00:00:00.000Z";
 
-vi.mock("../src/utils/UUID", () => {
+vi.mock("../../src/utils/UUID", () => {
   return {
     UUID: {
       new: vi.fn(() => ({
@@ -21,7 +21,7 @@ vi.mock("../src/utils/UUID", () => {
   };
 });
 
-vi.mock("../src/utils/CreatedAt", () => {
+vi.mock("../../src/utils/CreatedAt", () => {
   return {
     CreatedAt: {
       new: vi.fn(() => ({
@@ -76,7 +76,7 @@ describe("UserDomainTest", () => {
             faculty,
             department
           );
-        }).toThrow("Invalid Discord ID");
+        }).toThrow("Invalid Discord ID: must contain only digits");
       });
     });
 
@@ -91,9 +91,7 @@ describe("UserDomainTest", () => {
             Faculty.from(""),
             department
           );
-        }).toThrow(
-          "Invalid Faculty: length must be between 1 and 30 characters"
-        );
+        }).toThrow("Faculty cannot be empty");
       });
 
       it("学部名が30文字を超える場合はエラーになること", () => {
@@ -106,9 +104,7 @@ describe("UserDomainTest", () => {
             Faculty.from("A".repeat(31)),
             department
           );
-        }).toThrow(
-          "Invalid Faculty: length must be between 1 and 30 characters"
-        );
+        }).toThrow("Faculty must be 30 characters or less");
       });
     });
 
@@ -123,9 +119,7 @@ describe("UserDomainTest", () => {
             faculty,
             Department.from("")
           );
-        }).toThrow(
-          "Invalid Department: length must be between 1 and 30 characters"
-        );
+        }).toThrow("Department cannot be empty");
       });
 
       it("学科名が30文字を超える場合はエラーになること", () => {
@@ -138,9 +132,7 @@ describe("UserDomainTest", () => {
             faculty,
             Department.from("A".repeat(31))
           );
-        }).toThrow(
-          "Invalid Department: length must be between 1 and 30 characters"
-        );
+        }).toThrow("Department must be 30 characters or less");
       });
     });
   });
