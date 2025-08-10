@@ -1,10 +1,10 @@
 import { Container } from "inversify";
 import type { AuthUsecaseInterface } from "../../application/usecases/auth";
 import { AuthUsecase } from "../../application/usecases/auth";
-import type { UserRepositoryInterface } from "../../domain/repositories/user";
-import { UserRepository } from "../../domain/repositories/user";
-import type { UserAuthRepositoryInterface } from "../../domain/repositories/userAuth";
-import { UserAuthRepository } from "../../domain/repositories/userAuth";
+import type { UserAuthRepositoryInterface } from "../../domain/repositories/UserAuthRepository";
+import { UserAuthRepository } from "../../domain/repositories/UserAuthRepository";
+import type { UserRepositoryInterface } from "../../domain/repositories/UserRepository";
+import { UserRepository } from "../../domain/repositories/UserRepository";
 import type { DiscordAuthServiceInterface } from "../../domain/services/discord-auth";
 import { DiscordAuthService } from "../../domain/services/discord-auth";
 import type { JwtServiceInterface } from "../../domain/services/jwt";
@@ -18,7 +18,10 @@ import { TYPES } from "./types";
 const container = new Container();
 
 // Infrastructure
-container.bind<DbClientInterface>(TYPES.DbClient).to(DbClient).inSingletonScope();
+container
+  .bind<DbClientInterface>(TYPES.DbClient)
+  .to(DbClient)
+  .inSingletonScope();
 
 // Repositories
 container

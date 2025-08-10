@@ -6,8 +6,8 @@ import {
   User,
   UserID
 } from "../../../src/domain/models/User";
-import type { UserRepositoryInterface } from "../../../src/domain/repositories/user";
-import { UserRepository } from "../../../src/domain/repositories/user";
+import type { UserRepositoryInterface } from "../../../src/domain/repositories/UserRepository";
+import { UserRepository } from "../../../src/domain/repositories/UserRepository";
 import * as schema from "../../../src/infrastructure/database/schema";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { TestDbClient } from "../../setup/TestDbClient";
