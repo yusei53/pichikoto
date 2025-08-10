@@ -11,13 +11,15 @@ import { UserRepository } from "../../../src/domain/repositories/UserRepository"
 import * as schema from "../../../src/infrastructure/database/schema";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { TestDbClient } from "../../setup/TestDbClient";
+import { assertEqualUserTable } from "../../table_assert/AssertEqualUserTable";
 import {
   createUserTableFixture,
   createUserTableFixtureWithoutFacultyAndDepartment
 } from "../../table_fixture/UserTableFixture";
 import {
   deleteFromDatabase,
-  insertToDatabase
+  insertToDatabase,
+  selectOneFromDatabase
 } from "../../utils/GenericTableHelper";
 
 describe("UserRepository Tests", () => {
@@ -119,8 +121,10 @@ describe("UserRepository Tests", () => {
       await userRepository.save(user);
 
       // assert
-      const actual = await userRepository.findBy(user.discordID);
-      expect(actual).toEqual(user);
+      const actualRecord = (await selectOneFromDatabase(
+        schema.user
+      )) as typeof schema.user.$inferSelect;
+      await assertEqualUserTable(user, actualRecord);
     });
 
     it("学部・学科がnullのユーザーを保存できること", async () => {
@@ -141,8 +145,10 @@ describe("UserRepository Tests", () => {
       await userRepository.save(user);
 
       // assert
-      const actual = await userRepository.findBy(user.discordID);
-      expect(actual).toEqual(user);
+      const actualRecord = (await selectOneFromDatabase(
+        schema.user
+      )) as typeof schema.user.$inferSelect;
+      await assertEqualUserTable(user, actualRecord);
     });
   });
 });
