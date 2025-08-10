@@ -24,3 +24,30 @@ export const deleteFromDatabase = async (table: PgTable): Promise<void> => {
   const db = dbClient.getDb();
   await db.delete(table);
 };
+
+/**
+ * 汎用的なテーブル検索ヘルパー
+ * @param table 検索対象のテーブル
+ * @returns 検索結果の配列
+ */
+export const selectFromDatabase = async <T extends PgTable>(
+  table: T
+): Promise<(typeof table.$inferSelect)[]> => {
+  const dbClient = new TestDbClient();
+  const db = dbClient.getDb();
+  return await db.select().from(table);
+};
+
+/**
+ * 汎用的なテーブル検索ヘルパー（単一レコード）
+ * @param table 検索対象のテーブル
+ * @returns 検索結果の単一レコード
+ */
+export const selectOneFromDatabase = async <T extends PgTable>(
+  table: T
+): Promise<typeof table.$inferSelect> => {
+  const dbClient = new TestDbClient();
+  const db = dbClient.getDb();
+  const results = await db.select().from(table).limit(1);
+  return results[0];
+};
