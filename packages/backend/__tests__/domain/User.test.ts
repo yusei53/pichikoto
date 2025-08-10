@@ -5,7 +5,7 @@ import {
   Faculty,
   User,
   UserID
-} from "../../src/domain/models/User";
+} from "../../src/domain/User";
 import { CreatedAt } from "../../src/utils/CreatedAt";
 
 const MOCK_UUID = "00000000-0000-0000-0000-000000";

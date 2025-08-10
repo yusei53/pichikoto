@@ -5,10 +5,10 @@ import {
   Faculty,
   User,
   UserID
-} from "../../../src/domain/models/User";
-import type { UserRepositoryInterface } from "../../../src/domain/repositories/UserRepository";
-import { UserRepository } from "../../../src/domain/repositories/UserRepository";
+} from "../../../src/domain/User";
 import * as schema from "../../../src/infrastructure/database/schema";
+import type { UserRepositoryInterface } from "../../../src/infrastructure/repositories/UserRepository";
+import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { TestDbClient } from "../../testing/setup/TestDbClient";
 import { assertEqualUserTable } from "../../testing/table_assert/AssertEqualUserTable";

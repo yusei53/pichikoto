@@ -1,16 +1,16 @@
 import { eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
-import { TYPES } from "../../infrastructure/config/types";
-import type { DbClientInterface } from "../../infrastructure/database/connection";
-import { userAuth as userAuthSchema } from "../../infrastructure/database/schema";
-import { CreatedAt } from "../../utils/CreatedAt";
-import { UserID } from "../models/User";
+import { UserID } from "../../domain/User";
 import {
   AccessToken,
   ExpiredAt,
   RefreshToken,
   UserAuth
-} from "../models/UserAuth";
+} from "../../domain/UserAuth";
+import { TYPES } from "../../infrastructure/config/types";
+import type { DbClientInterface } from "../../infrastructure/database/connection";
+import { userAuth as userAuthSchema } from "../../infrastructure/database/schema";
+import { CreatedAt } from "../../utils/CreatedAt";
 
 export interface UserAuthRepositoryInterface {
   findBy(userID: UserID): Promise<UserAuth | null>;

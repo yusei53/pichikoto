@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { UserID } from "../../src/domain/models/User";
+import { UserID } from "../../src/domain/User";
 import {
   AccessToken,
   ExpiredAt,
   RefreshToken,
   UserAuth
-} from "../../src/domain/models/UserAuth";
+} from "../../src/domain/UserAuth";
 import { CreatedAt } from "../../src/utils/CreatedAt";
 
 const MOCK_UUID = "00000000-0000-0000-0000-000000";

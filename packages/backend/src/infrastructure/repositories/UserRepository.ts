@@ -1,10 +1,16 @@
 import { eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
+import {
+  Department,
+  DiscordID,
+  Faculty,
+  User,
+  UserID
+} from "../../domain/User";
 import { TYPES } from "../../infrastructure/config/types";
 import type { DbClientInterface } from "../../infrastructure/database/connection";
 import { user as userSchema } from "../../infrastructure/database/schema";
 import { CreatedAt } from "../../utils/CreatedAt";
-import { Department, DiscordID, Faculty, User, UserID } from "../models/User";
 
 export interface UserRepositoryInterface {
   findBy(discordID: DiscordID): Promise<User | null>;
