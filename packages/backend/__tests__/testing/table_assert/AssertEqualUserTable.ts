@@ -1,5 +1,5 @@
 import { expect } from "vitest";
-import type { User } from "../../../src/domain/models/User";
+import type { User } from "../../../src/domain/User";
 import type * as schema from "../../../src/infrastructure/database/schema";
 
 /**

@@ -1,18 +1,18 @@
 import { Container } from "inversify";
+import type { DiscordAuthServiceInterface } from "../../application/services/discord-auth";
+import { DiscordAuthService } from "../../application/services/discord-auth";
+import type { JwtServiceInterface } from "../../application/services/jwt";
+import { JwtService } from "../../application/services/jwt";
 import type { AuthUsecaseInterface } from "../../application/usecases/auth";
 import { AuthUsecase } from "../../application/usecases/auth";
-import type { UserAuthRepositoryInterface } from "../../domain/repositories/UserAuthRepository";
-import { UserAuthRepository } from "../../domain/repositories/UserAuthRepository";
-import type { UserRepositoryInterface } from "../../domain/repositories/UserRepository";
-import { UserRepository } from "../../domain/repositories/UserRepository";
-import type { DiscordAuthServiceInterface } from "../../domain/services/discord-auth";
-import { DiscordAuthService } from "../../domain/services/discord-auth";
-import type { JwtServiceInterface } from "../../domain/services/jwt";
-import { JwtService } from "../../domain/services/jwt";
 import type { AuthControllerInterface } from "../../presentation/controllers/auth";
 import { AuthController } from "../../presentation/controllers/auth";
 import type { DbClientInterface } from "../database/connection";
 import { DbClient } from "../database/connection";
+import type { UserAuthRepositoryInterface } from "../repositories/UserAuthRepository";
+import { UserAuthRepository } from "../repositories/UserAuthRepository";
+import type { UserRepositoryInterface } from "../repositories/UserRepository";
+import { UserRepository } from "../repositories/UserRepository";
 import { TYPES } from "./types";
 
 const container = new Container();

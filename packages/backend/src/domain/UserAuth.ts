@@ -1,4 +1,4 @@
-import { CreatedAt } from "../../utils/CreatedAt";
+import { CreatedAt } from "../utils/CreatedAt";
 import type { UserID } from "./User";
 
 export class UserAuth {
