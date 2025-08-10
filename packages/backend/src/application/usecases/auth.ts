@@ -1,13 +1,14 @@
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
-import { DiscordID, User } from "../../domain/models/User";
-import { UserAuth } from "../../domain/models/UserAuth";
-import type { UserAuthRepositoryInterface } from "../../domain/repositories/UserAuthRepository";
-import type { UserRepositoryInterface } from "../../domain/repositories/UserRepository";
-import type { DiscordAuthServiceInterface } from "../../domain/services/discord-auth";
-import type { JwtServiceInterface } from "../../domain/services/jwt";
+
+import { DiscordID, User } from "../../domain/User";
+import { UserAuth } from "../../domain/UserAuth";
 import { TYPES } from "../../infrastructure/config/types";
+import type { UserAuthRepositoryInterface } from "../../infrastructure/repositories/UserAuthRepository";
+import type { UserRepositoryInterface } from "../../infrastructure/repositories/UserRepository";
 import { toAuthPayloadDTO, type AuthPayloadDTO } from "../dtos/auth.dto";
+import type { DiscordAuthServiceInterface } from "../services/discord-auth";
+import type { JwtServiceInterface } from "../services/jwt";
 
 export interface AuthUsecaseInterface {
   callback(c: Context, code: string): Promise<AuthPayloadDTO>;

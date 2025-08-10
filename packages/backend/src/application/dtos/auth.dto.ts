@@ -1,4 +1,4 @@
-import type { User } from "../../domain/models/User";
+import type { User } from "../../domain/User";
 
 // 認証後のレスポンス
 export type AuthPayloadDTO = {

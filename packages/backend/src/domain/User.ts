@@ -1,6 +1,6 @@
 import z from "zod";
-import { CreatedAt } from "../../utils/CreatedAt";
-import { UUID } from "../../utils/UUID";
+import { CreatedAt } from "../utils/CreatedAt";
+import { UUID } from "../utils/UUID";
 
 const discordIDSchema = z
   .string()
