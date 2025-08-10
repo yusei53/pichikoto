@@ -3,8 +3,8 @@ import { drizzle } from "drizzle-orm/neon-http";
 import { drizzle as drizzlePostgres } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import ws from "ws";
-import type { DbClientInterface } from "../../src/infrastructure/database/connection";
-import * as schema from "../../src/infrastructure/database/schema";
+import type { DbClientInterface } from "../../../src/infrastructure/database/connection";
+import * as schema from "../../../src/infrastructure/database/schema";
 
 // テスト用のDBクライアント
 export class TestDbClient implements DbClientInterface {

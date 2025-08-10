@@ -10,17 +10,17 @@ import type { UserRepositoryInterface } from "../../../src/domain/repositories/U
 import { UserRepository } from "../../../src/domain/repositories/UserRepository";
 import * as schema from "../../../src/infrastructure/database/schema";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
-import { TestDbClient } from "../../setup/TestDbClient";
-import { assertEqualUserTable } from "../../table_assert/AssertEqualUserTable";
+import { TestDbClient } from "../../testing/setup/TestDbClient";
+import { assertEqualUserTable } from "../../testing/table_assert/AssertEqualUserTable";
 import {
   createUserTableFixture,
   createUserTableFixtureWithoutFacultyAndDepartment
-} from "../../table_fixture/UserTableFixture";
+} from "../../testing/table_fixture/UserTableFixture";
 import {
   deleteFromDatabase,
   insertToDatabase,
   selectOneFromDatabase
-} from "../../utils/GenericTableHelper";
+} from "../../testing/utils/GenericTableHelper";
 
 describe("UserRepository Tests", () => {
   let userRepository: UserRepositoryInterface;

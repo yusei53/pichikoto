@@ -1,6 +1,6 @@
 import { expect } from "vitest";
-import type { User } from "../../src/domain/models/User";
-import type * as schema from "../../src/infrastructure/database/schema";
+import type { User } from "../../../src/domain/models/User";
+import type * as schema from "../../../src/infrastructure/database/schema";
 
 /**
  * データベースのuserテーブルと引数で渡されたUserドメインオブジェクトが等しいことをアサート

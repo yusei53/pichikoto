@@ -1,5 +1,5 @@
-import type { user } from "../../src/infrastructure/database/schema";
-import { UUID } from "../../src/utils/UUID";
+import type { user } from "../../../src/infrastructure/database/schema";
+import { UUID } from "../../../src/utils/UUID";
 
 /**
  * テスト用のDiscord情報
