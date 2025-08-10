@@ -18,3 +18,8 @@ auth.post("/refresh", async (c) => {
   const controller = c.get("authController");
   return controller.refresh(c);
 });
+
+auth.get("/verify", async (c) => {
+  const controller = c.get("authController");
+  return controller.verify(c);
+});
