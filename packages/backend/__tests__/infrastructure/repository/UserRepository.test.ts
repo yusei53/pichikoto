@@ -124,7 +124,7 @@ describe("UserRepository Tests", () => {
       const actualRecord = (await selectOneFromDatabase(
         schema.user
       )) as typeof schema.user.$inferSelect;
-      await assertEqualUserTable(user, actualRecord);
+      assertEqualUserTable(user, actualRecord);
     });
 
     it("学部・学科がnullのユーザーを保存できること", async () => {
@@ -148,7 +148,7 @@ describe("UserRepository Tests", () => {
       const actualRecord = (await selectOneFromDatabase(
         schema.user
       )) as typeof schema.user.$inferSelect;
-      await assertEqualUserTable(user, actualRecord);
+      assertEqualUserTable(user, actualRecord);
     });
   });
 });
