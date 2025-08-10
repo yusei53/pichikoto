@@ -9,34 +9,15 @@ import {
 import { CreatedAt } from "../../src/utils/CreatedAt";
 
 const MOCK_UUID = "00000000-0000-0000-0000-000000";
-const MOCK_CREATED_AT = "2025-01-01T00:00:00.000Z";
-const MOCK_EXPIRES_AT = "2025-01-01T00:00:00.000Z";
+const MOCK_NOW = new Date("2025-01-01T00:00:00.000Z").getTime();
+
+vi.spyOn(Date, "now").mockReturnValue(MOCK_NOW);
 
 vi.mock("../../src/domain/models/User", () => {
   return {
     UserID: {
       new: vi.fn(() => ({
         value: MOCK_UUID
-      }))
-    }
-  };
-});
-
-vi.mock("../../src/utils/CreatedAt", () => {
-  return {
-    CreatedAt: {
-      new: vi.fn(() => ({
-        value: MOCK_CREATED_AT
-      }))
-    }
-  };
-});
-
-vi.mock("../../src/utils/ExpiredAt", () => {
-  return {
-    ExpiredAt: {
-      new: vi.fn(() => ({
-        value: MOCK_EXPIRES_AT
       }))
     }
   };
