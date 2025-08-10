@@ -7,10 +7,10 @@ import type * as schema from "../../../src/infrastructure/database/schema";
  * @param expectedUser 期待されるUserドメインオブジェクト
  * @param actualRecord selectOneFromDatabaseから返される単一レコード
  */
-export const assertEqualUserTable = async (
+export const assertEqualUserTable = (
   expectedUser: User,
   actualRecord: typeof schema.user.$inferSelect
-): Promise<void> => {
+): void => {
   const expectedRecord = {
     id: expectedUser.userID.value.value,
     discordId: expectedUser.discordID.getValue(),

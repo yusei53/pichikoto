@@ -12,6 +12,7 @@ dist/
 .idea/shelf
 
 # deps
+coverage/
 node_modules/
 .wrangler
 
