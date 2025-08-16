@@ -9,8 +9,8 @@ import type { AuthControllerInterface } from "../../presentation/controllers/aut
 import { AuthController } from "../../presentation/controllers/auth";
 import type { DbClientInterface } from "../database/connection";
 import { DbClient } from "../database/connection";
-import type { UserAuthRepositoryInterface } from "../repositories/UserAuthRepository";
-import { UserAuthRepository } from "../repositories/UserAuthRepository";
+import type { DiscordTokenRepositoryInterface } from "../repositories/DiscordTokenRepository";
+import { DiscordTokenRepository } from "../repositories/DiscordTokenRepository";
 import type { UserRepositoryInterface } from "../repositories/UserRepository";
 import { UserRepository } from "../repositories/UserRepository";
 import { TYPES } from "./types";
@@ -29,8 +29,8 @@ container
   .to(UserRepository)
   .inRequestScope();
 container
-  .bind<UserAuthRepositoryInterface>(TYPES.UserAuthRepository)
-  .to(UserAuthRepository)
+  .bind<DiscordTokenRepositoryInterface>(TYPES.DiscordTokenRepository)
+  .to(DiscordTokenRepository)
   .inRequestScope();
 
 // Services

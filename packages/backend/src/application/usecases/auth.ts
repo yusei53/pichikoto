@@ -1,10 +1,11 @@
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
 
+import { DiscordToken } from "../../domain/DiscordToken";
 import { DiscordID, User } from "../../domain/User";
-import { UserAuth } from "../../domain/UserAuth";
 import { TYPES } from "../../infrastructure/config/types";
-import type { UserAuthRepositoryInterface } from "../../infrastructure/repositories/UserAuthRepository";
+
+import type { DiscordTokenRepositoryInterface } from "../../infrastructure/repositories/DiscordTokenRepository";
 import type { UserRepositoryInterface } from "../../infrastructure/repositories/UserRepository";
 import { toAuthPayloadDTO, type AuthPayloadDTO } from "../dtos/auth.dto";
 import type { DiscordAuthServiceInterface } from "../services/discord-auth";
@@ -21,8 +22,8 @@ export class AuthUsecase implements AuthUsecaseInterface {
     private readonly discordAuthService: DiscordAuthServiceInterface,
     @inject(TYPES.UserRepository)
     private readonly userRepository: UserRepositoryInterface,
-    @inject(TYPES.UserAuthRepository)
-    private readonly userAuthRepository: UserAuthRepositoryInterface,
+    @inject(TYPES.DiscordTokenRepository)
+    private readonly discordTokenRepository: DiscordTokenRepositoryInterface,
     @inject(TYPES.JwtService)
     private readonly jwtService: JwtServiceInterface
   ) {}
@@ -43,7 +44,9 @@ export class AuthUsecase implements AuthUsecaseInterface {
     );
     // MEMO: 既にユーザーが存在する場合はログインとして処理
     if (existsUser !== null) {
-      const userAuth = await this.userAuthRepository.findBy(existsUser.userID);
+      const userAuth = await this.discordTokenRepository.findBy(
+        existsUser.userID
+      );
       if (!userAuth) {
         throw new Error("UserAuth not found");
       }
@@ -56,14 +59,13 @@ export class AuthUsecase implements AuthUsecaseInterface {
     const user = User.create(
       DiscordID.from(discordUserResource.id),
       discordUserResource.username,
-      discordUserResource.discriminator,
       discordUserResource.avatar,
       null, // MEMO: OAuth時にユーザーからの入力は受け取れないのでnull
       null
     );
     await this.userRepository.save(user);
 
-    const userAuth = UserAuth.create(
+    const discordToken = DiscordToken.create(
       user.userID,
       authorizationResponse.access_token,
       authorizationResponse.refresh_token,
@@ -71,7 +73,7 @@ export class AuthUsecase implements AuthUsecaseInterface {
       authorizationResponse.scope,
       authorizationResponse.token_type
     );
-    await this.userAuthRepository.save(userAuth);
+    await this.discordTokenRepository.save(discordToken);
 
     const { accessToken, refreshToken } = await this.jwtService.generateTokens(
       c,

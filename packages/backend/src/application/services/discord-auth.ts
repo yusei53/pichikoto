@@ -138,6 +138,5 @@ export type AuthorizationResponse = {
 export type DiscordUserResource = {
   id: string;
   username: string;
-  discriminator: string;
   avatar: string;
 };

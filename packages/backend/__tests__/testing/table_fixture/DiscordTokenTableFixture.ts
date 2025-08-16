@@ -1,4 +1,4 @@
-import type { userAuth } from "../../../src/infrastructure/database/schema";
+import type { discordTokens } from "../../../src/infrastructure/database/schema";
 
 /**
  * ユニークなトークンを生成するヘルパー関数
@@ -15,35 +15,37 @@ export const COMMON_TOKEN_INFO = {
 } as const;
 
 /**
- * UserAuthテーブルのfixture
+ * DiscordTokenテーブルのfixture
  */
-export const createUserAuthTableFixture = (userID: string) => {
-  const expiresIn = new Date(Date.now() + 3600 * 1000); // 1時間後
+export const createDiscordTokenTableFixture = (userID: string) => {
+  const expiredAt = new Date(Date.now() + 3600 * 1000); // 1時間後
 
   return {
     userId: userID,
     accessToken: generateUniqueToken("test_access_token"),
     refreshToken: generateUniqueToken("test_refresh_token"),
-    expiresIn,
     scope: COMMON_TOKEN_INFO.SCOPE,
     tokenType: COMMON_TOKEN_INFO.TOKEN_TYPE,
-    createdAt: new Date()
-  } satisfies typeof userAuth.$inferInsert;
+    expiredAt,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  } satisfies typeof discordTokens.$inferInsert;
 };
 
 /**
- * 期限切れのUserAuthのfixture
+ * 期限切れのDiscordTokenのfixture
  */
-export const createExpiredUserAuthTableFixture = (userID: string) => {
-  const expiresIn = new Date(Date.now() - 3600 * 1000); // 1時間前（期限切れ）
+export const createExpiredDiscordTokenTableFixture = (userID: string) => {
+  const expiredAt = new Date(Date.now() - 3600 * 1000); // 1時間前（期限切れ）
 
   return {
     userId: userID,
     accessToken: generateUniqueToken("test_access_token"),
     refreshToken: generateUniqueToken("test_refresh_token"),
-    expiresIn,
     scope: COMMON_TOKEN_INFO.SCOPE,
     tokenType: COMMON_TOKEN_INFO.TOKEN_TYPE,
-    createdAt: new Date()
-  } satisfies typeof userAuth.$inferInsert;
+    expiredAt,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  } satisfies typeof discordTokens.$inferInsert;
 };

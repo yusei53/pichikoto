@@ -13,7 +13,7 @@ type RefreshTokenResponse = {
 type VerifyTokenResponse = {
   valid: boolean;
   userId: string;
-  expiresAt: number;
+  expiredAt: number;
 };
 
 class ApiClient {

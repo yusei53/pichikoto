@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { UserID } from "../../src/domain/User";
 import {
   AccessToken,
+  DiscordToken,
   ExpiredAt,
-  RefreshToken,
-  UserAuth
-} from "../../src/domain/UserAuth";
+  RefreshToken
+} from "../../src/domain/DiscordToken";
+import { UserID } from "../../src/domain/User";
 import { CreatedAt } from "../../src/utils/CreatedAt";
 
 const MOCK_UUID = "00000000-0000-0000-0000-000000";
@@ -23,7 +23,7 @@ vi.mock("../../src/domain/models/User", () => {
   };
 });
 
-describe("UserAuthDomainTest", () => {
+describe("DiscordTokenDomainTest", () => {
   const userId = UserID.new();
   const accessTokenValue = "test_access_token";
   const refreshTokenValue = "test_refresh_token";
@@ -31,10 +31,10 @@ describe("UserAuthDomainTest", () => {
   const scope = "read write";
   const tokenType = "Bearer";
 
-  describe("UserAuthドメインの作成", () => {
-    it("UserAuthを作成できること", () => {
+  describe("DiscordTokenドメインの作成", () => {
+    it("DiscordTokenを作成できること", () => {
       // arrange
-      const expected = UserAuth.reconstruct(
+      const expected = DiscordToken.reconstruct(
         userId,
         AccessToken.from(accessTokenValue),
         RefreshToken.from(refreshTokenValue),
@@ -45,7 +45,7 @@ describe("UserAuthDomainTest", () => {
       );
 
       // act
-      const actual = UserAuth.create(
+      const actual = DiscordToken.create(
         userId,
         accessTokenValue,
         refreshTokenValue,

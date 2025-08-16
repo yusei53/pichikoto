@@ -75,7 +75,7 @@ export class AuthController implements AuthControllerInterface {
       return c.json({
         valid: true,
         userId: payload.sub,
-        expiresAt: payload.exp
+        expiredAt: payload.exp
       });
     } catch (error) {
       console.error("Token verification error:", error);
