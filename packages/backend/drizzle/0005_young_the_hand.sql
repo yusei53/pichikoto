@@ -1,1 +1,0 @@
-ALTER TABLE "discord_tokens" DROP COLUMN "expires_in";
