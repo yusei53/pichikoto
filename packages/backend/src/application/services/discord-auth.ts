@@ -20,7 +20,7 @@ export class DiscordAuthService implements DiscordAuthServiceInterface {
 
   private discordApiBaseUrl = "https://discordapp.com/api";
 
-  async getAuthUrl(c: Context) {
+  async generateAuthUrl(c: Context) {
     const params = new URLSearchParams();
     params.append("client_id", c.env.DISCORD_CLIENT_ID);
     params.append("response_type", "code");
@@ -55,9 +55,15 @@ export class DiscordAuthService implements DiscordAuthServiceInterface {
       },
       body: params
     });
-    // TODO: status処理
     if (!response.ok) {
-      throw new Error("Failed to authorize");
+      const errorText = await response.text();
+      console.error(
+        `Discord authorization failed with status ${response.status}:`,
+        errorText
+      );
+      throw new Error(
+        `Discord authorization failed: ${response.status} ${response.statusText}`
+      );
     }
 
     const data = (await response.json()) as AuthorizationResponse;
@@ -83,9 +89,15 @@ export class DiscordAuthService implements DiscordAuthServiceInterface {
       },
       body: params
     });
-    // TODO: status処理
     if (!response.ok) {
-      throw new Error("Failed to refresh token");
+      const errorText = await response.text();
+      console.error(
+        `Discord token refresh failed with status ${response.status}:`,
+        errorText
+      );
+      throw new Error(
+        `Discord token refresh failed: ${response.status} ${response.statusText}`
+      );
     }
 
     const data = (await response.json()) as AuthorizationResponse;
@@ -109,9 +121,15 @@ export class DiscordAuthService implements DiscordAuthServiceInterface {
         body: params
       }
     );
-    // TODO: status処理
     if (!response.ok) {
-      throw new Error("Failed to revoke access token");
+      const errorText = await response.text();
+      console.error(
+        `Discord token revocation failed with status ${response.status}:`,
+        errorText
+      );
+      throw new Error(
+        `Discord token revocation failed: ${response.status} ${response.statusText}`
+      );
     }
 
     return;
@@ -126,9 +144,15 @@ export class DiscordAuthService implements DiscordAuthServiceInterface {
         Authorization: `Bearer ${accessToken}`
       }
     });
-    // TODO: status処理
     if (!response.ok) {
-      throw new Error("Failed to get user resource");
+      const errorText = await response.text();
+      console.error(
+        `Discord user resource retrieval failed with status ${response.status}:`,
+        errorText
+      );
+      throw new Error(
+        `Discord user resource retrieval failed: ${response.status} ${response.statusText}`
+      );
     }
 
     const data = (await response.json()) as DiscordUserResource;
