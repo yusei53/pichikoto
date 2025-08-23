@@ -3,16 +3,124 @@ import { injectable } from "inversify";
 import * as jose from "jose";
 
 export interface DiscordOIDCServiceInterface {
+  generateAuthUrl(c: Context): Promise<string>;
+  exchangeCodeForTokens(c: Context, code: string): Promise<DiscordOIDCTokenResponse>;
+  refreshTokens(c: Context, refreshToken: string): Promise<DiscordOIDCTokenResponse>;
+  getUserResource(c: Context, accessToken: string): Promise<DiscordUserResource>;
+  revokeAccessToken(c: Context, accessToken: string): Promise<void>;
   verifyIdToken(c: Context, idToken: string): Promise<DiscordIdTokenPayload>;
   getDiscordPublicKeys(): Promise<any[]>;
 }
 
 @injectable()
 export class DiscordOIDCService implements DiscordOIDCServiceInterface {
+  private readonly discordApiBaseUrl = "https://discordapp.com/api";
   private readonly discordJWKSUrl = "https://discord.com/api/oauth2/keys";
   private publicKeysCache: any[] | null = null;
   private cacheExpiry: number = 0;
   private readonly cacheLifetime = 3600000; // 1時間
+
+  async generateAuthUrl(c: Context): Promise<string> {
+    const params = new URLSearchParams();
+    params.append("client_id", c.env.DISCORD_CLIENT_ID);
+    params.append("response_type", "code");
+    params.append("redirect_uri", `${c.env.FRONTEND_BASE_URL}/auth/callback/discord`);
+    params.append("scope", "identify openid"); // OIDCを有効にするためopenidスコープを追加
+    
+    const authUrl = `https://discord.com/oauth2/authorize?${params.toString()}`;
+    return authUrl;
+  }
+
+  async exchangeCodeForTokens(c: Context, code: string): Promise<DiscordOIDCTokenResponse> {
+    const params = new URLSearchParams();
+    params.append("client_id", c.env.DISCORD_CLIENT_ID);
+    params.append("client_secret", c.env.DISCORD_CLIENT_SECRET);
+    params.append("grant_type", "authorization_code");
+    params.append("code", code);
+    params.append("redirect_uri", `${c.env.FRONTEND_BASE_URL}/auth/callback/discord`);
+
+    const response = await fetch(`${this.discordApiBaseUrl}/oauth2/token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: params
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Discord token exchange failed with status ${response.status}:`, errorText);
+      throw new Error(`Discord token exchange failed: ${response.status} ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as DiscordOIDCTokenResponse;
+    console.log("OIDC token exchange successful:", { hasIdToken: !!data.id_token });
+    return data;
+  }
+
+  async refreshTokens(c: Context, refreshToken: string): Promise<DiscordOIDCTokenResponse> {
+    const params = new URLSearchParams();
+    params.append("client_id", c.env.DISCORD_CLIENT_ID);
+    params.append("client_secret", c.env.DISCORD_CLIENT_SECRET);
+    params.append("grant_type", "refresh_token");
+    params.append("refresh_token", refreshToken);
+
+    const response = await fetch(`${this.discordApiBaseUrl}/oauth2/token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: params
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Discord token refresh failed with status ${response.status}:`, errorText);
+      throw new Error(`Discord token refresh failed: ${response.status} ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as DiscordOIDCTokenResponse;
+    return data;
+  }
+
+  async getUserResource(c: Context, accessToken: string): Promise<DiscordUserResource> {
+    const response = await fetch(`${this.discordApiBaseUrl}/users/@me`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Discord user resource retrieval failed with status ${response.status}:`, errorText);
+      throw new Error(`Discord user resource retrieval failed: ${response.status} ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as DiscordUserResource;
+    return data;
+  }
+
+  async revokeAccessToken(c: Context, accessToken: string): Promise<void> {
+    const params = new URLSearchParams();
+    params.append("client_id", c.env.DISCORD_CLIENT_ID);
+    params.append("client_secret", c.env.DISCORD_CLIENT_SECRET);
+    params.append("token", accessToken);
+    params.append("token_type_hint", "access_token");
+
+    const response = await fetch(`${this.discordApiBaseUrl}/oauth2/token/revoke`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: params
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Discord token revocation failed with status ${response.status}:`, errorText);
+      throw new Error(`Discord token revocation failed: ${response.status} ${response.statusText}`);
+    }
+  }
 
   async verifyIdToken(
     c: Context,
@@ -136,6 +244,22 @@ export interface DiscordJWK {
   n: string; // RSA public key modulus
   e: string; // RSA public key exponent
   alg: string; // "RS256"
+}
+
+export interface DiscordOIDCTokenResponse {
+  access_token: string;
+  expires_in: number;
+  refresh_token: string;
+  scope: string;
+  token_type: string;
+  id_token: string; // OIDCでは必須
+}
+
+export interface DiscordUserResource {
+  id: string;
+  username: string;
+  discriminator: string;
+  avatar: string;
 }
 
 export interface DiscordIdTokenPayload {

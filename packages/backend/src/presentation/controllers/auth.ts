@@ -1,6 +1,6 @@
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
-import type { DiscordAuthServiceInterface } from "../../application/services/discord-auth";
+import type { DiscordOIDCServiceInterface } from "../../application/services/discord-oidc";
 import type { JwtServiceInterface } from "../../application/services/jwt";
 import type { AuthUsecaseInterface } from "../../application/usecases/auth";
 import { TYPES } from "../../infrastructure/config/types";
@@ -15,8 +15,8 @@ export interface AuthControllerInterface {
 @injectable()
 export class AuthController implements AuthControllerInterface {
   constructor(
-    @inject(TYPES.DiscordAuthService)
-    private readonly discordAuthService: DiscordAuthServiceInterface,
+    @inject(TYPES.DiscordOIDCService)
+    private readonly discordOIDCService: DiscordOIDCServiceInterface,
     @inject(TYPES.AuthUsecase)
     private readonly authUsecase: AuthUsecaseInterface,
     @inject(TYPES.JwtService)
@@ -24,7 +24,7 @@ export class AuthController implements AuthControllerInterface {
   ) {}
 
   async RedirectToAuthUrl(c: Context) {
-    const authUrl = await this.discordAuthService.generateAuthUrl(c);
+    const authUrl = await this.discordOIDCService.generateAuthUrl(c);
     return c.redirect(authUrl);
   }
 
