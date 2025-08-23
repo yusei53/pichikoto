@@ -307,7 +307,6 @@ export interface DiscordOIDCTokenResponse {
 export interface DiscordUserResource {
   id: string;
   username: string;
-  discriminator: string;
   avatar: string;
 }
 
