@@ -43,8 +43,21 @@ jobs:
       - name: Build backend
         run: pnpm --filter backend build
 
+      - name: Check DATABASE_URL secret
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "❌ DATABASE_URL secret is not set"
+            exit 1
+          else
+            echo "✅ DATABASE_URL secret is configured"
+          fi
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Run database migration
-        run: pnpm --filter backend db:migrate:safe
+        run: |
+          cd packages/backend
+          DATABASE_URL="${DATABASE_URL}" pnpm db:migrate:safe
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
