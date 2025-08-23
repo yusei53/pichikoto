@@ -2,7 +2,7 @@ import type { Context } from "hono";
 import { injectable } from "inversify";
 
 export interface DiscordAuthServiceInterface {
-  getAuthUrl(c: Context): Promise<string>;
+  generateAuthUrl(c: Context): Promise<string>;
   authorization(c: Context, code: string): Promise<AuthorizationResponse>;
   refreshToken(
     c: Context,
@@ -21,7 +21,16 @@ export class DiscordAuthService implements DiscordAuthServiceInterface {
   private discordApiBaseUrl = "https://discordapp.com/api";
 
   async getAuthUrl(c: Context) {
-    const authUrl = c.env.DISCORD_AUTH_URL;
+    const params = new URLSearchParams();
+    params.append("client_id", c.env.DISCORD_CLIENT_ID);
+    params.append("response_type", "code");
+    params.append(
+      "redirect_uri",
+      `${c.env.FRONTEND_BASE_URL}/auth/callback/discord`
+    );
+    params.append("scope", "identify openid");
+
+    const authUrl = `https://discord.com/oauth2/authorize?${params.toString()}`;
     return authUrl;
   }
 
@@ -133,6 +142,7 @@ export type AuthorizationResponse = {
   refresh_token: string;
   scope: string;
   token_type: string;
+  id_token?: string; // OIDC用のid_token
 };
 
 export type DiscordUserResource = {

@@ -6,7 +6,7 @@ import type { AuthUsecaseInterface } from "../../application/usecases/auth";
 import { TYPES } from "../../infrastructure/config/types";
 
 export interface AuthControllerInterface {
-  getAuthUrl(c: Context): Promise<Response>;
+  RedirectToAuthUrl(c: Context): Promise<Response>;
   callback(c: Context, code: string | undefined): Promise<Response>;
   refresh(c: Context): Promise<Response>;
   verify(c: Context): Promise<Response>;
@@ -23,9 +23,9 @@ export class AuthController implements AuthControllerInterface {
     private readonly jwtService: JwtServiceInterface
   ) {}
 
-  async getAuthUrl(c: Context) {
-    const authUrl = await this.discordAuthService.getAuthUrl(c);
-    return c.json({ authUrl });
+  async RedirectToAuthUrl(c: Context) {
+    const authUrl = await this.discordAuthService.generateAuthUrl(c);
+    return c.redirect(authUrl);
   }
 
   async callback(c: Context, code: string | undefined) {
