@@ -29,16 +29,22 @@ export class AuthController implements AuthControllerInterface {
   }
 
   async callback(c: Context, code: string | undefined) {
+  try {
     if (!code) {
+      console.error("Auth callback error: No code provided");
       return c.json({ error: "No code provided" }, 400);
     }
+    
     const authPayload = await this.authUsecase.callback(c, code);
-    if (!authPayload) {
-      return c.json({ error: "Failed to authenticate" }, 500);
-    }
-
     return c.json(authPayload);
+  } catch (error) {
+    console.error("Auth callback error:", error);
+    return c.json({ 
+      error: "Failed to authenticate", 
+      details: error instanceof Error ? error.message : "Unknown error" 
+    }, 500);
   }
+}
 
   async refresh(c: Context) {
     try {
