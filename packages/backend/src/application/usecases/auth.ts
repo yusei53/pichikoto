@@ -8,7 +8,7 @@ import { TYPES } from "../../infrastructure/config/types";
 import type { DiscordTokenRepositoryInterface } from "../../infrastructure/repositories/DiscordTokenRepository";
 import type { UserRepositoryInterface } from "../../infrastructure/repositories/UserRepository";
 import { toAuthPayloadDTO, type AuthPayloadDTO } from "../dtos/auth.dto";
-import type { DiscordAuthServiceInterface } from "../services/discord-auth";
+import type { DiscordOIDCServiceInterface } from "../services/discord-oidc";
 import type { JwtServiceInterface } from "../services/jwt";
 
 export interface AuthUsecaseInterface {
@@ -18,8 +18,8 @@ export interface AuthUsecaseInterface {
 @injectable()
 export class AuthUsecase implements AuthUsecaseInterface {
   constructor(
-    @inject(TYPES.DiscordAuthService)
-    private readonly discordAuthService: DiscordAuthServiceInterface,
+    @inject(TYPES.DiscordOIDCService)
+    private readonly discordOIDCService: DiscordOIDCServiceInterface,
     @inject(TYPES.UserRepository)
     private readonly userRepository: UserRepositoryInterface,
     @inject(TYPES.DiscordTokenRepository)
@@ -29,15 +29,31 @@ export class AuthUsecase implements AuthUsecaseInterface {
   ) {}
 
   async callback(c: Context, code: string): Promise<AuthPayloadDTO> {
-    const authorizationResponse = await this.discordAuthService.authorization(
+    const tokenResponse = await this.discordOIDCService.exchangeCodeForTokens(
       c,
       code
     );
 
-    const discordUserResource = await this.discordAuthService.getUserResource(
+    if (!tokenResponse.id_token) {
+      throw new Error("ID token not received from Discord OIDC");
+    }
+
+    const idTokenPayload = await this.discordOIDCService.verifyIdToken(
       c,
-      authorizationResponse.access_token
+      tokenResponse.id_token
     );
+    console.log("ID token verification successful:", {
+      sub: idTokenPayload.sub
+    });
+
+    const discordUserResource = await this.discordOIDCService.getUserResource(
+      c,
+      tokenResponse.access_token
+    );
+
+    if (idTokenPayload.sub !== discordUserResource.id) {
+      throw new Error("User ID mismatch between ID token and API response");
+    }
 
     const existsUser = await this.userRepository.findBy(
       DiscordID.from(discordUserResource.id)
@@ -67,11 +83,11 @@ export class AuthUsecase implements AuthUsecaseInterface {
 
     const discordToken = DiscordToken.create(
       user.userID,
-      authorizationResponse.access_token,
-      authorizationResponse.refresh_token,
-      authorizationResponse.expires_in,
-      authorizationResponse.scope,
-      authorizationResponse.token_type
+      tokenResponse.access_token,
+      tokenResponse.refresh_token,
+      tokenResponse.expires_in,
+      tokenResponse.scope,
+      tokenResponse.token_type
     );
     await this.discordTokenRepository.save(discordToken);
 

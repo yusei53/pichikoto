@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1750468244835,
-      "tag": "0000_omniscient_saracen",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1750548109847,
-      "tag": "0001_long_reaper",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1750548354737,
-      "tag": "0002_secret_glorian",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1750567414272,
-      "tag": "0003_conscious_captain_universe",
+      "when": 1755991026216,
+      "tag": "0000_green_nomad",
       "breakpoints": true
     },
     {
