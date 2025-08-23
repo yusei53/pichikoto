@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__ide__getDiagnostics",
+      "mcp__serena__get_symbols_overview",
+      "mcp__serena__find_symbol",
+      "mcp__serena__search_for_pattern",
+      "mcp__serena__replace_symbol_body"
+    ],
+    "deny": [
+      "Bash(pnpm build:*)"
+    ],
+    "ask": []
+  }
+}
