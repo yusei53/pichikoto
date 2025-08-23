@@ -1,4 +1,5 @@
 import type { Context } from "hono";
+import { getCookie, setCookie } from "hono/cookie";
 import { inject, injectable } from "inversify";
 import type { DiscordOIDCServiceInterface } from "../../application/services/discord-oidc";
 import type { JwtServiceInterface } from "../../application/services/jwt";
@@ -7,7 +8,7 @@ import { TYPES } from "../../infrastructure/config/types";
 
 export interface AuthControllerInterface {
   RedirectToAuthUrl(c: Context): Promise<Response>;
-  callback(c: Context, code: string | undefined): Promise<Response>;
+  callback(c: Context, code: string | undefined, state: string | undefined): Promise<Response>;
   refresh(c: Context): Promise<Response>;
   verify(c: Context): Promise<Response>;
 }
@@ -24,21 +25,64 @@ export class AuthController implements AuthControllerInterface {
   ) {}
 
   async RedirectToAuthUrl(c: Context) {
-    const authUrl = await this.discordOIDCService.generateAuthUrl(c);
-    return c.redirect(authUrl);
-  }
+  const { authUrl, sessionId } = await this.discordOIDCService.generateAuthUrl(c);
+  
+  // sessionIdをHttpOnlyCookieとして設定
+  setCookie(c, 'oauth_session', sessionId, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'Lax',
+    path: '/',
+    maxAge: 900 // 15分
+  });
+  
+  return c.redirect(authUrl);
+}
 
-  async callback(c: Context, code: string | undefined) {
+  async callback(c: Context, code: string | undefined, state: string | undefined) {
   try {
     if (!code) {
       console.error("Auth callback error: No code provided");
       return c.json({ error: "No code provided" }, 400);
     }
     
-    const authPayload = await this.authUsecase.callback(c, code);
+    if (!state) {
+      console.error("Auth callback error: No state provided");
+      return c.json({ error: "No state provided" }, 400);
+    }
+
+    // Cookieから sessionId を取得
+    const sessionId = getCookie(c, 'oauth_session');
+    
+    if (!sessionId) {
+      console.error("Auth callback error: No session cookie provided");
+      return c.json({ error: "No session cookie provided" }, 400);
+    }
+    
+    const authPayload = await this.authUsecase.callback(c, code, state, sessionId);
+    
+    // 使用済みのセッションCookieを削除
+    setCookie(c, 'oauth_session', '', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Lax',
+      path: '/',
+      maxAge: 0
+    });
+    
     return c.json(authPayload);
   } catch (error) {
     console.error("Auth callback error:", error);
+    
+    // エラー時もセッションCookieを削除
+    setCookie(c, 'oauth_session', '', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Lax',
+      path: '/',
+      maxAge: 0
+    });
+    
     return c.json({ 
       error: "Failed to authenticate", 
       details: error instanceof Error ? error.message : "Unknown error" 

@@ -5,6 +5,7 @@ export const TYPES = {
   // Repositories
   UserAuthRepository: Symbol.for("UserAuthRepository"),
   UserRepository: Symbol.for("UserRepository"),
+  StateRepository: Symbol.for("StateRepository"),
 
   // Services
   DiscordOIDCService: Symbol.for("DiscordOIDCService"),

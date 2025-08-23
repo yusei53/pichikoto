@@ -13,6 +13,8 @@ import type { UserAuthRepositoryInterface } from "../repositories/UserAuthReposi
 import { UserAuthRepository } from "../repositories/UserAuthRepository";
 import type { UserRepositoryInterface } from "../repositories/UserRepository";
 import { UserRepository } from "../repositories/UserRepository";
+import type { StateRepositoryInterface } from "../repositories/StateRepository";
+import { StateRepository } from "../repositories/StateRepository";
 import { TYPES } from "./types";
 
 const container = new Container();
@@ -31,6 +33,10 @@ container
 container
   .bind<UserAuthRepositoryInterface>(TYPES.UserAuthRepository)
   .to(UserAuthRepository)
+  .inRequestScope();
+container
+  .bind<StateRepositoryInterface>(TYPES.StateRepository)
+  .to(StateRepository)
   .inRequestScope();
 
 // Services
