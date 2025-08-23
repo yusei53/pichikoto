@@ -1,0 +1,7 @@
+---
+description:
+globs: /packages/backend
+alwaysApply: false
+---
+
+全ての処理の前に、packages/backend/architecture.mdを参照し、アーキテクチャを守るようにしてください。
