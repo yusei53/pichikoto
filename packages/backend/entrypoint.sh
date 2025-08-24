@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+export NODE_ENV=development
+
 sleep 10
 
 echo "Running database migrations..."
