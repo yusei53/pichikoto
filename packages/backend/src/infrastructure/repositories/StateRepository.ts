@@ -5,8 +5,20 @@ import type { DbClientInterface } from "../../infrastructure/database/connection
 import { oauthState as oauthStateSchema } from "../../infrastructure/database/schema";
 
 export interface StateRepositoryInterface {
-  save(sessionId: string, state: string, expiresAt: Date): Promise<void>;
-  getBySessionId(sessionId: string): Promise<{ sessionId: string; state: string; expiresAt: Date } | null>;
+  save(
+    sessionId: string,
+    state: string,
+    nonce: string,
+    expiresAt: Date
+  ): Promise<void>;
+  getBySessionId(
+    sessionId: string
+  ): Promise<{
+    sessionId: string;
+    state: string;
+    nonce: string;
+    expiresAt: Date;
+  } | null>;
   delete(sessionId: string): Promise<void>;
   cleanup(): Promise<void>;
 }
@@ -18,18 +30,31 @@ export class StateRepository implements StateRepositoryInterface {
     private readonly dbClient: DbClientInterface
   ) {}
 
-  async save(sessionId: string, state: string, expiresAt: Date): Promise<void> {
+  async save(
+    sessionId: string,
+    state: string,
+    nonce: string,
+    expiresAt: Date
+  ): Promise<void> {
     const db = this.dbClient.getDb();
     await db.insert(oauthStateSchema).values({
       sessionId,
       state,
+      nonce,
       expiresAt
     });
   }
 
-  async getBySessionId(sessionId: string): Promise<{ sessionId: string; state: string; expiresAt: Date } | null> {
+  async getBySessionId(
+    sessionId: string
+  ): Promise<{
+    sessionId: string;
+    state: string;
+    nonce: string;
+    expiresAt: Date;
+  } | null> {
     const db = this.dbClient.getDb();
-    
+
     const stateRecords = await db
       .select()
       .from(oauthStateSchema)
@@ -44,6 +69,7 @@ export class StateRepository implements StateRepositoryInterface {
     return {
       sessionId: stateRecord.sessionId,
       state: stateRecord.state,
+      nonce: stateRecord.nonce,
       expiresAt: stateRecord.expiresAt
     };
   }

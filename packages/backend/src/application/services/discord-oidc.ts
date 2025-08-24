@@ -21,13 +21,17 @@ export interface DiscordOIDCServiceInterface {
     accessToken: string
   ): Promise<DiscordUserResource>;
   revokeAccessToken(c: Context, accessToken: string): Promise<void>;
-  verifyIdToken(c: Context, idToken: string): Promise<DiscordIdTokenPayload>;
+  verifyIdToken(
+    c: Context,
+    idToken: string,
+    expectedNonce: string
+  ): Promise<DiscordIdTokenPayload>;
   getDiscordPublicKeys(): Promise<any[]>;
   verifyStateBySessionId(
     c: Context,
     sessionId: string,
     state: string
-  ): Promise<boolean>;
+  ): Promise<{ valid: boolean; nonce?: string }>;
 }
 
 @injectable()
@@ -46,13 +50,14 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
   async generateAuthUrl(
     c: Context
   ): Promise<{ authUrl: string; state: string; sessionId: string }> {
-    // ランダムなsessionIdとstate値を生成
+    // ランダムなsessionId、state、nonce値を生成
     const sessionId = this.generateSecureRandomString(32);
     const state = this.generateSecureRandomString(32);
+    const nonce = this.generateSecureRandomString(32);
 
-    // sessionIdとstateを15分間有効として保存
+    // sessionId、state、nonceを15分間有効として保存
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-    await this.stateRepository.save(sessionId, state, expiresAt);
+    await this.stateRepository.save(sessionId, state, nonce, expiresAt);
 
     const params = new URLSearchParams();
     params.append("client_id", c.env.DISCORD_CLIENT_ID);
@@ -63,6 +68,7 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
     );
     params.append("scope", "identify openid");
     params.append("state", state);
+    params.append("nonce", nonce);
 
     const authUrl = `https://discord.com/oauth2/authorize?${params.toString()}`;
     return { authUrl, state, sessionId };
@@ -198,7 +204,8 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
 
   async verifyIdToken(
     c: Context,
-    idToken: string
+    idToken: string,
+    expectedNonce: string
   ): Promise<DiscordIdTokenPayload> {
     try {
       const header = jose.decodeProtectedHeader(idToken);
@@ -236,6 +243,15 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
         throw new Error(
           `Invalid audience. Expected: ${expectedClientId}, Got: ${JSON.stringify(payload.aud)}`
         );
+      }
+
+      // nonce検証
+      if (payload.nonce !== expectedNonce) {
+        console.error("Nonce mismatch:", {
+          expected: expectedNonce,
+          received: payload.nonce
+        });
+        throw new Error("Invalid nonce");
       }
 
       return payload;
@@ -286,31 +302,32 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
     c: Context,
     sessionId: string,
     state: string
-  ): Promise<boolean> {
+  ): Promise<{ valid: boolean; nonce?: string }> {
     try {
       const stateRecord = await this.stateRepository.getBySessionId(sessionId);
 
       if (!stateRecord) {
-        return false;
+        return { valid: false };
       }
 
       // stateが一致しない場合
       if (stateRecord.state !== state) {
         // 不正なstateでアクセスされた場合もレコードを削除
         await this.stateRepository.delete(sessionId);
-        return false;
+        return { valid: false };
       }
 
       // 期限切れチェック
       if (stateRecord.expiresAt < new Date()) {
         // 期限切れのstateは削除
         await this.stateRepository.delete(sessionId);
-        return false;
+        return { valid: false };
       }
 
-      // レコードを削除
+      // 検証成功時：nonceを返してからレコードを削除
+      const nonce = stateRecord.nonce;
       await this.stateRepository.delete(sessionId);
-      return true;
+      return { valid: true, nonce };
     } catch (error) {
       // エラー時もレコードを削除
       await this.stateRepository.delete(sessionId).catch(() => {
@@ -341,7 +358,8 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
       (typeof payload.aud === "string" || Array.isArray(payload.aud)) &&
       typeof payload.exp === "number" &&
       typeof payload.iat === "number" &&
-      typeof payload.auth_time === "number";
+      typeof payload.auth_time === "number" &&
+      typeof payload.nonce === "string";
 
     if (!isValid) {
       console.error("Invalid ID token payload:", payload);
@@ -383,5 +401,6 @@ export interface DiscordIdTokenPayload {
   exp: number; // Expiration time
   iat: number; // Issued at time
   auth_time: number; // Authentication time
+  nonce: string; // Nonce value
   at_hash?: string; // Access token hash
 }
