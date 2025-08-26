@@ -1,3 +1,4 @@
 export const authLoginPageAPI = {
-  oidcStartUrl: `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/auth`
+  // リライト経由でフロント同一オリジンの /api/auth を叩く
+  oidcStartUrl: `/api/auth`
 };
