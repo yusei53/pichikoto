@@ -102,7 +102,7 @@ export class AuthController implements AuthControllerInterface {
         domain: frontendHost
       } as any);
 
-      const redirectUrl = `${c.env.FRONTEND_BASE_URL}/auth/callback/discord/success`;
+      const redirectUrl = `${c.env.FRONTEND_BASE_URL}/auth/callback/discord`;
       return c.redirect(redirectUrl);
     } catch (error) {
       console.error("Auth callback error:", error);
