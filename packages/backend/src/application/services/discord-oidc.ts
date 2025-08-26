@@ -378,7 +378,7 @@ export interface DiscordOIDCTokenResponse {
   refresh_token: string;
   scope: string;
   token_type: string;
-  id_token: string; // OIDCでは必須
+  id_token: string;
 }
 
 export interface DiscordUserResource {
