@@ -84,25 +84,11 @@ export class AuthController implements AuthControllerInterface {
         maxAge: 0
       });
 
-      // トークンをクッキーに保存（フロントで参照するためHttpOnlyは付けない）
-      const frontendHost = new URL(c.env.FRONTEND_BASE_URL).hostname;
-      setCookie(c, "accessToken", authPayload.accessToken, {
-        secure: true,
-        sameSite: "Strict",
-        path: "/",
-        maxAge: 60 * 60 * 24 * 30,
-        domain: frontendHost
-      } as any);
-      setCookie(c, "refreshToken", authPayload.refreshToken, {
-        secure: true,
-        sameSite: "Strict",
-        path: "/",
-        // 1年
-        maxAge: 60 * 60 * 24 * 365,
-        domain: frontendHost
-      } as any);
-
-      const redirectUrl = `${c.env.FRONTEND_BASE_URL}/auth/callback/discord`;
+      // TODO: ドメインを用意したらSet-Cookie方式へ切り替える
+      // カスタムドメインで同一アペックスに統一し、Domain=.example.com, SameSite=Lax, Secure, Path=/ でSet-Cookie
+      // 切替時はこのフラグメント方式（#access_token=...）を廃止し、クリーンURLでリダイレクトする
+      const hash = `#access_token=${encodeURIComponent(authPayload.accessToken)}&refresh_token=${encodeURIComponent(authPayload.refreshToken)}`;
+      const redirectUrl = `${c.env.FRONTEND_BASE_URL}/auth/callback/discord${hash}`;
       return c.redirect(redirectUrl);
     } catch (error) {
       console.error("Auth callback error:", error);

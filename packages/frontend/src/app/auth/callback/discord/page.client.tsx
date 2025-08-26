@@ -9,16 +9,35 @@ const ClientSuccessPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // バックエンドがSet-Cookieしたトークンを確認
-    const accessToken = cookieUtils.auth.getAccessToken();
-    const refreshToken = cookieUtils.auth.getRefreshToken();
-    if (accessToken && refreshToken) {
-      router.replace("/");
-      return;
+    // TODO: ドメインを用意したらフラグメント方式を廃止して、
+    // バックエンドのSet-Cookie（SameSite=Lax, Secure, Path=/, Domain=.example.com など）に切替える。
+    // その際はここでhashを読む処理を削除し、Cookie存在チェックのみでトップへ遷移する。
+    try {
+      // 1) URLフラグメントからトークン取得（暫定フロー: バックエンド→フロント）
+      const hash = typeof window !== "undefined" ? window.location.hash : "";
+      if (hash && hash.startsWith("#")) {
+        const params = new URLSearchParams(hash.slice(1));
+        const accessToken = params.get("access_token");
+        const refreshToken = params.get("refresh_token");
+        if (accessToken && refreshToken) {
+          cookieUtils.auth.setTokens(accessToken, refreshToken);
+          router.replace("/");
+          return;
+        }
+      }
+
+      // 2) 既にCookieにある場合（将来ドメイン統一後のフロー）
+      const accessToken = cookieUtils.auth.getAccessToken();
+      const refreshToken = cookieUtils.auth.getRefreshToken();
+      if (accessToken && refreshToken) {
+        router.replace("/");
+        return;
+      }
+
+      setError("トークンが取得できませんでした");
+    } catch {
+      setError("トークン処理中にエラーが発生しました");
     }
-    setError(
-      "トークンが見つかりませんでした。Cookieがブロックされていないか確認してください。"
-    );
   }, [router]);
 
   if (error) {
