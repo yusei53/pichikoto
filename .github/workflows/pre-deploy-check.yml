@@ -49,7 +49,7 @@ jobs:
       - name: Setup test database
         run: |
           pnpm db:generate
-          pnpm db:migrate
+          pnpm db:migrate:safe
         working-directory: packages/backend
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
