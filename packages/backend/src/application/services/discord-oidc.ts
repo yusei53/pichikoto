@@ -62,10 +62,7 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
     const params = new URLSearchParams();
     params.append("client_id", c.env.DISCORD_CLIENT_ID);
     params.append("response_type", "code");
-    params.append(
-      "redirect_uri",
-      `${c.env.FRONTEND_BASE_URL}/auth/callback/discord`
-    );
+    params.append("redirect_uri", `${c.env.BASE_URL}/api/auth/callback`);
     params.append("scope", "identify openid");
     params.append("state", state);
     params.append("nonce", nonce);
@@ -83,10 +80,7 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
     params.append("client_secret", c.env.DISCORD_CLIENT_SECRET);
     params.append("grant_type", "authorization_code");
     params.append("code", code);
-    params.append(
-      "redirect_uri",
-      `${c.env.FRONTEND_BASE_URL}/auth/callback/discord`
-    );
+    params.append("redirect_uri", `${c.env.BASE_URL}/api/auth/callback`);
 
     const response = await fetch(`${this.discordApiBaseUrl}/oauth2/token`, {
       method: "POST",

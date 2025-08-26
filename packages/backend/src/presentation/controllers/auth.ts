@@ -8,7 +8,11 @@ import { TYPES } from "../../infrastructure/config/types";
 
 export interface AuthControllerInterface {
   RedirectToAuthUrl(c: Context): Promise<Response>;
-  callback(c: Context, code: string | undefined, state: string | undefined): Promise<Response>;
+  callback(
+    c: Context,
+    code: string | undefined,
+    state: string | undefined
+  ): Promise<Response>;
   refresh(c: Context): Promise<Response>;
   verify(c: Context): Promise<Response>;
 }
@@ -25,70 +29,96 @@ export class AuthController implements AuthControllerInterface {
   ) {}
 
   async RedirectToAuthUrl(c: Context) {
-  const { authUrl, sessionId } = await this.discordOIDCService.generateAuthUrl(c);
-  
-  // sessionIdをHttpOnlyCookieとして設定
-  setCookie(c, 'oauth_session', sessionId, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'Lax',
-    path: '/',
-    maxAge: 900 // 15分
-  });
-  
-  return c.redirect(authUrl);
-}
+    const { authUrl, sessionId } =
+      await this.discordOIDCService.generateAuthUrl(c);
 
-  async callback(c: Context, code: string | undefined, state: string | undefined) {
-  try {
-    if (!code) {
-      console.error("Auth callback error: No code provided");
-      return c.json({ error: "No code provided" }, 400);
-    }
-    
-    if (!state) {
-      console.error("Auth callback error: No state provided");
-      return c.json({ error: "No state provided" }, 400);
-    }
-
-    // Cookieから sessionId を取得
-    const sessionId = getCookie(c, 'oauth_session');
-    
-    if (!sessionId) {
-      console.error("Auth callback error: No session cookie provided");
-      return c.json({ error: "No session cookie provided" }, 400);
-    }
-    
-    const authPayload = await this.authUsecase.callback(c, code, state, sessionId);
-    
-    // 使用済みのセッションCookieを削除
-    setCookie(c, 'oauth_session', '', {
+    // sessionIdをHttpOnlyCookieとして設定
+    setCookie(c, "oauth_session", sessionId, {
       httpOnly: true,
       secure: true,
-      sameSite: 'Lax',
-      path: '/',
-      maxAge: 0
+      sameSite: "Lax",
+      path: "/",
+      maxAge: 900 // 15分
     });
-    
-    return c.json(authPayload);
-  } catch (error) {
-    console.error("Auth callback error:", error);
-    
-    // エラー時もセッションCookieを削除
-    setCookie(c, 'oauth_session', '', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'Lax',
-      path: '/',
-      maxAge: 0
-    });
-    
-    return c.json({ 
-      error: "Failed to authenticate", 
-      details: error instanceof Error ? error.message : "Unknown error" 
-    }, 500);
+
+    return c.redirect(authUrl);
   }
-}
+
+  async callback(
+    c: Context,
+    code: string | undefined,
+    state: string | undefined
+  ) {
+    try {
+      if (!code) {
+        console.error("Auth callback error: No code provided");
+        return c.json({ error: "No code provided" }, 400);
+      }
+
+      if (!state) {
+        console.error("Auth callback error: No state provided");
+        return c.json({ error: "No state provided" }, 400);
+      }
+
+      // Cookieから sessionId を取得
+      const sessionId = getCookie(c, "oauth_session");
+
+      if (!sessionId) {
+        console.error("Auth callback error: No session cookie provided");
+        return c.json({ error: "No session cookie provided" }, 400);
+      }
+
+      const authPayload = await this.authUsecase.callback(
+        c,
+        code,
+        state,
+        sessionId
+      );
+
+      // 使用済みのセッションCookieを削除
+      setCookie(c, "oauth_session", "", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "Lax",
+        path: "/",
+        maxAge: 0
+      });
+
+      // トークンをクッキーに保存（フロントで参照するためHttpOnlyは付けない）
+      const frontendHost = new URL(c.env.FRONTEND_BASE_URL).hostname;
+      setCookie(c, "accessToken", authPayload.accessToken, {
+        secure: true,
+        sameSite: "Strict",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30,
+        domain: frontendHost
+      } as any);
+      setCookie(c, "refreshToken", authPayload.refreshToken, {
+        secure: true,
+        sameSite: "Strict",
+        path: "/",
+        // 1年
+        maxAge: 60 * 60 * 24 * 365,
+        domain: frontendHost
+      } as any);
+
+      const redirectUrl = `${c.env.FRONTEND_BASE_URL}/auth/callback/discord/success`;
+      return c.redirect(redirectUrl);
+    } catch (error) {
+      console.error("Auth callback error:", error);
+
+      // エラー時もセッションCookieを削除
+      setCookie(c, "oauth_session", "", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "Lax",
+        path: "/",
+        maxAge: 0
+      });
+
+      return c.redirect(`${c.env.FRONTEND_BASE_URL}/auth/callback/discord`);
+    }
+  }
 
   async refresh(c: Context) {
     try {
