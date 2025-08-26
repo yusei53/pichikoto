@@ -1,9 +1,13 @@
 import type { Context } from "hono";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import * as jose from "jose";
+import { TYPES } from "../../infrastructure/config/types";
+import type { StateRepositoryInterface } from "../../infrastructure/repositories/StateRepository";
 
 export interface DiscordOIDCServiceInterface {
-  generateAuthUrl(c: Context): Promise<string>;
+  generateAuthUrl(
+    c: Context
+  ): Promise<{ authUrl: string; state: string; sessionId: string }>;
   exchangeCodeForTokens(
     c: Context,
     code: string
@@ -17,8 +21,17 @@ export interface DiscordOIDCServiceInterface {
     accessToken: string
   ): Promise<DiscordUserResource>;
   revokeAccessToken(c: Context, accessToken: string): Promise<void>;
-  verifyIdToken(c: Context, idToken: string): Promise<DiscordIdTokenPayload>;
+  verifyIdToken(
+    c: Context,
+    idToken: string,
+    expectedNonce: string
+  ): Promise<DiscordIdTokenPayload>;
   getDiscordPublicKeys(): Promise<any[]>;
+  verifyStateBySessionId(
+    c: Context,
+    sessionId: string,
+    state: string
+  ): Promise<{ valid: boolean; nonce?: string }>;
 }
 
 @injectable()
@@ -27,9 +40,25 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
   private readonly discordJWKSUrl = "https://discord.com/api/oauth2/keys";
   private publicKeysCache: any[] | null = null;
   private cacheExpiry: number = 0;
-  private readonly cacheLifetime = 3600000; // 1時間
+  private readonly cacheLifetime = 3600000;
 
-  async generateAuthUrl(c: Context): Promise<string> {
+  constructor(
+    @inject(TYPES.StateRepository)
+    private readonly stateRepository: StateRepositoryInterface
+  ) {}
+
+  async generateAuthUrl(
+    c: Context
+  ): Promise<{ authUrl: string; state: string; sessionId: string }> {
+    // ランダムなsessionId、state、nonce値を生成
+    const sessionId = this.generateSecureRandomString(32);
+    const state = this.generateSecureRandomString(32);
+    const nonce = this.generateSecureRandomString(32);
+
+    // sessionId、state、nonceを15分間有効として保存
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+    await this.stateRepository.save(sessionId, state, nonce, expiresAt);
+
     const params = new URLSearchParams();
     params.append("client_id", c.env.DISCORD_CLIENT_ID);
     params.append("response_type", "code");
@@ -37,10 +66,12 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
       "redirect_uri",
       `${c.env.FRONTEND_BASE_URL}/auth/callback/discord`
     );
-    params.append("scope", "identify openid"); // OIDCを有効にするためopenidスコープを追加
+    params.append("scope", "identify openid");
+    params.append("state", state);
+    params.append("nonce", nonce);
 
     const authUrl = `https://discord.com/oauth2/authorize?${params.toString()}`;
-    return authUrl;
+    return { authUrl, state, sessionId };
   }
 
   async exchangeCodeForTokens(
@@ -173,19 +204,17 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
 
   async verifyIdToken(
     c: Context,
-    idToken: string
+    idToken: string,
+    expectedNonce: string
   ): Promise<DiscordIdTokenPayload> {
     try {
-      // JWTヘッダーをデコードしてkidを取得
       const header = jose.decodeProtectedHeader(idToken);
       if (!header.kid) {
         throw new Error("JWT header missing kid");
       }
 
-      // Discord公開鍵を取得
       const publicKeys = await this.getDiscordPublicKeys();
 
-      // kidに一致する公開鍵を探す
       const publicKey = publicKeys.find((key: any) => key.kid === header.kid);
       if (!publicKey) {
         console.error(
@@ -195,19 +224,16 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
         throw new Error(`Public key with kid ${header.kid} not found`);
       }
 
-      // JWT検証（アルゴリズムも明示的に指定）
       const { payload } = await jose.jwtVerify(idToken, publicKey, {
         issuer: "https://discord.com",
         audience: c.env.DISCORD_CLIENT_ID,
-        algorithms: ["RS256"] // Discord OIDCで使用されるアルゴリズムを明示的に指定
+        algorithms: ["RS256"]
       });
 
-      // payloadの型チェック
       if (!this.isDiscordIdTokenPayload(payload)) {
         throw new Error("Invalid ID token payload structure");
       }
 
-      // audienceの追加検証（配列の場合も考慮）
       const expectedClientId = c.env.DISCORD_CLIENT_ID;
       const isValidAudience = Array.isArray(payload.aud)
         ? payload.aud.includes(expectedClientId)
@@ -217,6 +243,15 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
         throw new Error(
           `Invalid audience. Expected: ${expectedClientId}, Got: ${JSON.stringify(payload.aud)}`
         );
+      }
+
+      // nonce検証
+      if (payload.nonce !== expectedNonce) {
+        console.error("Nonce mismatch:", {
+          expected: expectedNonce,
+          received: payload.nonce
+        });
+        throw new Error("Invalid nonce");
       }
 
       return payload;
@@ -242,7 +277,6 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
 
       for (const jwk of jwks.keys) {
         try {
-          // RSA署名鍵のみを処理（Discord OIDCではRS256を使用）
           if (jwk.kty === "RSA" && jwk.use === "sig" && jwk.alg === "RS256") {
             const key = await jose.importJWK(jwk);
             (key as any).kid = jwk.kid;
@@ -254,7 +288,6 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
         }
       }
 
-      // キャッシュを更新
       this.publicKeysCache = keys;
       this.cacheExpiry = Date.now() + this.cacheLifetime;
 
@@ -265,6 +298,55 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
     }
   }
 
+  async verifyStateBySessionId(
+    c: Context,
+    sessionId: string,
+    state: string
+  ): Promise<{ valid: boolean; nonce?: string }> {
+    try {
+      const stateRecord = await this.stateRepository.getBySessionId(sessionId);
+
+      if (!stateRecord) {
+        return { valid: false };
+      }
+
+      // stateが一致しない場合
+      if (stateRecord.state !== state) {
+        // 不正なstateでアクセスされた場合もレコードを削除
+        await this.stateRepository.delete(sessionId);
+        return { valid: false };
+      }
+
+      // 期限切れチェック
+      if (stateRecord.expiresAt < new Date()) {
+        // 期限切れのstateは削除
+        await this.stateRepository.delete(sessionId);
+        return { valid: false };
+      }
+
+      // 検証成功時：nonceを返してからレコードを削除
+      const nonce = stateRecord.nonce;
+      await this.stateRepository.delete(sessionId);
+      return { valid: true, nonce };
+    } catch (error) {
+      // エラー時もレコードを削除
+      await this.stateRepository.delete(sessionId).catch(() => {
+        // delete失敗は無視（元のエラーを優先）
+      });
+      throw error;
+    }
+  }
+
+  private generateSecureRandomString(length: number): string {
+    const chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
   private isDiscordIdTokenPayload(
     payload: any
   ): payload is DiscordIdTokenPayload {
@@ -273,10 +355,11 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
       typeof payload.sub === "string" &&
       typeof payload.iss === "string" &&
       payload.iss === "https://discord.com" &&
-      (typeof payload.aud === "string" || Array.isArray(payload.aud)) && // audienceは文字列または配列
+      (typeof payload.aud === "string" || Array.isArray(payload.aud)) &&
       typeof payload.exp === "number" &&
       typeof payload.iat === "number" &&
-      typeof payload.auth_time === "number";
+      typeof payload.auth_time === "number" &&
+      typeof payload.nonce === "string";
 
     if (!isValid) {
       console.error("Invalid ID token payload:", payload);
@@ -318,5 +401,6 @@ export interface DiscordIdTokenPayload {
   exp: number; // Expiration time
   iat: number; // Issued at time
   auth_time: number; // Authentication time
+  nonce: string; // Nonce value
   at_hash?: string; // Access token hash
 }

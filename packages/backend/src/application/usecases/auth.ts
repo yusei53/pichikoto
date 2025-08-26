@@ -11,7 +11,12 @@ import type { DiscordOIDCServiceInterface } from "../services/discord-oidc";
 import type { JwtServiceInterface } from "../services/jwt";
 
 export interface AuthUsecaseInterface {
-  callback(c: Context, code: string): Promise<AuthPayloadDTO>;
+  callback(
+    c: Context,
+    code: string,
+    state: string,
+    sessionId: string
+  ): Promise<AuthPayloadDTO>;
 }
 
 @injectable()
@@ -27,7 +32,23 @@ export class AuthUsecase implements AuthUsecaseInterface {
     private readonly jwtService: JwtServiceInterface
   ) {}
 
-  async callback(c: Context, code: string): Promise<AuthPayloadDTO> {
+  async callback(
+    c: Context,
+    code: string,
+    state: string,
+    sessionId: string
+  ): Promise<AuthPayloadDTO> {
+    // sessionIdとstateパラメータの検証（nonceも取得）
+    const stateVerification =
+      await this.discordOIDCService.verifyStateBySessionId(c, sessionId, state);
+    if (!stateVerification.valid || !stateVerification.nonce) {
+      console.error("Invalid or expired state parameter:", {
+        sessionId,
+        state
+      });
+      throw new Error("Invalid or expired state parameter");
+    }
+
     const tokenResponse = await this.discordOIDCService.exchangeCodeForTokens(
       c,
       code
@@ -37,9 +58,11 @@ export class AuthUsecase implements AuthUsecaseInterface {
       throw new Error("ID token not received from Discord OIDC");
     }
 
+    // nonceを使用してIDトークンを検証
     const idTokenPayload = await this.discordOIDCService.verifyIdToken(
       c,
-      tokenResponse.id_token
+      tokenResponse.id_token,
+      stateVerification.nonce
     );
     console.log("ID token verification successful:", {
       sub: idTokenPayload.sub
@@ -57,7 +80,7 @@ export class AuthUsecase implements AuthUsecaseInterface {
     const existsUser = await this.userRepository.findBy(
       DiscordID.from(discordUserResource.id)
     );
-    // MEMO: 既にユーザーが存在する場合はログインとして処理
+
     if (existsUser !== null) {
       const userAuth = await this.userAuthRepository.findBy(existsUser.userID);
       if (!userAuth) {
@@ -68,13 +91,12 @@ export class AuthUsecase implements AuthUsecaseInterface {
       return toAuthPayloadDTO(existsUser, accessToken, refreshToken);
     }
 
-    // MEMO: 新規ユーザーの場合はサインアップ
     const user = User.create(
       DiscordID.from(discordUserResource.id),
       discordUserResource.username,
       discordUserResource.discriminator,
       discordUserResource.avatar,
-      null, // MEMO: OAuth時にユーザーからの入力は受け取れないのでnull
+      null,
       null
     );
     await this.userRepository.save(user);

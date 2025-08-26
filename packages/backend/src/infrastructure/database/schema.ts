@@ -22,3 +22,11 @@ export const userAuth = pgTable("user_auth", {
   tokenType: text("token_type").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow()
 });
+
+export const oauthState = pgTable("oauth_state", {
+  sessionId: text("session_id").primaryKey(),
+  state: text("state").notNull().unique(),
+  nonce: text("nonce").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow()
+});
