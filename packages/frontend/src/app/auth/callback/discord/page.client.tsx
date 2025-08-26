@@ -16,7 +16,9 @@ const ClientSuccessPage: React.FC = () => {
       router.replace("/");
       return;
     }
-    setError("トークンが見つかりませんでした。Cookieがブロックされていないか確認してください。");
+    setError(
+      "トークンが見つかりませんでした。Cookieがブロックされていないか確認してください。"
+    );
   }, [router]);
 
   if (error) {
@@ -26,7 +28,10 @@ const ClientSuccessPage: React.FC = () => {
           <div className="text-red-600 text-xl mb-4">❌</div>
           <h1 className="text-xl font-bold mb-2">認証エラー</h1>
           <p className="text-gray-600 mb-4">{error}</p>
-          <button onClick={() => router.replace("/")} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          <button
+            onClick={() => router.replace("/")}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
             トップページへ戻る
           </button>
         </div>

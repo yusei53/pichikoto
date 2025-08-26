@@ -1,6 +1,5 @@
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
-
 import { DiscordID, User } from "../../domain/User";
 import { UserAuth } from "../../domain/UserAuth";
 import { TYPES } from "../../infrastructure/config/types";
