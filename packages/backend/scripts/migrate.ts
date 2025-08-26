@@ -16,7 +16,6 @@ async function runMigration() {
   try {
     console.log("🚀 Starting database migration...");
 
-    // 環境変数の確認
     const databaseUrl = process.env.DATABASE_URL;
     if (!databaseUrl) {
       throw new Error("DATABASE_URL environment variable is not set");
