@@ -14,6 +14,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:migrate:safe": "tsx scripts/migrate.ts",
     "db:studio": "drizzle-kit studio",
+    "db:check-migration": "tsx scripts/check-migration-status.ts",
+    "db:check-schema": "tsx scripts/check-migration-status.ts --schema",
     "typegen": "wrangler types"
   },
   "dependencies": {

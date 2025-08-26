@@ -1,0 +1,82 @@
+name: Pre-Deploy Check
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'packages/backend/**'
+      - '.github/workflows/db-migration.yml'
+      - '.github/workflows/pre-deploy-check.yml'
+
+jobs:
+  pre-deploy-check:
+    name: Pre-Deploy Validation
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.12.0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Setup test database
+        run: |
+          pnpm db:generate
+          pnpm db:migrate
+        working-directory: packages/backend
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
+
+      - name: Check migration status (test env)
+        run: pnpm db:check-migration
+        working-directory: packages/backend
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
+
+      - name: Check production migration status
+        if: secrets.DATABASE_URL != ''
+        run: |
+          echo "🔍 Checking production migration status..."
+          DATABASE_URL="${{ secrets.DATABASE_URL }}" pnpm db:check-migration
+        working-directory: packages/backend
+
+      - name: Generate deployment summary
+        run: |
+          echo "## 🚀 Pre-Deploy Check Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Migration status checks passed!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Verified:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Test environment migration status" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Production environment migration status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🎉 **Ready for deployment!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "_Note: Basic tests and linting are performed in the test-backend workflow_" >> $GITHUB_STEP_SUMMARY

@@ -54,6 +54,16 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
+      - name: Pre-migration validation
+        run: |
+          cd packages/backend
+          echo "🔍 Checking current migration status..."
+          DATABASE_URL="${DATABASE_URL}" pnpm db:check-migration || {
+            echo "⚠️  Pending migrations detected - proceeding with migration"
+          }
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Run database migration
         run: |
           cd packages/backend
@@ -61,6 +71,12 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      - name: Verify migration
+      - name: Post-migration validation
         run: |
-          echo "Migration completed successfully"
+          cd packages/backend
+          echo "🔍 Verifying migration completion..."
+          DATABASE_URL="${DATABASE_URL}" pnpm db:check-migration
+          DATABASE_URL="${DATABASE_URL}" pnpm db:check-schema
+          echo "✅ Migration completed and verified successfully"
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
