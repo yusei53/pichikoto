@@ -84,22 +84,8 @@ export class AuthController implements AuthControllerInterface {
         maxAge: 0
       });
 
-      // リライト前提: フロントオリジンからのレスポンスとしてSet-Cookieされる
-      setCookie(c, "accessToken", authPayload.accessToken, {
-        secure: true,
-        sameSite: "Lax",
-        path: "/",
-        maxAge: 60 * 60 * 24 * 30
-      });
-      setCookie(c, "refreshToken", authPayload.refreshToken, {
-        secure: true,
-        sameSite: "Lax",
-        path: "/",
-        maxAge: 60 * 60 * 24 * 365
-      });
-
-      const redirectUrl = `${c.env.FRONTEND_BASE_URL}/auth/callback/discord`;
-      return c.redirect(redirectUrl);
+      c.header("Cache-Control", "no-store");
+      return c.json(authPayload);
     } catch (error) {
       console.error("Auth callback error:", error);
 
@@ -112,7 +98,7 @@ export class AuthController implements AuthControllerInterface {
         maxAge: 0
       });
 
-      return c.redirect(`${c.env.FRONTEND_BASE_URL}/auth/callback/discord`);
+      return c.json({ error: "Failed to authenticate" }, 500);
     }
   }
 
