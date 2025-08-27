@@ -34,7 +34,6 @@ export class AuthController implements AuthControllerInterface {
 
     // sessionIdをHttpOnlyCookieとして設定
     setCookie(c, "oauth_session", sessionId, {
-      httpOnly: true,
       secure: true,
       sameSite: "Lax",
       path: "/",
@@ -77,7 +76,6 @@ export class AuthController implements AuthControllerInterface {
 
       // 使用済みのセッションCookieを削除
       setCookie(c, "oauth_session", "", {
-        httpOnly: true,
         secure: true,
         sameSite: "Lax",
         path: "/",
@@ -91,7 +89,6 @@ export class AuthController implements AuthControllerInterface {
 
       // エラー時もセッションCookieを削除
       setCookie(c, "oauth_session", "", {
-        httpOnly: true,
         secure: true,
         sameSite: "Lax",
         path: "/",
