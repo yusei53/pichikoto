@@ -6,7 +6,7 @@ export class UserAuth {
     readonly userId: UserID,
     readonly accessToken: AccessToken,
     readonly refreshToken: RefreshToken,
-    readonly expiresIn: ExpiredAt,
+    readonly expiresIn: ExpiresAt,
     readonly scope: string,
     readonly tokenType: string,
     readonly createdAt: CreatedAt
@@ -24,7 +24,7 @@ export class UserAuth {
       userId,
       AccessToken.from(accessToken),
       RefreshToken.from(refreshToken),
-      ExpiredAt.new(expiresIn),
+      ExpiresAt.new(expiresIn),
       scope,
       tokenType,
       CreatedAt.new()
@@ -35,7 +35,7 @@ export class UserAuth {
     userId: UserID,
     accessToken: AccessToken,
     refreshToken: RefreshToken,
-    expiresIn: ExpiredAt,
+    expiresIn: ExpiresAt,
     scope: string,
     tokenType: string,
     createdAt: CreatedAt
@@ -68,15 +68,15 @@ export class RefreshToken {
   }
 }
 
-export class ExpiredAt {
+export class ExpiresAt {
   private constructor(public readonly value: Date) {}
 
-  static new(expiresIn: number): ExpiredAt {
-    return new ExpiredAt(new Date(Date.now() + expiresIn * 1000));
+  static new(expiresIn: number): ExpiresAt {
+    return new ExpiresAt(new Date(Date.now() + expiresIn * 1000));
   }
 
-  static from(expiredAt: Date): ExpiredAt {
-    return new ExpiredAt(expiredAt);
+  static from(expiresAt: Date): ExpiresAt {
+    return new ExpiresAt(expiresAt);
   }
 
   isExpired(): boolean {
