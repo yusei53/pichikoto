@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import { UserID } from "../../domain/User";
 import {
   AccessToken,
-  ExpiredAt,
+  ExpiresAt,
   RefreshToken,
   UserAuth
 } from "../../domain/UserAuth";
@@ -54,7 +54,7 @@ export class UserAuthRepository implements UserAuthRepositoryInterface {
       UserID.from(userAuthRecord.userId),
       AccessToken.from(userAuthRecord.accessToken),
       RefreshToken.from(userAuthRecord.refreshToken),
-      ExpiredAt.from(userAuthRecord.expiresIn),
+      ExpiresAt.from(userAuthRecord.expiresIn),
       userAuthRecord.scope,
       userAuthRecord.tokenType,
       CreatedAt.from(userAuthRecord.createdAt)
