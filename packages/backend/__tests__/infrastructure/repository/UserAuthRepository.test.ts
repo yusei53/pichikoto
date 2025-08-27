@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { UserID } from "../../../src/domain/User";
 import {
   AccessToken,
-  ExpiredAt,
+  ExpiresAt,
   RefreshToken,
   UserAuth
 } from "../../../src/domain/UserAuth";
@@ -64,7 +64,7 @@ describe("UserAuthRepository Tests", () => {
         UserID.from(userAuth1.userId),
         AccessToken.from(userAuth1.accessToken),
         RefreshToken.from(userAuth1.refreshToken),
-        ExpiredAt.from(userAuth1.expiresIn),
+        ExpiresAt.from(userAuth1.expiresIn),
         userAuth1.scope,
         userAuth1.tokenType,
         CreatedAt.from(userAuth1.createdAt)
@@ -84,7 +84,7 @@ describe("UserAuthRepository Tests", () => {
         UserID.from(userAuth2.userId),
         AccessToken.from(userAuth2.accessToken),
         RefreshToken.from(userAuth2.refreshToken),
-        ExpiredAt.from(userAuth2.expiresIn),
+        ExpiresAt.from(userAuth2.expiresIn),
         userAuth2.scope,
         userAuth2.tokenType,
         CreatedAt.from(userAuth2.createdAt)
@@ -126,7 +126,7 @@ describe("UserAuthRepository Tests", () => {
         UserID.from(userAuthRecord.userId),
         AccessToken.from(userAuthRecord.accessToken),
         RefreshToken.from(userAuthRecord.refreshToken),
-        ExpiredAt.from(userAuthRecord.expiresIn),
+        ExpiresAt.from(userAuthRecord.expiresIn),
         userAuthRecord.scope,
         userAuthRecord.tokenType,
         CreatedAt.from(userAuthRecord.createdAt)

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { UserID } from "../../src/domain/User";
 import {
   AccessToken,
-  ExpiredAt,
+  ExpiresAt,
   RefreshToken,
   UserAuth
 } from "../../src/domain/UserAuth";
@@ -38,7 +38,7 @@ describe("UserAuthDomainTest", () => {
         userId,
         AccessToken.from(accessTokenValue),
         RefreshToken.from(refreshTokenValue),
-        ExpiredAt.new(expiresIn),
+        ExpiresAt.new(expiresIn),
         scope,
         tokenType,
         CreatedAt.new()
