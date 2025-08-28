@@ -13,11 +13,13 @@ const MOCK_NOW = new Date("2025-01-01T00:00:00.000Z").getTime();
 
 vi.spyOn(Date, "now").mockReturnValue(MOCK_NOW);
 
-vi.mock("../../src/domain/models/User", () => {
+vi.mock("../../src/domain/User", () => {
   return {
     UserID: {
       new: vi.fn(() => ({
-        value: MOCK_UUID
+        value: {
+          value: MOCK_UUID
+        }
       }))
     }
   };
