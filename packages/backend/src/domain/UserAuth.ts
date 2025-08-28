@@ -6,7 +6,7 @@ export class UserAuth {
     readonly userId: UserID,
     readonly accessToken: AccessToken,
     readonly refreshToken: RefreshToken,
-    readonly expiresIn: ExpiresAt,
+    readonly expiresAt: ExpiresAt,
     readonly scope: string,
     readonly tokenType: string,
     readonly createdAt: CreatedAt
@@ -35,7 +35,7 @@ export class UserAuth {
     userId: UserID,
     accessToken: AccessToken,
     refreshToken: RefreshToken,
-    expiresIn: ExpiresAt,
+    expiresAt: ExpiresAt,
     scope: string,
     tokenType: string,
     createdAt: CreatedAt
@@ -44,7 +44,7 @@ export class UserAuth {
       userId,
       accessToken,
       refreshToken,
-      expiresIn,
+      expiresAt,
       scope,
       tokenType,
       createdAt

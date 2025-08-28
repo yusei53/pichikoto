@@ -42,7 +42,7 @@ export class UserAuthRepository implements UserAuthRepositoryInterface {
       userId: userAuth.userId,
       accessToken: userAuth.accessToken,
       refreshToken: userAuth.refreshToken,
-      expiresIn: userAuth.expiresIn,
+      expiresAt: userAuth.expiresAt,
       scope: userAuth.scope,
       tokenType: userAuth.tokenType,
       createdAt: userAuth.createdAt
@@ -54,7 +54,7 @@ export class UserAuthRepository implements UserAuthRepositoryInterface {
       UserID.from(userAuthRecord.userId),
       AccessToken.from(userAuthRecord.accessToken),
       RefreshToken.from(userAuthRecord.refreshToken),
-      ExpiresAt.from(userAuthRecord.expiresIn),
+      ExpiresAt.from(userAuthRecord.expiresAt),
       userAuthRecord.scope,
       userAuthRecord.tokenType,
       CreatedAt.from(userAuthRecord.createdAt)
@@ -67,7 +67,7 @@ export class UserAuthRepository implements UserAuthRepositoryInterface {
       userId: userAuth.userId.value.value,
       accessToken: userAuth.accessToken.value,
       refreshToken: userAuth.refreshToken.value,
-      expiresIn: userAuth.expiresIn.value,
+      expiresAt: userAuth.expiresAt.value,
       scope: userAuth.scope,
       tokenType: userAuth.tokenType,
       createdAt: userAuth.createdAt.value
@@ -79,7 +79,7 @@ type UserAuthRecord = {
   userId: string;
   accessToken: string;
   refreshToken: string;
-  expiresIn: Date;
+  expiresAt: Date;
   scope: string;
   tokenType: string;
   createdAt: Date;

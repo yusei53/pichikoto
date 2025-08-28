@@ -18,13 +18,13 @@ export const COMMON_TOKEN_INFO = {
  * UserAuthテーブルのfixture
  */
 export const createUserAuthTableFixture = (userID: string) => {
-  const expiresIn = new Date(Date.now() + 3600 * 1000); // 1時間後
+  const expiresAt = new Date(Date.now() + 3600 * 1000); // 1時間後
 
   return {
     userId: userID,
     accessToken: generateUniqueToken("test_access_token"),
     refreshToken: generateUniqueToken("test_refresh_token"),
-    expiresIn,
+    expiresAt,
     scope: COMMON_TOKEN_INFO.SCOPE,
     tokenType: COMMON_TOKEN_INFO.TOKEN_TYPE,
     createdAt: new Date()
@@ -35,13 +35,13 @@ export const createUserAuthTableFixture = (userID: string) => {
  * 期限切れのUserAuthのfixture
  */
 export const createExpiredUserAuthTableFixture = (userID: string) => {
-  const expiresIn = new Date(Date.now() - 3600 * 1000); // 1時間前（期限切れ）
+  const expiresAt = new Date(Date.now() - 3600 * 1000); // 1時間前（期限切れ）
 
   return {
     userId: userID,
     accessToken: generateUniqueToken("test_access_token"),
     refreshToken: generateUniqueToken("test_refresh_token"),
-    expiresIn,
+    expiresAt,
     scope: COMMON_TOKEN_INFO.SCOPE,
     tokenType: COMMON_TOKEN_INFO.TOKEN_TYPE,
     createdAt: new Date()

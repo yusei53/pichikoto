@@ -64,7 +64,7 @@ describe("UserAuthRepository Tests", () => {
         UserID.from(userAuth1.userId),
         AccessToken.from(userAuth1.accessToken),
         RefreshToken.from(userAuth1.refreshToken),
-        ExpiresAt.from(userAuth1.expiresIn),
+        ExpiresAt.from(userAuth1.expiresAt),
         userAuth1.scope,
         userAuth1.tokenType,
         CreatedAt.from(userAuth1.createdAt)
@@ -84,7 +84,7 @@ describe("UserAuthRepository Tests", () => {
         UserID.from(userAuth2.userId),
         AccessToken.from(userAuth2.accessToken),
         RefreshToken.from(userAuth2.refreshToken),
-        ExpiresAt.from(userAuth2.expiresIn),
+        ExpiresAt.from(userAuth2.expiresAt),
         userAuth2.scope,
         userAuth2.tokenType,
         CreatedAt.from(userAuth2.createdAt)
@@ -126,7 +126,7 @@ describe("UserAuthRepository Tests", () => {
         UserID.from(userAuthRecord.userId),
         AccessToken.from(userAuthRecord.accessToken),
         RefreshToken.from(userAuthRecord.refreshToken),
-        ExpiresAt.from(userAuthRecord.expiresIn),
+        ExpiresAt.from(userAuthRecord.expiresAt),
         userAuthRecord.scope,
         userAuthRecord.tokenType,
         CreatedAt.from(userAuthRecord.createdAt)
