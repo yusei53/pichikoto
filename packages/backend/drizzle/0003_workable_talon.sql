@@ -1,2 +1,1 @@
-ALTER TABLE "user_auth" ADD COLUMN "expires_at" timestamp NOT NULL;--> statement-breakpoint
-ALTER TABLE "user_auth" DROP COLUMN "expires_in";
+ALTER TABLE "user_auth" RENAME COLUMN "expires_in" TO "expires_at";
