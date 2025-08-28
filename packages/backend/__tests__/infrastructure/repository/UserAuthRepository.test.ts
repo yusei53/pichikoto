@@ -7,8 +7,8 @@ import {
   UserAuth
 } from "../../../src/domain/UserAuth";
 import * as schema from "../../../src/infrastructure/database/schema";
-import type { UserAuthRepositoryInterface } from "../../../src/infrastructure/repositories/UserAuthRepository";
-import { UserAuthRepository } from "../../../src/infrastructure/repositories/UserAuthRepository";
+import type { DiscordTokensRepositoryInterface } from "../../../src/infrastructure/repositories/DiscordTokensRepository";
+import { DiscordTokensRepository } from "../../../src/infrastructure/repositories/DiscordTokensRepository";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { TestDbClient } from "../../testing/setup/TestDbClient";
 import { assertEqualUserAuthTable } from "../../testing/table_assert/AssertEqualUserAuthTable";
@@ -27,10 +27,10 @@ import {
 } from "../../testing/utils/GenericTableHelper";
 
 describe("UserAuthRepository Tests", () => {
-  let userAuthRepository: UserAuthRepositoryInterface;
+  let discordTokensRepository: DiscordTokensRepositoryInterface;
 
   beforeEach(() => {
-    userAuthRepository = getUserAuthRepository();
+    discordTokensRepository = getDiscordTokensRepository();
   });
 
   describe("findBy", () => {
@@ -71,7 +71,7 @@ describe("UserAuthRepository Tests", () => {
       );
 
       // act
-      const actual = await userAuthRepository.findBy(userAuth.userId);
+      const actual = await discordTokensRepository.findBy(userAuth.userId);
 
       // assert
       expect(actual).toEqual(userAuth);
@@ -91,7 +91,7 @@ describe("UserAuthRepository Tests", () => {
       );
 
       // act
-      const actual = await userAuthRepository.findBy(userAuth.userId);
+      const actual = await discordTokensRepository.findBy(userAuth.userId);
 
       // assert
       expect(actual).toEqual(userAuth);
@@ -102,7 +102,7 @@ describe("UserAuthRepository Tests", () => {
       const nonExistentUserID = UserID.new();
 
       // act
-      const actual = await userAuthRepository.findBy(nonExistentUserID);
+      const actual = await discordTokensRepository.findBy(nonExistentUserID);
 
       // assert
       expect(actual).toBeNull();
@@ -133,7 +133,7 @@ describe("UserAuthRepository Tests", () => {
       );
 
       // act
-      await userAuthRepository.save(userAuth);
+      await discordTokensRepository.save(userAuth);
 
       // assert
       const actualRecord = (await selectOneFromDatabase(
@@ -144,7 +144,7 @@ describe("UserAuthRepository Tests", () => {
   });
 });
 
-const getUserAuthRepository = (): UserAuthRepositoryInterface => {
+const getDiscordTokensRepository = (): DiscordTokensRepositoryInterface => {
   const dbClient = new TestDbClient();
-  return new UserAuthRepository(dbClient);
+  return new DiscordTokensRepository(dbClient);
 };

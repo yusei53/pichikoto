@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import { DiscordID, User } from "../../domain/User";
 import { UserAuth } from "../../domain/UserAuth";
 import { TYPES } from "../../infrastructure/config/types";
-import type { UserAuthRepositoryInterface } from "../../infrastructure/repositories/UserAuthRepository";
+import type { DiscordTokensRepositoryInterface } from "../../infrastructure/repositories/DiscordTokensRepository";
 import type { UserRepositoryInterface } from "../../infrastructure/repositories/UserRepository";
 import { toAuthPayloadDTO, type AuthPayloadDTO } from "../dtos/auth.dto";
 import type { DiscordOIDCServiceInterface } from "../services/discord-oidc";
@@ -25,8 +25,8 @@ export class AuthUsecase implements AuthUsecaseInterface {
     private readonly discordOIDCService: DiscordOIDCServiceInterface,
     @inject(TYPES.UserRepository)
     private readonly userRepository: UserRepositoryInterface,
-    @inject(TYPES.UserAuthRepository)
-    private readonly userAuthRepository: UserAuthRepositoryInterface,
+    @inject(TYPES.DiscordTokensRepository)
+    private readonly discordTokensRepository: DiscordTokensRepositoryInterface,
     @inject(TYPES.JwtService)
     private readonly jwtService: JwtServiceInterface
   ) {}
@@ -81,7 +81,9 @@ export class AuthUsecase implements AuthUsecaseInterface {
     );
 
     if (existsUser !== null) {
-      const userAuth = await this.userAuthRepository.findBy(existsUser.userID);
+      const userAuth = await this.discordTokensRepository.findBy(
+        existsUser.userID
+      );
       if (!userAuth) {
         throw new Error("UserAuth not found");
       }
@@ -107,7 +109,7 @@ export class AuthUsecase implements AuthUsecaseInterface {
       tokenResponse.scope,
       tokenResponse.token_type
     );
-    await this.userAuthRepository.save(userAuth);
+    await this.discordTokensRepository.save(userAuth);
 
     const { accessToken, refreshToken } = await this.jwtService.generateTokens(
       c,
