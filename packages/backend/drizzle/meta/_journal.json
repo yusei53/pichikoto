@@ -22,6 +22,13 @@
       "when": 1756342808633,
       "tag": "0002_sloppy_tiger_shark",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1756359086842,
+      "tag": "0003_workable_talon",
+      "breakpoints": true
     }
   ]
 }
