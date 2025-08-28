@@ -81,10 +81,10 @@ export class AuthUsecase implements AuthUsecaseInterface {
     );
 
     if (existsUser !== null) {
-      const userAuth = await this.discordTokensRepository.findBy(
+      const discordTokens = await this.discordTokensRepository.findBy(
         existsUser.userID
       );
-      if (!userAuth) {
+      if (!discordTokens) {
         throw new Error("DiscordTokens not found");
       }
       const { accessToken, refreshToken } =
@@ -101,7 +101,7 @@ export class AuthUsecase implements AuthUsecaseInterface {
     );
     await this.userRepository.save(user);
 
-    const userAuth = DiscordTokens.create(
+    const discordTokens = DiscordTokens.create(
       user.userID,
       tokenResponse.access_token,
       tokenResponse.refresh_token,
@@ -109,7 +109,7 @@ export class AuthUsecase implements AuthUsecaseInterface {
       tokenResponse.scope,
       tokenResponse.token_type
     );
-    await this.discordTokensRepository.save(userAuth);
+    await this.discordTokensRepository.save(discordTokens);
 
     const { accessToken, refreshToken } = await this.jwtService.generateTokens(
       c,
