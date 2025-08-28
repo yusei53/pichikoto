@@ -21,7 +21,6 @@ export class User {
     readonly userID: UserID,
     readonly discordID: DiscordID,
     readonly discordUserName: string,
-    readonly discordDiscriminator: string,
     readonly discordAvatar: string,
     readonly faculty: Faculty | null,
     readonly department: Department | null,
@@ -31,7 +30,6 @@ export class User {
   static create(
     discordID: DiscordID,
     discordUserName: string,
-    discordDiscriminator: string,
     discordAvatar: string,
     faculty: Faculty | null, // MEMO: Discord認証で作成時はnull
     department: Department | null
@@ -40,7 +38,6 @@ export class User {
       UserID.new(),
       discordID,
       discordUserName,
-      discordDiscriminator,
       discordAvatar,
       faculty ?? null,
       department ?? null,
@@ -52,7 +49,6 @@ export class User {
     userID: UserID,
     discordID: DiscordID,
     discordUserName: string,
-    discordDiscriminator: string,
     discordAvatar: string,
     faculty: Faculty | null,
     department: Department | null,
@@ -62,7 +58,6 @@ export class User {
       userID,
       discordID,
       discordUserName,
-      discordDiscriminator,
       discordAvatar,
       faculty,
       department,

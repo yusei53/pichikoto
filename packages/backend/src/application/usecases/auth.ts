@@ -93,7 +93,6 @@ export class AuthUsecase implements AuthUsecaseInterface {
     const user = User.create(
       DiscordID.from(discordUserResource.id),
       discordUserResource.username,
-      discordUserResource.discriminator,
       discordUserResource.avatar,
       null,
       null

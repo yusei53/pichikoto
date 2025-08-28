@@ -43,7 +43,6 @@ export class UserRepository implements UserRepositoryInterface {
       id: user.id,
       discordId: user.discordId,
       discordUserName: user.discordUserName,
-      discordDiscriminator: user.discordDiscriminator,
       discordAvatar: user.discordAvatar,
       faculty: user.faculty,
       department: user.department,
@@ -56,7 +55,6 @@ export class UserRepository implements UserRepositoryInterface {
       UserID.from(userRecord.id),
       DiscordID.from(userRecord.discordId),
       userRecord.discordUserName,
-      userRecord.discordDiscriminator,
       userRecord.discordAvatar,
       userRecord.faculty ? Faculty.from(userRecord.faculty) : null,
       userRecord.department ? Department.from(userRecord.department) : null,
@@ -70,7 +68,6 @@ export class UserRepository implements UserRepositoryInterface {
       id: user.userID.value.value,
       discordId: user.discordID.getValue(),
       discordUserName: user.discordUserName,
-      discordDiscriminator: user.discordDiscriminator,
       discordAvatar: user.discordAvatar,
       faculty: user.faculty?.getValue() ?? null,
       department: user.department?.getValue() ?? null,
@@ -83,7 +80,6 @@ type UserRecord = {
   id: string;
   discordId: string;
   discordUserName: string;
-  discordDiscriminator: string;
   discordAvatar: string;
   faculty: string | null;
   department: string | null;
