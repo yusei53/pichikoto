@@ -15,6 +15,13 @@
       "when": 1756214337412,
       "tag": "0001_nebulous_cable",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1756342808633,
+      "tag": "0002_sloppy_tiger_shark",
+      "breakpoints": true
     }
   ]
 }

@@ -26,7 +26,6 @@ vi.mock("../../src/utils/UUID", () => {
 describe("UserDomainTest", () => {
   const discordID = DiscordID.from("123456789");
   const discordUserName = "TestUserName";
-  const discordDiscriminator = "1234";
   const discordAvatar =
     "https://cdn.discordapp.com/sample-avatar/123456789/000000000000000000.png";
   const faculty = Faculty.from("Test学部");
@@ -38,7 +37,6 @@ describe("UserDomainTest", () => {
         UserID.new(),
         discordID,
         discordUserName,
-        discordDiscriminator,
         discordAvatar,
         faculty,
         department,
@@ -48,7 +46,6 @@ describe("UserDomainTest", () => {
       const actual = User.create(
         discordID,
         discordUserName,
-        discordDiscriminator,
         discordAvatar,
         faculty,
         department
@@ -63,7 +60,6 @@ describe("UserDomainTest", () => {
           User.create(
             DiscordID.from("InvalidStringID"),
             discordUserName,
-            discordDiscriminator,
             discordAvatar,
             faculty,
             department
@@ -78,7 +74,6 @@ describe("UserDomainTest", () => {
           User.create(
             discordID,
             discordUserName,
-            discordDiscriminator,
             discordAvatar,
             Faculty.from(""),
             department
@@ -91,7 +86,6 @@ describe("UserDomainTest", () => {
           User.create(
             discordID,
             discordUserName,
-            discordDiscriminator,
             discordAvatar,
             Faculty.from("A".repeat(31)),
             department
@@ -106,7 +100,6 @@ describe("UserDomainTest", () => {
           User.create(
             discordID,
             discordUserName,
-            discordDiscriminator,
             discordAvatar,
             faculty,
             Department.from("")
@@ -119,7 +112,6 @@ describe("UserDomainTest", () => {
           User.create(
             discordID,
             discordUserName,
-            discordDiscriminator,
             discordAvatar,
             faculty,
             Department.from("A".repeat(31))
