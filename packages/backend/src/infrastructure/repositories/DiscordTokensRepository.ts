@@ -1,8 +1,12 @@
 import { eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
-import { DiscordTokens } from "../../domain/DiscordTokens";
+import {
+  AccessToken,
+  DiscordTokens,
+  ExpiresAt,
+  RefreshToken
+} from "../../domain/DiscordTokens";
 import { UserID } from "../../domain/User";
-import { AccessToken, ExpiresAt, RefreshToken } from "../../domain/UserAuth";
 import { TYPES } from "../../infrastructure/config/types";
 import type { DbClientInterface } from "../../infrastructure/database/connection";
 import { discordTokens as discordTokensSchema } from "../../infrastructure/database/schema";

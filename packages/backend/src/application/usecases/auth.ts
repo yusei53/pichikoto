@@ -1,7 +1,7 @@
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
+import { DiscordTokens } from "../../domain/DiscordTokens";
 import { DiscordID, User } from "../../domain/User";
-import { UserAuth } from "../../domain/UserAuth";
 import { TYPES } from "../../infrastructure/config/types";
 import type { DiscordTokensRepositoryInterface } from "../../infrastructure/repositories/DiscordTokensRepository";
 import type { UserRepositoryInterface } from "../../infrastructure/repositories/UserRepository";
@@ -85,7 +85,7 @@ export class AuthUsecase implements AuthUsecaseInterface {
         existsUser.userID
       );
       if (!userAuth) {
-        throw new Error("UserAuth not found");
+        throw new Error("DiscordTokens not found");
       }
       const { accessToken, refreshToken } =
         await this.jwtService.generateTokens(c, existsUser.userID.value.value);
@@ -101,7 +101,7 @@ export class AuthUsecase implements AuthUsecaseInterface {
     );
     await this.userRepository.save(user);
 
-    const userAuth = UserAuth.create(
+    const userAuth = DiscordTokens.create(
       user.userID,
       tokenResponse.access_token,
       tokenResponse.refresh_token,
