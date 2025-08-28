@@ -3,13 +3,13 @@ import type { UserAuth } from "../../../src/domain/UserAuth";
 import type * as schema from "../../../src/infrastructure/database/schema";
 
 /**
- * データベースのuserAuthテーブルと引数で渡されたUserAuthドメインオブジェクトが等しいことをアサート
+ * データベースのdiscordTokensテーブルと引数で渡されたUserAuthドメインオブジェクトが等しいことをアサート
  * @param expectedUserAuth 期待されるUserAuthドメインオブジェクト
  * @param actualRecord selectOneFromDatabaseから返される単一レコード
  */
 export const assertEqualUserAuthTable = (
   expectedUserAuth: UserAuth,
-  actualRecord: typeof schema.userAuth.$inferSelect
+  actualRecord: typeof schema.discordTokens.$inferSelect
 ): void => {
   const expectedRecord = {
     userId: expectedUserAuth.userId.value.value,

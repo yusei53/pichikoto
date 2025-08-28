@@ -43,17 +43,17 @@ describe("UserAuthRepository Tests", () => {
 
       // userIdを使ってuserAuthレコードを作成
       const userAuth1 = createUserAuthTableFixture(user1.id);
-      await insertToDatabase(schema.userAuth, userAuth1);
+      await insertToDatabase(schema.discordTokens, userAuth1);
 
       const userAuth2 = createExpiredUserAuthTableFixture(user2.id);
-      await insertToDatabase(schema.userAuth, userAuth2);
+      await insertToDatabase(schema.discordTokens, userAuth2);
 
       return { userAuth1, userAuth2 };
     };
 
     afterEach(async () => {
-      // 外部キー制約があるため、user_authを先に削除してからuserを削除
-      await deleteFromDatabase(schema.userAuth);
+      // 外部キー制約があるため、discord_tokensを先に削除してからuserを削除
+      await deleteFromDatabase(schema.discordTokens);
       await deleteFromDatabase(schema.user);
     });
 
@@ -111,7 +111,7 @@ describe("UserAuthRepository Tests", () => {
 
   describe("save", () => {
     afterEach(async () => {
-      await deleteFromDatabase(schema.userAuth);
+      await deleteFromDatabase(schema.discordTokens);
       await deleteFromDatabase(schema.user);
     });
 
@@ -137,8 +137,8 @@ describe("UserAuthRepository Tests", () => {
 
       // assert
       const actualRecord = (await selectOneFromDatabase(
-        schema.userAuth
-      )) as typeof schema.userAuth.$inferSelect;
+        schema.discordTokens
+      )) as typeof schema.discordTokens.$inferSelect;
       assertEqualUserAuthTable(userAuth, actualRecord);
     });
   });

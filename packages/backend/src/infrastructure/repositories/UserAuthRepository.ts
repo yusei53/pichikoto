@@ -9,7 +9,7 @@ import {
 } from "../../domain/UserAuth";
 import { TYPES } from "../../infrastructure/config/types";
 import type { DbClientInterface } from "../../infrastructure/database/connection";
-import { userAuth as userAuthSchema } from "../../infrastructure/database/schema";
+import { discordTokens as discordTokensSchema } from "../../infrastructure/database/schema";
 import { CreatedAt } from "../../utils/CreatedAt";
 
 export interface UserAuthRepositoryInterface {
@@ -32,8 +32,8 @@ export class UserAuthRepository implements UserAuthRepositoryInterface {
 
   private async findByUserID(userID: UserID): Promise<UserAuthRecord | null> {
     const db = this.dbClient.getDb();
-    const userAuth = await db.query.userAuth.findFirst({
-      where: eq(userAuthSchema.userId, userID.value.value)
+    const userAuth = await db.query.discordTokens.findFirst({
+      where: eq(discordTokensSchema.userId, userID.value.value)
     });
 
     if (!userAuth) return null;
@@ -63,7 +63,7 @@ export class UserAuthRepository implements UserAuthRepositoryInterface {
 
   async save(userAuth: UserAuth): Promise<void> {
     const db = this.dbClient.getDb();
-    await db.insert(userAuthSchema).values({
+    await db.insert(discordTokensSchema).values({
       userId: userAuth.userId.value.value,
       accessToken: userAuth.accessToken.value,
       refreshToken: userAuth.refreshToken.value,

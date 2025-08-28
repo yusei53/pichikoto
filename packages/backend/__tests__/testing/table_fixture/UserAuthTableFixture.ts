@@ -1,4 +1,4 @@
-import type { userAuth } from "../../../src/infrastructure/database/schema";
+import type { discordTokens } from "../../../src/infrastructure/database/schema";
 
 /**
  * ユニークなトークンを生成するヘルパー関数
@@ -28,7 +28,7 @@ export const createUserAuthTableFixture = (userID: string) => {
     scope: COMMON_TOKEN_INFO.SCOPE,
     tokenType: COMMON_TOKEN_INFO.TOKEN_TYPE,
     createdAt: new Date()
-  } satisfies typeof userAuth.$inferInsert;
+  } satisfies typeof discordTokens.$inferInsert;
 };
 
 /**
@@ -45,5 +45,5 @@ export const createExpiredUserAuthTableFixture = (userID: string) => {
     scope: COMMON_TOKEN_INFO.SCOPE,
     tokenType: COMMON_TOKEN_INFO.TOKEN_TYPE,
     createdAt: new Date()
-  } satisfies typeof userAuth.$inferInsert;
+  } satisfies typeof discordTokens.$inferInsert;
 };
