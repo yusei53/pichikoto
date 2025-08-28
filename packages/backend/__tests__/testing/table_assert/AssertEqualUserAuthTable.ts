@@ -15,7 +15,7 @@ export const assertEqualUserAuthTable = (
     userId: expectedUserAuth.userId.value.value,
     accessToken: expectedUserAuth.accessToken.value,
     refreshToken: expectedUserAuth.refreshToken.value,
-    expiresIn: expectedUserAuth.expiresIn.value,
+    expiresAt: expectedUserAuth.expiresAt.value,
     scope: expectedUserAuth.scope,
     tokenType: expectedUserAuth.tokenType,
     createdAt: expectedUserAuth.createdAt.value
