@@ -9,12 +9,12 @@ import type { AuthControllerInterface } from "../../presentation/controllers/aut
 import { AuthController } from "../../presentation/controllers/auth";
 import type { DbClientInterface } from "../database/connection";
 import { DbClient } from "../database/connection";
-import type { UserAuthRepositoryInterface } from "../repositories/UserAuthRepository";
-import { UserAuthRepository } from "../repositories/UserAuthRepository";
-import type { UserRepositoryInterface } from "../repositories/UserRepository";
-import { UserRepository } from "../repositories/UserRepository";
+import type { DiscordTokensRepositoryInterface } from "../repositories/DiscordTokensRepository";
+import { DiscordTokensRepository } from "../repositories/DiscordTokensRepository";
 import type { StateRepositoryInterface } from "../repositories/StateRepository";
 import { StateRepository } from "../repositories/StateRepository";
+import type { UserRepositoryInterface } from "../repositories/UserRepository";
+import { UserRepository } from "../repositories/UserRepository";
 import { TYPES } from "./types";
 
 const container = new Container();
@@ -31,8 +31,8 @@ container
   .to(UserRepository)
   .inRequestScope();
 container
-  .bind<UserAuthRepositoryInterface>(TYPES.UserAuthRepository)
-  .to(UserAuthRepository)
+  .bind<DiscordTokensRepositoryInterface>(TYPES.DiscordTokensRepository)
+  .to(DiscordTokensRepository)
   .inRequestScope();
 container
   .bind<StateRepositoryInterface>(TYPES.StateRepository)

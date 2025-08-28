@@ -3,7 +3,7 @@ export const TYPES = {
   DbClient: Symbol.for("DbClient"),
 
   // Repositories
-  UserAuthRepository: Symbol.for("UserAuthRepository"),
+  DiscordTokensRepository: Symbol.for("DiscordTokensRepository"),
   UserRepository: Symbol.for("UserRepository"),
   StateRepository: Symbol.for("StateRepository"),
 
