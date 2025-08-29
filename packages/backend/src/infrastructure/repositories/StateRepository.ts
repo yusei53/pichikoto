@@ -11,9 +11,7 @@ export interface StateRepositoryInterface {
     nonce: string,
     expiresAt: Date
   ): Promise<void>;
-  getBySessionId(
-    sessionId: string
-  ): Promise<{
+  getBySessionId(sessionId: string): Promise<{
     sessionId: string;
     state: string;
     nonce: string;
@@ -45,9 +43,7 @@ export class StateRepository implements StateRepositoryInterface {
     });
   }
 
-  async getBySessionId(
-    sessionId: string
-  ): Promise<{
+  async getBySessionId(sessionId: string): Promise<{
     sessionId: string;
     state: string;
     nonce: string;
@@ -55,16 +51,11 @@ export class StateRepository implements StateRepositoryInterface {
   } | null> {
     const db = this.dbClient.getDb();
 
-    const stateRecords = await db
-      .select()
-      .from(oauthStateSchema)
-      .where(eq(oauthStateSchema.sessionId, sessionId))
-      .limit(1);
+    const stateRecord = await db.query.oauthState.findFirst({
+      where: eq(oauthStateSchema.sessionId, sessionId)
+    });
 
-    const stateRecord = stateRecords[0];
-    if (!stateRecord) {
-      return null;
-    }
+    if (!stateRecord) return null;
 
     return {
       sessionId: stateRecord.sessionId,
