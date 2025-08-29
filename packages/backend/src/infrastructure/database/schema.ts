@@ -10,7 +10,7 @@ export const user = pgTable("user", {
   createdAt: timestamp("created_at").notNull().defaultNow()
 });
 
-export const userAuth = pgTable("user_auth", {
+export const discordTokens = pgTable("discord_tokens", {
   userId: uuid("user_id")
     .primaryKey()
     .references(() => user.id, { onDelete: "cascade" }),

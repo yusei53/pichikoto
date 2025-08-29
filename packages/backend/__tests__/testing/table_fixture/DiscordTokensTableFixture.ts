@@ -1,4 +1,4 @@
-import type { userAuth } from "../../../src/infrastructure/database/schema";
+import type { discordTokens } from "../../../src/infrastructure/database/schema";
 
 /**
  * ユニークなトークンを生成するヘルパー関数
@@ -15,9 +15,9 @@ export const COMMON_TOKEN_INFO = {
 } as const;
 
 /**
- * UserAuthテーブルのfixture
+ * DiscordTokensテーブルのfixture
  */
-export const createUserAuthTableFixture = (userID: string) => {
+export const createDiscordTokensTableFixture = (userID: string) => {
   const expiresAt = new Date(Date.now() + 3600 * 1000); // 1時間後
 
   return {
@@ -28,13 +28,13 @@ export const createUserAuthTableFixture = (userID: string) => {
     scope: COMMON_TOKEN_INFO.SCOPE,
     tokenType: COMMON_TOKEN_INFO.TOKEN_TYPE,
     createdAt: new Date()
-  } satisfies typeof userAuth.$inferInsert;
+  } satisfies typeof discordTokens.$inferInsert;
 };
 
 /**
- * 期限切れのUserAuthのfixture
+ * 期限切れのDiscordTokensのfixture
  */
-export const createExpiredUserAuthTableFixture = (userID: string) => {
+export const createExpiredDiscordTokensTableFixture = (userID: string) => {
   const expiresAt = new Date(Date.now() - 3600 * 1000); // 1時間前（期限切れ）
 
   return {
@@ -45,5 +45,5 @@ export const createExpiredUserAuthTableFixture = (userID: string) => {
     scope: COMMON_TOKEN_INFO.SCOPE,
     tokenType: COMMON_TOKEN_INFO.TOKEN_TYPE,
     createdAt: new Date()
-  } satisfies typeof userAuth.$inferInsert;
+  } satisfies typeof discordTokens.$inferInsert;
 };

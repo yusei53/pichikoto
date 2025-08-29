@@ -1,7 +1,7 @@
 import { CreatedAt } from "../utils/CreatedAt";
 import type { UserID } from "./User";
 
-export class UserAuth {
+export class DiscordTokens {
   private constructor(
     readonly userId: UserID,
     readonly accessToken: AccessToken,
@@ -19,8 +19,8 @@ export class UserAuth {
     expiresIn: number,
     scope: string,
     tokenType: string
-  ): UserAuth {
-    return new UserAuth(
+  ): DiscordTokens {
+    return new DiscordTokens(
       userId,
       AccessToken.from(accessToken),
       RefreshToken.from(refreshToken),
@@ -39,8 +39,8 @@ export class UserAuth {
     scope: string,
     tokenType: string,
     createdAt: CreatedAt
-  ): UserAuth {
-    return new UserAuth(
+  ): DiscordTokens {
+    return new DiscordTokens(
       userId,
       accessToken,
       refreshToken,
