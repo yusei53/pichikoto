@@ -30,12 +30,21 @@ export class DbClient implements DbClientInterface {
   }
 }
 
-// ref: https://neon.com/guides/local-development-with-neon
 export const connectToDatabase = (c: Context) => {
-  let connectionString = c.env.DATABASE_URL!;
+  return createDatabaseConnection({
+    DATABASE_URL: c.env.DATABASE_URL,
+    NODE_ENV: c.env.NODE_ENV
+  });
+};
 
-  // Configuring Neon for local development
-  if (c.env.NODE_ENV === "development") {
+// ref: https://neon.com/guides/local-development-with-neon
+const createDatabaseConnection = (envVars: {
+  DATABASE_URL: string;
+  NODE_ENV: string;
+}) => {
+  let connectionString = envVars.DATABASE_URL;
+
+  if (envVars.NODE_ENV === "development") {
     connectionString = "postgres://postgres:postgres@db.localtest.me:5432/main";
     neonConfig.fetchEndpoint = (host) => {
       const [protocol, port] =
@@ -48,9 +57,27 @@ export const connectToDatabase = (c: Context) => {
     neonConfig.wsProxy = (host) =>
       host === "db.localtest.me" ? `${host}:4444/v2` : `${host}/v2`;
   }
-  neonConfig.webSocketConstructor = ws;
-  const sql = neon(connectionString);
 
-  const db = drizzle(sql, { schema });
-  return db;
+  neonConfig.webSocketConstructor = ws;
+
+  if (!connectionString) {
+    connectionString = "postgres://postgres:postgres@db.localtest.me:5432/main";
+  }
+
+  const sql = neon(connectionString);
+  return drizzle(sql, { schema });
 };
+
+const getEnvVar = (key: string): string | undefined => {
+  if (typeof process !== "undefined" && process.env) {
+    return process.env[key];
+  }
+  return undefined;
+};
+
+export const db = createDatabaseConnection({
+  DATABASE_URL: getEnvVar("DATABASE_URL") || "",
+  NODE_ENV: getEnvVar("NODE_ENV") || "development"
+});
+
+export type DbType = typeof db;
