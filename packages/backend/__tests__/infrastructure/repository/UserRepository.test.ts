@@ -10,7 +10,6 @@ import * as schema from "../../../src/infrastructure/database/schema";
 import type { UserRepositoryInterface } from "../../../src/infrastructure/repositories/UserRepository";
 import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
-import { TestDbClient } from "../../testing/setup/TestDbClient";
 import { assertEqualUserTable } from "../../testing/table_assert/AssertEqualUserTable";
 import {
   createUserTableFixture,
@@ -150,6 +149,5 @@ describe("UserRepository Tests", () => {
 });
 
 const getUserRepository = (): UserRepositoryInterface => {
-  const dbClient = new TestDbClient();
-  return new UserRepository(dbClient);
+  return new UserRepository();
 };

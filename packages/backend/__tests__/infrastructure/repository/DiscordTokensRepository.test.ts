@@ -10,7 +10,6 @@ import * as schema from "../../../src/infrastructure/database/schema";
 import type { DiscordTokensRepositoryInterface } from "../../../src/infrastructure/repositories/DiscordTokensRepository";
 import { DiscordTokensRepository } from "../../../src/infrastructure/repositories/DiscordTokensRepository";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
-import { TestDbClient } from "../../testing/setup/TestDbClient";
 import { assertEqualDiscordTokensTable } from "../../testing/table_assert/AssertEqualDiscordTokensTable";
 import {
   createDiscordTokensTableFixture,
@@ -145,6 +144,5 @@ describe("DiscordTokensRepository Tests", () => {
 });
 
 const getDiscordTokensRepository = (): DiscordTokensRepositoryInterface => {
-  const dbClient = new TestDbClient();
-  return new DiscordTokensRepository(dbClient);
+  return new DiscordTokensRepository();
 };
