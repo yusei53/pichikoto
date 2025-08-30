@@ -304,7 +304,7 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
     state: string
   ): Promise<{ valid: boolean; nonce?: string }> {
     try {
-      const stateRecord = await this.stateRepository.getBySessionId(sessionId);
+      const stateRecord = await this.stateRepository.findBy(sessionId);
 
       if (!stateRecord) {
         return { valid: false };
