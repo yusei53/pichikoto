@@ -19,7 +19,7 @@
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
     "@types/pg": "^8.15.4",
-    "drizzle-orm": "^0.44.2",
+    "drizzle-orm": "^0.44.5",
     "hono": "^4.7.11",
     "inversify": "^7.5.2",
     "jose": "^6.0.13",
