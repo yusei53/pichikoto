@@ -89,6 +89,24 @@ describe("StateRepository Tests", () => {
       // assert
       expect(actual).toBeNull();
     });
+
+    it("期限切れのOAuth stateでも取得できること（期限チェックはアプリケーション層で行う）", async () => {
+      // arrange
+      const expiredStateRecord = createExpiredOauthStateTableFixture();
+      await insertToDatabase(schema.oauthState, expiredStateRecord);
+
+      // act
+      const actual = await stateRepository.getBySessionId(expiredStateRecord.sessionId);
+
+      // assert
+      expect(actual).not.toBeNull();
+      expect(actual).toEqual({
+        sessionId: expiredStateRecord.sessionId,
+        state: expiredStateRecord.state,
+        nonce: expiredStateRecord.nonce,
+        expiresAt: expiredStateRecord.expiresAt
+      });
+    });
   });
 
   describe("delete", () => {
