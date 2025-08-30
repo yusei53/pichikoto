@@ -43,7 +43,7 @@ describe("StateRepository Tests", () => {
     });
   });
 
-  describe("getBySessionId", () => {
+  describe("findBy", () => {
     const setupOauthStates = async () => {
       const state1 = createOauthStateTableFixture();
       await insertToDatabase(schema.oauthState, state1);
@@ -60,7 +60,7 @@ describe("StateRepository Tests", () => {
       const { state1 } = await setupOauthStates();
 
       // act
-      const actual = await stateRepository.getBySessionId(state1.sessionId);
+      const actual = await stateRepository.findBy(state1.sessionId);
 
       // assert
       expect(actual).toEqual({
@@ -76,7 +76,7 @@ describe("StateRepository Tests", () => {
       const nonExistentSessionId = "non-existent-session-id";
 
       // act
-      const actual = await stateRepository.getBySessionId(nonExistentSessionId);
+      const actual = await stateRepository.findBy(nonExistentSessionId);
 
       // assert
       expect(actual).toBeNull();
@@ -97,7 +97,7 @@ describe("StateRepository Tests", () => {
       await stateRepository.delete(stateRecord.sessionId);
 
       // assert
-      const actual = await stateRepository.getBySessionId(
+      const actual = await stateRepository.findBy(
         stateRecord.sessionId
       );
       expect(actual).toBeNull();

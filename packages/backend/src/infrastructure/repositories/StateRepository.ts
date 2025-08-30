@@ -10,7 +10,7 @@ export interface StateRepositoryInterface {
     nonce: string,
     expiresAt: Date
   ): Promise<void>;
-  getBySessionId(sessionId: string): Promise<{
+  findBy(sessionId: string): Promise<{
     sessionId: string;
     state: string;
     nonce: string;
@@ -35,7 +35,7 @@ export class StateRepository implements StateRepositoryInterface {
     });
   }
 
-  async getBySessionId(sessionId: string): Promise<{
+  async findBy(sessionId: string): Promise<{
     sessionId: string;
     state: string;
     nonce: string;
