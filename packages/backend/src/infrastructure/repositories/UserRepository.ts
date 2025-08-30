@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { inject, injectable } from "inversify";
+import { injectable } from "inversify";
 import {
   Department,
   DiscordID,
@@ -7,10 +7,9 @@ import {
   User,
   UserID
 } from "../../domain/User";
-import { TYPES } from "../../infrastructure/config/types";
-import type { DbClientInterface } from "../../infrastructure/database/connection";
 import { user as userSchema } from "../../infrastructure/database/schema";
 import { CreatedAt } from "../../utils/CreatedAt";
+import { db } from "../database/connection";
 
 export interface UserRepositoryInterface {
   findBy(discordID: DiscordID): Promise<User | null>;
@@ -19,11 +18,6 @@ export interface UserRepositoryInterface {
 
 @injectable()
 export class UserRepository implements UserRepositoryInterface {
-  constructor(
-    @inject(TYPES.DbClient)
-    private readonly dbClient: DbClientInterface
-  ) {}
-
   async findBy(discordID: DiscordID): Promise<User | null> {
     const userRecord = await this.findByDiscordID(discordID);
     if (!userRecord) return null;
@@ -32,7 +26,6 @@ export class UserRepository implements UserRepositoryInterface {
   private async findByDiscordID(
     discordID: DiscordID
   ): Promise<UserRecord | null> {
-    const db = this.dbClient.getDb();
     const user = await db.query.user.findFirst({
       where: eq(userSchema.discordId, discordID.getValue())
     });
@@ -63,7 +56,6 @@ export class UserRepository implements UserRepositoryInterface {
   }
 
   async save(user: User): Promise<void> {
-    const db = this.dbClient.getDb();
     await db.insert(userSchema).values({
       id: user.userID.value.value,
       discordId: user.discordID.getValue(),

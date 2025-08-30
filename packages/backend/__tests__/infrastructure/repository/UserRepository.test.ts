@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import {
   Department,
   DiscordID,
@@ -7,10 +7,8 @@ import {
   UserID
 } from "../../../src/domain/User";
 import * as schema from "../../../src/infrastructure/database/schema";
-import type { UserRepositoryInterface } from "../../../src/infrastructure/repositories/UserRepository";
 import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
-import { TestDbClient } from "../../testing/setup/TestDbClient";
 import { assertEqualUserTable } from "../../testing/table_assert/AssertEqualUserTable";
 import {
   createUserTableFixture,
@@ -23,11 +21,7 @@ import {
 } from "../../testing/utils/GenericTableHelper";
 
 describe("UserRepository Tests", () => {
-  let userRepository: UserRepositoryInterface;
-
-  beforeEach(() => {
-    userRepository = getUserRepository();
-  });
+  const userRepository = new UserRepository();
 
   describe("findBy", () => {
     const setupUsers = async () => {
@@ -148,8 +142,3 @@ describe("UserRepository Tests", () => {
     });
   });
 });
-
-const getUserRepository = (): UserRepositoryInterface => {
-  const dbClient = new TestDbClient();
-  return new UserRepository(dbClient);
-};

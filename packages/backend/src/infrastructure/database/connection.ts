@@ -1,7 +1,9 @@
 import { neon, neonConfig } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
+import { drizzle as drizzlePostgres } from "drizzle-orm/postgres-js";
 import type { Context } from "hono";
 import { injectable } from "inversify";
+import postgres from "postgres";
 import ws from "ws";
 import * as schema from "./schema";
 
@@ -30,12 +32,21 @@ export class DbClient implements DbClientInterface {
   }
 }
 
-// ref: https://neon.com/guides/local-development-with-neon
 export const connectToDatabase = (c: Context) => {
-  let connectionString = c.env.DATABASE_URL!;
+  return createDatabaseConnection({
+    DATABASE_URL: c.env.DATABASE_URL,
+    NODE_ENV: c.env.NODE_ENV
+  });
+};
 
-  // Configuring Neon for local development
-  if (c.env.NODE_ENV === "development") {
+// ref: https://neon.com/guides/local-development-with-neon
+const createDatabaseConnection = (envVars: {
+  DATABASE_URL: string;
+  NODE_ENV: string;
+}) => {
+  let connectionString = envVars.DATABASE_URL;
+
+  if (envVars.NODE_ENV === "development") {
     connectionString = "postgres://postgres:postgres@db.localtest.me:5432/main";
     neonConfig.fetchEndpoint = (host) => {
       const [protocol, port] =
@@ -48,9 +59,68 @@ export const connectToDatabase = (c: Context) => {
     neonConfig.wsProxy = (host) =>
       host === "db.localtest.me" ? `${host}:4444/v2` : `${host}/v2`;
   }
-  neonConfig.webSocketConstructor = ws;
-  const sql = neon(connectionString);
 
-  const db = drizzle(sql, { schema });
-  return db;
+  neonConfig.webSocketConstructor = ws;
+
+  if (!connectionString) {
+    connectionString = "postgres://postgres:postgres@db.localtest.me:5432/main";
+  }
+
+  const sql = neon(connectionString);
+  return drizzle(sql, { schema });
 };
+
+const getEnvVar = (key: string): string | undefined => {
+  if (typeof process !== "undefined" && process.env) {
+    return process.env[key];
+  }
+  return undefined;
+};
+
+// テスト環境かどうかを判定
+const isTestEnvironment = (): boolean => {
+  const nodeEnv = getEnvVar("NODE_ENV");
+  const vitestEnv = getEnvVar("VITEST");
+  return (
+    nodeEnv === "test" ||
+    vitestEnv === "true" ||
+    (typeof global !== "undefined" && (global as any).__vitest__)
+  );
+};
+
+// テスト環境専用のDB接続作成
+const createTestDatabaseConnection = () => {
+  const connectionString =
+    getEnvVar("TEST_DATABASE_URL") ||
+    "postgres://postgres:postgres@db.localtest.me:5432/main";
+
+  // ローカル開発環境（db.localtest.me）の場合のみNeon設定を適用
+  if (connectionString.includes("db.localtest.me")) {
+    neonConfig.fetchEndpoint = (host) => {
+      const [protocol, port] =
+        host === "db.localtest.me" ? ["http", 4444] : ["https", 443];
+      return `${protocol}://${host}:${port}/sql`;
+    };
+    neonConfig.useSecureWebSocket = false;
+    neonConfig.wsProxy = (host) =>
+      host === "db.localtest.me" ? `${host}:4444/v2` : `${host}/v2`;
+    neonConfig.webSocketConstructor = ws;
+
+    const sql = neon(connectionString);
+    return drizzle(sql, { schema });
+  } else {
+    // CI環境では通常のPostgreSQLクライアントを使用
+    const sql = postgres(connectionString);
+    return drizzlePostgres(sql, { schema });
+  }
+};
+
+// 環境に応じてDB接続を選択
+export const db = isTestEnvironment()
+  ? createTestDatabaseConnection()
+  : createDatabaseConnection({
+      DATABASE_URL: getEnvVar("DATABASE_URL") || "",
+      NODE_ENV: getEnvVar("NODE_ENV") || "development"
+    });
+
+export type DbType = typeof db;

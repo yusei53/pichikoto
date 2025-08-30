@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { inject, injectable } from "inversify";
+import { injectable } from "inversify";
 import {
   AccessToken,
   DiscordTokens,
@@ -7,10 +7,9 @@ import {
   RefreshToken
 } from "../../domain/DiscordTokens";
 import { UserID } from "../../domain/User";
-import { TYPES } from "../../infrastructure/config/types";
-import type { DbClientInterface } from "../../infrastructure/database/connection";
 import { discordTokens as discordTokensSchema } from "../../infrastructure/database/schema";
 import { CreatedAt } from "../../utils/CreatedAt";
+import { db } from "../database/connection";
 
 export interface DiscordTokensRepositoryInterface {
   findBy(userID: UserID): Promise<DiscordTokens | null>;
@@ -21,11 +20,6 @@ export interface DiscordTokensRepositoryInterface {
 export class DiscordTokensRepository
   implements DiscordTokensRepositoryInterface
 {
-  constructor(
-    @inject(TYPES.DbClient)
-    private readonly dbClient: DbClientInterface
-  ) {}
-
   async findBy(userID: UserID): Promise<DiscordTokens | null> {
     const discordTokensRecord = await this.findByUserID(userID);
     if (!discordTokensRecord) return null;
@@ -35,7 +29,6 @@ export class DiscordTokensRepository
   private async findByUserID(
     userID: UserID
   ): Promise<DiscordTokensRecord | null> {
-    const db = this.dbClient.getDb();
     const discordTokens = await db.query.discordTokens.findFirst({
       where: eq(discordTokensSchema.userId, userID.value.value)
     });
@@ -68,7 +61,6 @@ export class DiscordTokensRepository
   }
 
   async save(discordTokens: DiscordTokens): Promise<void> {
-    const db = this.dbClient.getDb();
     await db.insert(discordTokensSchema).values({
       userId: discordTokens.userId.value.value,
       accessToken: discordTokens.accessToken.value,
