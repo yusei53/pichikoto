@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import {
   AccessToken,
   DiscordTokens,
@@ -7,7 +7,6 @@ import {
 } from "../../../src/domain/DiscordTokens";
 import { UserID } from "../../../src/domain/User";
 import * as schema from "../../../src/infrastructure/database/schema";
-import type { DiscordTokensRepositoryInterface } from "../../../src/infrastructure/repositories/DiscordTokensRepository";
 import { DiscordTokensRepository } from "../../../src/infrastructure/repositories/DiscordTokensRepository";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { assertEqualDiscordTokensTable } from "../../testing/table_assert/AssertEqualDiscordTokensTable";
@@ -26,11 +25,7 @@ import {
 } from "../../testing/utils/GenericTableHelper";
 
 describe("DiscordTokensRepository Tests", () => {
-  let discordTokensRepository: DiscordTokensRepositoryInterface;
-
-  beforeEach(() => {
-    discordTokensRepository = getDiscordTokensRepository();
-  });
+  const discordTokensRepository = new DiscordTokensRepository();
 
   describe("findBy", () => {
     const setupDiscordTokens = async () => {
@@ -142,7 +137,3 @@ describe("DiscordTokensRepository Tests", () => {
     });
   });
 });
-
-const getDiscordTokensRepository = (): DiscordTokensRepositoryInterface => {
-  return new DiscordTokensRepository();
-};
