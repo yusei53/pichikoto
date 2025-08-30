@@ -9,9 +9,10 @@ import { UserID } from "../../src/domain/User";
 import { CreatedAt } from "../../src/utils/CreatedAt";
 
 const MOCK_UUID = "00000000-0000-0000-0000-000000";
-const MOCK_NOW = new Date("2025-01-01T00:00:00.000Z").getTime();
+const MOCK_NOW = new Date("2025-01-01T00:00:00.000Z");
 
-vi.spyOn(Date, "now").mockReturnValue(MOCK_NOW);
+// Mock system time to ensure consistent Date creation
+vi.setSystemTime(MOCK_NOW);
 
 vi.mock("../../src/domain/models/User", () => {
   return {
