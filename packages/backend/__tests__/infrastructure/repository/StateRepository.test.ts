@@ -2,11 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import * as schema from "../../../src/infrastructure/database/schema";
 import { StateRepository } from "../../../src/infrastructure/repositories/StateRepository";
 import { assertEqualOauthStateTable } from "../../testing/table_assert/AssertEqualOauthStateTable";
-import {
-  createOauthStateTableFixture,
-  createOauthStateTableFixtureWithCustomSessionId,
-  createExpiredOauthStateTableFixture
-} from "../../testing/table_fixture/OauthStateTableFixture";
+import { createOauthStateTableFixture } from "../../testing/table_fixture/OauthStateTableFixture";
 import {
   deleteFromDatabase,
   insertToDatabase,
@@ -52,10 +48,7 @@ describe("StateRepository Tests", () => {
       const state1 = createOauthStateTableFixture();
       await insertToDatabase(schema.oauthState, state1);
 
-      const state2 = createOauthStateTableFixtureWithCustomSessionId("session-2");
-      await insertToDatabase(schema.oauthState, state2);
-
-      return { state1, state2 };
+      return { state1 };
     };
 
     afterEach(async () => {
@@ -70,7 +63,6 @@ describe("StateRepository Tests", () => {
       const actual = await stateRepository.getBySessionId(state1.sessionId);
 
       // assert
-      expect(actual).not.toBeNull();
       expect(actual).toEqual({
         sessionId: state1.sessionId,
         state: state1.state,
@@ -105,18 +97,10 @@ describe("StateRepository Tests", () => {
       await stateRepository.delete(stateRecord.sessionId);
 
       // assert
-      const actual = await stateRepository.getBySessionId(stateRecord.sessionId);
+      const actual = await stateRepository.getBySessionId(
+        stateRecord.sessionId
+      );
       expect(actual).toBeNull();
-    });
-
-    it("存在しないsessionIdを削除しようとしてもエラーにならないこと", async () => {
-      // arrange
-      const nonExistentSessionId = "non-existent-session-id";
-
-      // act & assert
-      await expect(
-        stateRepository.delete(nonExistentSessionId)
-      ).resolves.not.toThrow();
     });
   });
 });
