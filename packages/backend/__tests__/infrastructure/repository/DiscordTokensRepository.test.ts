@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
+import * as schema from "../../../database/schema";
 import {
   AccessToken,
   DiscordTokens,
@@ -6,7 +7,6 @@ import {
   RefreshToken
 } from "../../../src/domain/DiscordTokens";
 import { UserID } from "../../../src/domain/User";
-import * as schema from "../../../src/infrastructure/database/schema";
 import { DiscordTokensRepository } from "../../../src/infrastructure/repositories/DiscordTokensRepository";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { assertEqualDiscordTokensTable } from "../../testing/table_assert/AssertEqualDiscordTokensTable";

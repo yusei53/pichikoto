@@ -1,5 +1,5 @@
 import { expect } from "vitest";
-import type * as schema from "../../../src/infrastructure/database/schema";
+import type * as schema from "../../../database/schema";
 
 /**
  * データベースのoauth_stateテーブルと期待される値が等しいことをアサート

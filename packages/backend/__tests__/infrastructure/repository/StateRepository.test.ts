@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import * as schema from "../../../src/infrastructure/database/schema";
+import * as schema from "../../../database/schema";
 import { StateRepository } from "../../../src/infrastructure/repositories/StateRepository";
 import { assertEqualOauthStateTable } from "../../testing/table_assert/AssertEqualOauthStateTable";
 import { createOauthStateTableFixture } from "../../testing/table_fixture/OauthStateTableFixture";

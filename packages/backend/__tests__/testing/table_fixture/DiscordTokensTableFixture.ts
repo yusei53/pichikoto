@@ -1,4 +1,4 @@
-import type { discordTokens } from "../../../src/infrastructure/database/schema";
+import type { discordTokens } from "../../../database/schema";
 
 /**
  * ユニークなトークンを生成するヘルパー関数

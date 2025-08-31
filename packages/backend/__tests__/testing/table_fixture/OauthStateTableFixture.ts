@@ -1,4 +1,4 @@
-import type { oauthState } from "../../../src/infrastructure/database/schema";
+import type { oauthState } from "../../../database/schema";
 
 /**
  * テスト用のOAuth state情報
