@@ -5,6 +5,7 @@ export default defineConfig({
     globals: true,
     environment: "node",
     include: ["**/__tests__/**/*.test.ts"],
+    globalSetup: ["./__tests__/setup/test-setup.ts"],
     // リポジトリテストのみ順次実行、他は並列実行
     poolMatchGlobs: [
       // リポジトリテストは順次実行

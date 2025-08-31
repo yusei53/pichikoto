@@ -8,6 +8,7 @@
     "test": "vitest",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
+    "test:setup": "tsx __tests__/setup/test-setup.ts",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "db:generate": "drizzle-kit generate",
