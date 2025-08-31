@@ -1,5 +1,7 @@
 import { eq } from "drizzle-orm";
 import { injectable } from "inversify";
+import { db } from "../../../database/connection";
+import { discordTokens as discordTokensSchema } from "../../../database/schema";
 import {
   AccessToken,
   DiscordTokens,
@@ -7,9 +9,7 @@ import {
   RefreshToken
 } from "../../domain/DiscordTokens";
 import { UserID } from "../../domain/User";
-import { discordTokens as discordTokensSchema } from "../../infrastructure/database/schema";
 import { CreatedAt } from "../../utils/CreatedAt";
-import { db } from "../database/connection";
 
 export interface DiscordTokensRepositoryInterface {
   findBy(userID: UserID): Promise<DiscordTokens | null>;

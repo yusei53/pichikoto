@@ -1,4 +1,4 @@
-import type { user } from "../../../src/infrastructure/database/schema";
+import type { user } from "../../../database/schema";
 import { UUID } from "../../../src/utils/UUID";
 
 /**

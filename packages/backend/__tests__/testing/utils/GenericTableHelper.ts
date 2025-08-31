@@ -1,6 +1,6 @@
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import type { PgTable } from "drizzle-orm/pg-core";
-import { db } from "../../../src/infrastructure/database/connection";
+import { db } from "../../../database/connection";
 
 /**
  * 汎用的なテーブル挿入ヘルパー

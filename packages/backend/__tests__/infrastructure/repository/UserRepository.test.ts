@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
+import * as schema from "../../../database/schema";
 import {
   Department,
   DiscordID,
@@ -6,7 +7,6 @@ import {
   User,
   UserID
 } from "../../../src/domain/User";
-import * as schema from "../../../src/infrastructure/database/schema";
 import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { assertEqualUserTable } from "../../testing/table_assert/AssertEqualUserTable";

@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { injectable } from "inversify";
-import { oauthState as oauthStateSchema } from "../../infrastructure/database/schema";
-import { db } from "../database/connection";
+import { db } from "../../../database/connection";
+import { oauthState as oauthStateSchema } from "../../../database/schema";
 
 export interface StateRepositoryInterface {
   save(
