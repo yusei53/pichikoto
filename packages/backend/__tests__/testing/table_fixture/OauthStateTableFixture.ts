@@ -1,4 +1,4 @@
-import type { oauthState } from "../../../src/infrastructure/database/schema";
+import type { oauthState } from "../../../database/schema";
 
 /**
  * テスト用のOAuth state情報
@@ -6,7 +6,8 @@ import type { oauthState } from "../../../src/infrastructure/database/schema";
 export const COMMON_OAUTH_STATE_INFO = {
   SESSION_ID: "test-session-id-12345",
   STATE: "test-oauth-state-67890",
-  NONCE: "test-nonce-abcdef"
+  NONCE: "test-nonce-abcdef",
+  CODE_VERIFIER: "test-code-verifier-xyz"
 } as const;
 
 /**
@@ -20,6 +21,7 @@ export const createOauthStateTableFixture = () => {
     sessionId: COMMON_OAUTH_STATE_INFO.SESSION_ID,
     state: COMMON_OAUTH_STATE_INFO.STATE,
     nonce: COMMON_OAUTH_STATE_INFO.NONCE,
+    codeVerifier: COMMON_OAUTH_STATE_INFO.CODE_VERIFIER,
     expiresAt,
     createdAt: now
   } satisfies typeof oauthState.$inferInsert;

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import * as schema from "../../../src/infrastructure/database/schema";
+import * as schema from "../../../database/schema";
 import { StateRepository } from "../../../src/infrastructure/repositories/StateRepository";
 import { assertEqualOauthStateTable } from "../../testing/table_assert/AssertEqualOauthStateTable";
 import { createOauthStateTableFixture } from "../../testing/table_fixture/OauthStateTableFixture";
@@ -24,6 +24,7 @@ describe("StateRepository Tests", () => {
         sessionId: stateRecord.sessionId,
         state: stateRecord.state,
         nonce: stateRecord.nonce,
+        codeVerifier: stateRecord.codeVerifier ?? null,
         expiresAt: stateRecord.expiresAt
       };
 
@@ -32,6 +33,7 @@ describe("StateRepository Tests", () => {
         stateRecord.sessionId,
         stateRecord.state,
         stateRecord.nonce,
+        stateRecord.codeVerifier!,
         stateRecord.expiresAt
       );
 
@@ -67,6 +69,7 @@ describe("StateRepository Tests", () => {
         sessionId: state1.sessionId,
         state: state1.state,
         nonce: state1.nonce,
+        codeVerifier: state1.codeVerifier ?? null,
         expiresAt: state1.expiresAt
       });
     });

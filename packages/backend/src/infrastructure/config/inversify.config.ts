@@ -1,4 +1,6 @@
 import { Container } from "inversify";
+import type { DbClientInterface } from "../../../database/connection";
+import { DbClient } from "../../../database/connection";
 import type { DiscordOIDCServiceInterface } from "../../application/services/discord-oidc";
 import { DiscordOIDCService } from "../../application/services/discord-oidc";
 import type { JwtServiceInterface } from "../../application/services/jwt";
@@ -7,8 +9,6 @@ import type { AuthUsecaseInterface } from "../../application/usecases/auth";
 import { AuthUsecase } from "../../application/usecases/auth";
 import type { AuthControllerInterface } from "../../presentation/controllers/auth";
 import { AuthController } from "../../presentation/controllers/auth";
-import type { DbClientInterface } from "../database/connection";
-import { DbClient } from "../database/connection";
 import type { DiscordTokensRepositoryInterface } from "../repositories/DiscordTokensRepository";
 import { DiscordTokensRepository } from "../repositories/DiscordTokensRepository";
 import type { StateRepositoryInterface } from "../repositories/StateRepository";

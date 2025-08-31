@@ -4,7 +4,7 @@ import { neon } from "@neondatabase/serverless";
 import { exec } from "child_process";
 import { drizzle } from "drizzle-orm/neon-http";
 import { promisify } from "util";
-import * as schema from "../src/infrastructure/database/schema";
+import * as schema from "../database/schema";
 
 const execAsync = promisify(exec);
 

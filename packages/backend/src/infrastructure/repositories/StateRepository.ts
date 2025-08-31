@@ -1,19 +1,21 @@
 import { eq } from "drizzle-orm";
 import { injectable } from "inversify";
-import { oauthState as oauthStateSchema } from "../../infrastructure/database/schema";
-import { db } from "../database/connection";
+import { db } from "../../../database/connection";
+import { oauthState as oauthStateSchema } from "../../../database/schema";
 
 export interface StateRepositoryInterface {
   save(
     sessionId: string,
     state: string,
     nonce: string,
+    codeVerifier: string,
     expiresAt: Date
   ): Promise<void>;
   findBy(sessionId: string): Promise<{
     sessionId: string;
     state: string;
     nonce: string;
+    codeVerifier: string | null;
     expiresAt: Date;
   } | null>;
   delete(sessionId: string): Promise<void>;
@@ -25,12 +27,14 @@ export class StateRepository implements StateRepositoryInterface {
     sessionId: string,
     state: string,
     nonce: string,
+    codeVerifier: string,
     expiresAt: Date
   ): Promise<void> {
     await db.insert(oauthStateSchema).values({
       sessionId,
       state,
       nonce,
+      codeVerifier,
       expiresAt
     });
   }
@@ -39,6 +43,7 @@ export class StateRepository implements StateRepositoryInterface {
     sessionId: string;
     state: string;
     nonce: string;
+    codeVerifier: string | null;
     expiresAt: Date;
   } | null> {
     const stateRecord = await db.query.oauthState.findFirst({
@@ -51,6 +56,7 @@ export class StateRepository implements StateRepositoryInterface {
       sessionId: stateRecord.sessionId,
       state: stateRecord.state,
       nonce: stateRecord.nonce,
+      codeVerifier: stateRecord.codeVerifier ?? null,
       expiresAt: stateRecord.expiresAt
     };
   }
