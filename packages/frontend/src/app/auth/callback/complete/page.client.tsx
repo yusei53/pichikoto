@@ -4,59 +4,48 @@ import { cookieUtils } from "@/lib/cookie";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-type ClientAuthCallbackDiscordPageProps = {
-  code?: string;
-  state?: string;
+type ClientAuthCallbackCompletePageProps = {
   error?: string;
 };
 
-const ClientAuthCallbackDiscordPage: React.FC<
-  ClientAuthCallbackDiscordPageProps
-> = ({ code, state, error }) => {
+const ClientAuthCallbackCompletePage: React.FC<
+  ClientAuthCallbackCompletePageProps
+> = ({ error }) => {
   const router = useRouter();
   const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
-    const handleAuthCallback = async () => {
+    const handleAfterCallback = async () => {
       try {
         if (error) {
-          setAuthError("Discord認証が拒否されました");
-          return;
-        }
-        if (!code || !state) {
-          setAuthError("認証コードが見つかりません");
+          setAuthError("認証に失敗しました");
           return;
         }
 
         const backendBaseUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL;
-        const url = `${backendBaseUrl}/api/auth/callback?code=${encodeURIComponent(
-          code
-        )}&state=${encodeURIComponent(state)}`;
-
-        const resp = await fetch(url, {
-          method: "GET",
+        const resp = await fetch(`${backendBaseUrl}/api/auth/refresh`, {
+          method: "POST",
           headers: { Accept: "application/json" },
-          // backend側のoauth_sessionクッキーを送るため必須
           credentials: "include"
         });
 
         if (!resp.ok) {
           const err = await resp.json().catch(() => ({}) as any);
-          throw new Error(err.error || "認証に失敗しました");
+          throw new Error(err.error || "アクセストークン取得に失敗しました");
         }
 
-        const data = (await resp.json()) as {
-          accessToken: string;
-          refreshToken: string;
-        };
-        cookieUtils.auth.setTokens(data.accessToken, data.refreshToken);
+        const data = (await resp.json()) as { accessToken: string };
+        cookieUtils.auth.setAccessToken(data.accessToken);
         router.replace("/");
       } catch (e) {
-        setAuthError(e instanceof Error ? e.message : "認証に失敗しました");
+        setAuthError(
+          e instanceof Error ? e.message : "アクセストークン取得に失敗しました"
+        );
       }
     };
-    handleAuthCallback();
-  }, [code, state, error, router]);
+
+    handleAfterCallback();
+  }, [error, router]);
 
   if (authError) {
     return (
@@ -80,10 +69,11 @@ const ClientAuthCallbackDiscordPage: React.FC<
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p>認証処理中...</p>
+        <p>認証処理を完了しています...</p>
       </div>
     </div>
   );
 };
 
-export default ClientAuthCallbackDiscordPage;
+export default ClientAuthCallbackCompletePage;
+
