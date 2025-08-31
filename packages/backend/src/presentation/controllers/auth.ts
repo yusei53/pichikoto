@@ -151,12 +151,15 @@ export class AuthController implements AuthControllerInterface {
       const tokens = await this.jwtService.refreshAccessToken(c, refreshToken);
 
       // Refresh Tokenをローテーションし、Cookieを更新
+      const backendDomain = new URL(c.env.BASE_URL).hostname;
+
       setCookie(c, "refresh_token", tokens.refreshToken, {
         httpOnly: true,
         secure: c.env.NODE_ENV !== "development",
         sameSite: "None",
         path: "/",
-        maxAge: 60 * 60 * 24 * 365
+        maxAge: 60 * 60 * 24 * 365,
+        domain: backendDomain
       });
 
       // レスポンスはアクセストークンのみ返す
