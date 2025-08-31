@@ -88,31 +88,15 @@ const isTestEnvironment = (): boolean => {
   );
 };
 
-// テスト環境専用のDB接続作成
+// テスト環境専用のDB接続作成（常に直接PostgreSQL接続を使用）
 const createTestDatabaseConnection = () => {
   const connectionString =
     getEnvVar("TEST_DATABASE_URL") ||
     "postgres://postgres:postgres@db.localtest.me:5432/main";
 
-  // ローカル開発環境（db.localtest.me）の場合のみNeon設定を適用
-  if (connectionString.includes("db.localtest.me")) {
-    neonConfig.fetchEndpoint = (host) => {
-      const [protocol, port] =
-        host === "db.localtest.me" ? ["http", 4444] : ["https", 443];
-      return `${protocol}://${host}:${port}/sql`;
-    };
-    neonConfig.useSecureWebSocket = false;
-    neonConfig.wsProxy = (host) =>
-      host === "db.localtest.me" ? `${host}:4444/v2` : `${host}/v2`;
-    neonConfig.webSocketConstructor = ws;
-
-    const sql = neon(connectionString);
-    return drizzle(sql, { schema });
-  } else {
-    // CI環境では通常のPostgreSQLクライアントを使用
-    const sql = postgres(connectionString);
-    return drizzlePostgres(sql, { schema });
-  }
+  // テスト環境では常に通常のPostgreSQLクライアントを使用
+  const sql = postgres(connectionString);
+  return drizzlePostgres(sql, { schema });
 };
 
 // 環境に応じてDB接続を選択
