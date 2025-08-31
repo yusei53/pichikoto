@@ -11,6 +11,7 @@ export const assertEqualOauthStateTable = (
     sessionId: string;
     state: string;
     nonce: string;
+    codeVerifier: string | null;
     expiresAt: Date;
   },
   actualRecord: typeof schema.oauthState.$inferSelect
@@ -19,6 +20,7 @@ export const assertEqualOauthStateTable = (
     sessionId: expectedState.sessionId,
     state: expectedState.state,
     nonce: expectedState.nonce,
+    codeVerifier: expectedState.codeVerifier,
     expiresAt: expectedState.expiresAt,
     createdAt: actualRecord.createdAt // createdAtは自動生成されるので実際の値を使用
   };

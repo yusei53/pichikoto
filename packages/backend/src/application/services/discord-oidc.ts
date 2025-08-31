@@ -10,7 +10,8 @@ export interface DiscordOIDCServiceInterface {
   ): Promise<{ authUrl: string; state: string; sessionId: string }>;
   exchangeCodeForTokens(
     c: Context,
-    code: string
+    code: string,
+    codeVerifier: string
   ): Promise<DiscordOIDCTokenResponse>;
   refreshTokens(
     c: Context,
@@ -31,7 +32,7 @@ export interface DiscordOIDCServiceInterface {
     c: Context,
     sessionId: string,
     state: string
-  ): Promise<{ valid: boolean; nonce?: string }>;
+  ): Promise<{ valid: boolean; nonce?: string; codeVerifier?: string }>;
 }
 
 @injectable()
@@ -54,21 +55,28 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
     const sessionId = this.generateSecureRandomString(32);
     const state = this.generateSecureRandomString(32);
     const nonce = this.generateSecureRandomString(32);
+    const codeVerifier = this.generateSecureRandomString(64);
+    const codeChallenge = await this.generateCodeChallenge(codeVerifier);
 
     // sessionId、state、nonceを15分間有効として保存
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-    await this.stateRepository.save(sessionId, state, nonce, expiresAt);
+    await this.stateRepository.save(
+      sessionId,
+      state,
+      nonce,
+      codeVerifier,
+      expiresAt
+    );
 
     const params = new URLSearchParams();
     params.append("client_id", c.env.DISCORD_CLIENT_ID);
     params.append("response_type", "code");
-    params.append(
-      "redirect_uri",
-      `${c.env.BASE_URL}/api/auth/callback`
-    );
+    params.append("redirect_uri", `${c.env.BASE_URL}/api/auth/callback`);
     params.append("scope", "identify openid");
     params.append("state", state);
     params.append("nonce", nonce);
+    params.append("code_challenge", codeChallenge);
+    params.append("code_challenge_method", "S256");
 
     const authUrl = `https://discord.com/oauth2/authorize?${params.toString()}`;
     return { authUrl, state, sessionId };
@@ -76,17 +84,16 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
 
   async exchangeCodeForTokens(
     c: Context,
-    code: string
+    code: string,
+    codeVerifier: string
   ): Promise<DiscordOIDCTokenResponse> {
     const params = new URLSearchParams();
     params.append("client_id", c.env.DISCORD_CLIENT_ID);
     params.append("client_secret", c.env.DISCORD_CLIENT_SECRET);
     params.append("grant_type", "authorization_code");
     params.append("code", code);
-    params.append(
-      "redirect_uri",
-      `${c.env.BASE_URL}/api/auth/callback`
-    );
+    params.append("redirect_uri", `${c.env.BASE_URL}/api/auth/callback`);
+    params.append("code_verifier", codeVerifier);
 
     const response = await fetch(`${this.discordApiBaseUrl}/oauth2/token`, {
       method: "POST",
@@ -302,7 +309,7 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
     c: Context,
     sessionId: string,
     state: string
-  ): Promise<{ valid: boolean; nonce?: string }> {
+  ): Promise<{ valid: boolean; nonce?: string; codeVerifier?: string }> {
     try {
       const stateRecord = await this.stateRepository.findBy(sessionId);
 
@@ -324,10 +331,11 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
         return { valid: false };
       }
 
-      // 検証成功時：nonceを返してからレコードを削除
+      // 検証成功時：nonce/codeVerifierを返してからレコードを削除
       const nonce = stateRecord.nonce;
+      const codeVerifier = stateRecord.codeVerifier ?? undefined;
       await this.stateRepository.delete(sessionId);
-      return { valid: true, nonce };
+      return { valid: true, nonce, codeVerifier };
     } catch (error) {
       // エラー時もレコードを削除
       await this.stateRepository.delete(sessionId).catch(() => {
@@ -340,7 +348,7 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
   private generateSecureRandomString(length: number): string {
     // Web Crypto API を優先し、フォールバックは使わない（Workers/Node18+想定）
     const bytes = new Uint8Array(length);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
     // @ts-ignore
     (globalThis.crypto || crypto).getRandomValues(bytes);
     const base64url = (arr: Uint8Array) =>
@@ -350,6 +358,24 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
         .replace(/=+$/, "");
     // 指定長に合わせてエンコード結果を切り出し
     return base64url(bytes).slice(0, length);
+  }
+
+  private async generateCodeChallenge(codeVerifier: string): Promise<string> {
+    const enc = new TextEncoder();
+    const data = enc.encode(codeVerifier);
+
+    // @ts-ignore
+    const digest = await (globalThis.crypto || crypto).subtle.digest(
+      "SHA-256",
+      data
+    );
+    const bytes = new Uint8Array(digest as ArrayBuffer);
+    const base64url = (arr: Uint8Array) =>
+      btoa(String.fromCharCode(...arr))
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
+    return base64url(bytes);
   }
 
   private isDiscordIdTokenPayload(

@@ -40,7 +40,11 @@ export class AuthUsecase implements AuthUsecaseInterface {
     // sessionIdとstateパラメータの検証（nonceも取得）
     const stateVerification =
       await this.discordOIDCService.verifyStateBySessionId(c, sessionId, state);
-    if (!stateVerification.valid || !stateVerification.nonce) {
+    if (
+      !stateVerification.valid ||
+      !stateVerification.nonce ||
+      !stateVerification.codeVerifier
+    ) {
       console.error("Invalid or expired state parameter:", {
         sessionId,
         state
@@ -50,7 +54,8 @@ export class AuthUsecase implements AuthUsecaseInterface {
 
     const tokenResponse = await this.discordOIDCService.exchangeCodeForTokens(
       c,
-      code
+      code,
+      stateVerification.codeVerifier
     );
 
     if (!tokenResponse.id_token) {
