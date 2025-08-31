@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   Department,
   DiscordID,
@@ -9,9 +9,7 @@ import {
 import { CreatedAt } from "../../src/utils/CreatedAt";
 
 const MOCK_UUID = "00000000-0000-0000-0000-000000";
-const MOCK_NOW = new Date("2025-01-01T00:00:00.000Z").getTime();
-
-vi.spyOn(Date, "now").mockReturnValue(MOCK_NOW);
+const MOCK_NOW_DATE = new Date("2025-01-01T00:00:00.000Z");
 
 vi.mock("../../src/utils/UUID", () => {
   return {
@@ -21,6 +19,15 @@ vi.mock("../../src/utils/UUID", () => {
       }))
     }
   };
+});
+
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(MOCK_NOW_DATE);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe("UserDomainTest", () => {
