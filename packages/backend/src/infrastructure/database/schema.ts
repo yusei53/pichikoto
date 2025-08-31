@@ -26,7 +26,6 @@ export const oauthState = pgTable("oauth_state", {
   sessionId: text("session_id").primaryKey(),
   state: text("state").notNull().unique(),
   nonce: text("nonce").notNull(),
-  codeVerifier: text("code_verifier"),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow()
 });

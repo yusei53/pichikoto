@@ -36,13 +36,6 @@
       "when": 1756360910651,
       "tag": "0004_zippy_sunset_bain",
       "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1756601825615,
-      "tag": "0005_flashy_human_torch",
-      "breakpoints": true
     }
   ]
 }

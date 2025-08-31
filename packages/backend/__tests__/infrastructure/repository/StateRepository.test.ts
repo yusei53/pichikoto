@@ -24,7 +24,6 @@ describe("StateRepository Tests", () => {
         sessionId: stateRecord.sessionId,
         state: stateRecord.state,
         nonce: stateRecord.nonce,
-        codeVerifier: stateRecord.codeVerifier ?? null,
         expiresAt: stateRecord.expiresAt
       };
 
@@ -33,7 +32,6 @@ describe("StateRepository Tests", () => {
         stateRecord.sessionId,
         stateRecord.state,
         stateRecord.nonce,
-        stateRecord.codeVerifier!,
         stateRecord.expiresAt
       );
 
@@ -69,7 +67,6 @@ describe("StateRepository Tests", () => {
         sessionId: state1.sessionId,
         state: state1.state,
         nonce: state1.nonce,
-        codeVerifier: state1.codeVerifier ?? null,
         expiresAt: state1.expiresAt
       });
     });
@@ -100,7 +97,9 @@ describe("StateRepository Tests", () => {
       await stateRepository.delete(stateRecord.sessionId);
 
       // assert
-      const actual = await stateRepository.findBy(stateRecord.sessionId);
+      const actual = await stateRepository.findBy(
+        stateRecord.sessionId
+      );
       expect(actual).toBeNull();
     });
   });

@@ -117,25 +117,6 @@ export class AuthController implements AuthControllerInterface {
 
   async refresh(c: Context) {
     try {
-      // CSRF緩和: Origin/Referer が許可ドメイン（FRONTEND_BASE_URL）か検証
-      const headerOrigin = c.req.header("Origin");
-      const headerReferer = c.req.header("Referer");
-      const allowOrigin = (() => {
-        try {
-          const allowed = new URL(c.env.FRONTEND_BASE_URL).origin;
-          const received = headerOrigin ?? headerReferer;
-          if (!received) return false;
-          const receivedOrigin = new URL(received).origin;
-          return receivedOrigin === allowed;
-        } catch {
-          return false;
-        }
-      })();
-
-      if (!allowOrigin) {
-        return c.json({ error: "Forbidden" }, 403);
-      }
-
       // HttpOnly Cookie から refresh_token を取得
       const refreshToken = getCookie(c, "refresh_token");
 
