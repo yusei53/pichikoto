@@ -28,48 +28,6 @@ export class AuthController implements AuthControllerInterface {
     private readonly jwtService: JwtServiceInterface
   ) {}
 
-  private setPartitionedRefreshTokenCookie(c: Context, token: string) {
-    const backendDomain = new URL(c.env.BASE_URL).hostname;
-    const secure = c.env.NODE_ENV !== "development";
-    const attrs: string[] = [
-      `refresh_token=${encodeURIComponent(token)}`,
-      "HttpOnly",
-      "Path=/",
-      "SameSite=None",
-      `Domain=${backendDomain}`,
-      `Max-Age=${60 * 60 * 24 * 365}`
-    ];
-    if (secure) {
-      attrs.push("Secure");
-      // CHIPS: Partitioned cookie to work under 3PCD
-      attrs.push("Partitioned");
-    }
-    // append Set-Cookie (do not overwrite other cookies)
-    c.header("Set-Cookie", attrs.join("; "), { append: true });
-  }
-
-  private clearPossibleRefreshTokenVariants(c: Context) {
-    // 古いバリアント（Domain無し/有り）の両方を明示削除
-    const backendDomain = new URL(c.env.BASE_URL).hostname;
-    const secure = c.env.NODE_ENV !== "development";
-    const base = [
-      "refresh_token=",
-      "HttpOnly",
-      "Path=/",
-      "SameSite=None",
-      "Max-Age=0"
-    ];
-    const baseWithSecure = secure ? [...base, "Secure"] : base;
-    // host-only variant（Domain なし）
-    c.header("Set-Cookie", baseWithSecure.join("; "), { append: true });
-    // Domain 指定 variant
-    c.header(
-      "Set-Cookie",
-      [...baseWithSecure, `Domain=${backendDomain}`].join("; "),
-      { append: true }
-    );
-  }
-
   async RedirectToAuthUrl(c: Context) {
     const { authUrl, sessionId } =
       await this.discordOIDCService.generateAuthUrl(c);
@@ -118,12 +76,15 @@ export class AuthController implements AuthControllerInterface {
         sessionId
       );
 
-      const backendDomain = new URL(c.env.BASE_URL).hostname;
       // Refresh TokenはHttpOnly Cookieで付与（クライアントJSから不可視）
       if (authPayload.refreshToken) {
-        // 過去のバリアントを削除してから、Partitioned クッキーを付与
-        this.clearPossibleRefreshTokenVariants(c);
-        this.setPartitionedRefreshTokenCookie(c, authPayload.refreshToken);
+        setCookie(c, "refresh_token", authPayload.refreshToken, {
+          httpOnly: true,
+          secure: c.env.NODE_ENV !== "development",
+          sameSite: "None",
+          path: "/",
+          maxAge: 60 * 60 * 24 * 365 // 1年
+        });
       }
 
       // 使用済みのセッションCookieを削除
@@ -132,8 +93,7 @@ export class AuthController implements AuthControllerInterface {
         secure: c.env.NODE_ENV !== "development",
         sameSite: "None",
         path: "/",
-        maxAge: 0,
-        domain: backendDomain
+        maxAge: 0
       });
 
       c.header("Cache-Control", "no-store");
@@ -143,14 +103,12 @@ export class AuthController implements AuthControllerInterface {
       console.error("Auth callback error:", error);
 
       // エラー時もセッションCookieを削除
-      const backendDomain = new URL(c.env.BASE_URL).hostname;
       setCookie(c, "oauth_session", "", {
         httpOnly: true,
         secure: c.env.NODE_ENV !== "development",
         sameSite: "None",
         path: "/",
-        maxAge: 0,
-        domain: backendDomain
+        maxAge: 0
       });
 
       return c.redirect(`${completeUrl}?error=auth_failed`);
@@ -187,9 +145,14 @@ export class AuthController implements AuthControllerInterface {
 
       const tokens = await this.jwtService.refreshAccessToken(c, refreshToken);
 
-      // Refresh Tokenをローテーションし、クッキーを更新（Partitioned）
-      this.clearPossibleRefreshTokenVariants(c);
-      this.setPartitionedRefreshTokenCookie(c, tokens.refreshToken);
+      // Refresh Tokenをローテーションし、Cookieを更新
+      setCookie(c, "refresh_token", tokens.refreshToken, {
+        httpOnly: true,
+        secure: c.env.NODE_ENV !== "development",
+        sameSite: "None",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365
+      });
 
       // レスポンスはアクセストークンのみ返す
       return c.json({ accessToken: tokens.accessToken });
