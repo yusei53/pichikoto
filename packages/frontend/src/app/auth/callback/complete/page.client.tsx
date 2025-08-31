@@ -76,4 +76,3 @@ const ClientAuthCallbackCompletePage: React.FC<
 };
 
 export default ClientAuthCallbackCompletePage;
-

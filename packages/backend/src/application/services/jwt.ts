@@ -64,11 +64,11 @@ export class JwtService implements JwtServiceInterface {
     refreshToken: string
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const secret = this.getSecret(c);
-    
+
     // リフレッシュトークンの検証
     const payload = await verify(refreshToken, secret);
     const userId = payload.sub as string;
-    
+
     // 新しいトークンペアを生成
     const newAccessToken = await sign(
       {
@@ -77,7 +77,7 @@ export class JwtService implements JwtServiceInterface {
       },
       secret
     );
-    
+
     const newRefreshToken = await sign(
       {
         sub: userId,
@@ -85,10 +85,10 @@ export class JwtService implements JwtServiceInterface {
       },
       secret
     );
-    
-    return { 
-      accessToken: newAccessToken, 
-      refreshToken: newRefreshToken 
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken
     };
   }
 }

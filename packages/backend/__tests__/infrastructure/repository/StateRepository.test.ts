@@ -97,9 +97,7 @@ describe("StateRepository Tests", () => {
       await stateRepository.delete(stateRecord.sessionId);
 
       // assert
-      const actual = await stateRepository.findBy(
-        stateRecord.sessionId
-      );
+      const actual = await stateRepository.findBy(stateRecord.sessionId);
       expect(actual).toBeNull();
     });
   });

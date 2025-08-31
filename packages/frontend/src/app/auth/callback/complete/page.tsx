@@ -10,4 +10,3 @@ const AuthCallbackCompletePage = async ({
 };
 
 export default AuthCallbackCompletePage;
-
