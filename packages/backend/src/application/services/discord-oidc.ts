@@ -36,7 +36,7 @@ export interface DiscordOIDCServiceInterface {
 
 @injectable()
 export class DiscordOIDCService implements DiscordOIDCServiceInterface {
-  private readonly discordApiBaseUrl = "https://discordapp.com/api";
+  private readonly discordApiBaseUrl = "https://discord.com/api";
   private readonly discordJWKSUrl = "https://discord.com/api/oauth2/keys";
   private publicKeysCache: any[] | null = null;
   private cacheExpiry: number = 0;
@@ -64,7 +64,7 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
     params.append("response_type", "code");
     params.append(
       "redirect_uri",
-      `${c.env.FRONTEND_BASE_URL}/auth/callback/discord`
+      `${c.env.BASE_URL}/api/auth/callback`
     );
     params.append("scope", "identify openid");
     params.append("state", state);
@@ -85,7 +85,7 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
     params.append("code", code);
     params.append(
       "redirect_uri",
-      `${c.env.FRONTEND_BASE_URL}/auth/callback/discord`
+      `${c.env.BASE_URL}/api/auth/callback`
     );
 
     const response = await fetch(`${this.discordApiBaseUrl}/oauth2/token`, {
@@ -338,13 +338,18 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
   }
 
   private generateSecureRandomString(length: number): string {
-    const chars =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
-    let result = "";
-    for (let i = 0; i < length; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
+    // Web Crypto API を優先し、フォールバックは使わない（Workers/Node18+想定）
+    const bytes = new Uint8Array(length);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    (globalThis.crypto || crypto).getRandomValues(bytes);
+    const base64url = (arr: Uint8Array) =>
+      btoa(String.fromCharCode(...arr))
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
+    // 指定長に合わせてエンコード結果を切り出し
+    return base64url(bytes).slice(0, length);
   }
 
   private isDiscordIdTokenPayload(
@@ -358,7 +363,6 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
       (typeof payload.aud === "string" || Array.isArray(payload.aud)) &&
       typeof payload.exp === "number" &&
       typeof payload.iat === "number" &&
-      typeof payload.auth_time === "number" &&
       typeof payload.nonce === "string";
 
     if (!isValid) {
@@ -399,7 +403,7 @@ export interface DiscordIdTokenPayload {
   aud: string | string[]; // Discord Client ID (文字列または配列)
   exp: number; // Expiration time
   iat: number; // Issued at time
-  auth_time: number; // Authentication time
+  auth_time?: number; // Authentication time (optional)
   nonce: string; // Nonce value
   at_hash?: string; // Access token hash
 }
