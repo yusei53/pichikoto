@@ -76,6 +76,7 @@ export class AuthController implements AuthControllerInterface {
         sessionId
       );
 
+      const backendDomain = new URL(c.env.BASE_URL).hostname;
       // Refresh TokenはHttpOnly Cookieで付与（クライアントJSから不可視）
       if (authPayload.refreshToken) {
         setCookie(c, "refresh_token", authPayload.refreshToken, {
@@ -83,7 +84,8 @@ export class AuthController implements AuthControllerInterface {
           secure: c.env.NODE_ENV !== "development",
           sameSite: "None",
           path: "/",
-          maxAge: 60 * 60 * 24 * 365 // 1年
+          maxAge: 60 * 60 * 24 * 365, // 1年
+          domain: backendDomain
         });
       }
 
@@ -93,7 +95,8 @@ export class AuthController implements AuthControllerInterface {
         secure: c.env.NODE_ENV !== "development",
         sameSite: "None",
         path: "/",
-        maxAge: 0
+        maxAge: 0,
+        domain: backendDomain
       });
 
       c.header("Cache-Control", "no-store");
@@ -103,12 +106,14 @@ export class AuthController implements AuthControllerInterface {
       console.error("Auth callback error:", error);
 
       // エラー時もセッションCookieを削除
+      const backendDomain = new URL(c.env.BASE_URL).hostname;
       setCookie(c, "oauth_session", "", {
         httpOnly: true,
         secure: c.env.NODE_ENV !== "development",
         sameSite: "None",
         path: "/",
-        maxAge: 0
+        maxAge: 0,
+        domain: backendDomain
       });
 
       return c.redirect(`${completeUrl}?error=auth_failed`);
