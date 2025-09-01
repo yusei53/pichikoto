@@ -3,6 +3,7 @@ import postgres from "postgres";
 import { promisify } from "util";
 
 const TEST_DATABASE_URL =
+  process.env.TEST_DATABASE_URL ||
   "postgres://postgres:postgres@db.localtest.me:5432/main";
 
 const execAsync = promisify(exec);
