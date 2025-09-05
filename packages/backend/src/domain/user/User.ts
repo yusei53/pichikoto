@@ -1,11 +1,11 @@
-import { CreatedAt } from "../utils/CreatedAt";
-import { UUID } from "../utils/UUID";
+import { CreatedAt } from "../../utils/CreatedAt";
+import { UUID } from "../../utils/UUID";
 import {
-  InvalidDiscordIDError,
+  DepartmentTooLongError,
+  EmptyDepartmentError,
   EmptyFacultyError,
   FacultyTooLongError,
-  EmptyDepartmentError,
-  DepartmentTooLongError
+  InvalidDiscordIDError
 } from "./UserError";
 
 export class User {

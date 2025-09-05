@@ -1,5 +1,5 @@
-import { CreatedAt } from "../utils/CreatedAt";
-import type { UserID } from "./User";
+import type { UserID } from "../../domain/user/User";
+import { CreatedAt } from "../../utils/CreatedAt";
 
 export class DiscordTokens {
   private constructor(

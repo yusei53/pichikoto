@@ -6,7 +6,7 @@ import {
   RefreshToken
 } from "../../../src/domain/discord-tokens/DiscordTokens";
 import { UserID } from "../../../src/domain/user/User";
-import { CreatedAt } from "../../src/utils/CreatedAt";
+import { CreatedAt } from "../../../src/utils/CreatedAt";
 
 const MOCK_UUID = "00000000-0000-0000-0000-000000";
 const MOCK_NOW_DATE = new Date("2025-01-01T00:00:00.000Z");

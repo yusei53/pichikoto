@@ -17,8 +17,8 @@ import {
   TotalPointExceedsLimitError
 } from "../../../src/domain/appreciation/AppreciationError";
 import { UserID } from "../../../src/domain/user/User";
-import { CreatedAt } from "../../src/utils/CreatedAt";
-import { UUID } from "../../src/utils/UUID";
+import { CreatedAt } from "../../../src/utils/CreatedAt";
+import { UUID } from "../../../src/utils/UUID";
 
 const MOCK_APPRECIATION_ID = UUID.new().value;
 const MOCK_NOW_DATE = new Date("2025-01-01T00:00:00.000Z");

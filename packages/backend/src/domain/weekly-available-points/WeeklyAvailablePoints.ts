@@ -1,6 +1,6 @@
-import { CreatedAt } from "../utils/CreatedAt";
-import { UUID } from "../utils/UUID";
-import type { UserID } from "./User";
+import type { UserID } from "../../domain/user/User";
+import { CreatedAt } from "../../utils/CreatedAt";
+import { UUID } from "../../utils/UUID";
 
 const WEEKLY_AVAILABLE_POINTS = 400;
 

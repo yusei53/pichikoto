@@ -1,5 +1,6 @@
-import { CreatedAt } from "../utils/CreatedAt";
-import { UUID } from "../utils/UUID";
+import type { UserID } from "../../domain/user/User";
+import { CreatedAt } from "../../utils/CreatedAt";
+import { UUID } from "../../utils/UUID";
 import {
   DuplicateReceiversError,
   EmptyMessageError,
@@ -11,7 +12,6 @@ import {
   TooManyReceiversError,
   TotalPointExceedsLimitError
 } from "./AppreciationError";
-import type { UserID } from "./User";
 
 /**
  * 受信者の最大数
