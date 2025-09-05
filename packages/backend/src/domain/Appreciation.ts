@@ -4,23 +4,26 @@ import {
   AppreciationPointTooHighError,
   AppreciationPointTooLowError,
   DuplicateReceiversError,
-  EmptyContentError,
+  EmptyMessageError,
   NoReceiversError,
   SenderInReceiversError,
+  TooLongMessageError,
   TooManyReceiversError
 } from "./AppreciationError";
 import type { UserID } from "./User";
 
 export const MAX_RECEIVERS = 6;
-export const MIN_APPRECIATION_POINT = 20;
+export const MIN_APPRECIATION_POINT = 1;
 export const MAX_APPRECIATION_POINT = 120;
+export const MIN_MESSAGE_LENGTH = 1;
+export const MAX_MESSAGE_LENGTH = 200;
 
 export class Appreciation {
   private constructor(
     readonly appreciationID: AppreciationID,
     readonly senderID: UserID,
     readonly receiverIDs: readonly UserID[],
-    readonly message: string,
+    readonly message: AppreciationMessage,
     readonly appreciationPoint: AppreciationPoint,
     readonly createdAt: CreatedAt
   ) {}
@@ -28,12 +31,11 @@ export class Appreciation {
   static create(
     senderID: UserID,
     receiverIDs: UserID[],
-    message: string,
+    message: AppreciationMessage,
     appreciationPoint: AppreciationPoint
   ): Appreciation {
     if (receiverIDs.length === 0) throw new NoReceiversError();
     if (receiverIDs.length > MAX_RECEIVERS) throw new TooManyReceiversError();
-    if (message.trim().length === 0) throw new EmptyContentError();
 
     // 重複する受信者をチェック
     const uniqueReceiverIDs = new Set(receiverIDs.map((id) => id.value.value));
@@ -60,7 +62,7 @@ export class Appreciation {
     appreciationID: AppreciationID,
     senderID: UserID,
     receiverIDs: UserID[],
-    message: string,
+    message: AppreciationMessage,
     appreciationPoint: AppreciationPoint,
     createdAt: CreatedAt
   ): Appreciation {
@@ -87,13 +89,32 @@ export class AppreciationID {
   }
 }
 
+export class AppreciationMessage {
+  private constructor(readonly value: string) {}
+
+  static from(value: string): AppreciationMessage {
+    /**
+     * 空文字の場合はエラーになる
+     * 1文字未満の場合はエラーになる
+     * 200文字超えの場合はエラーになる
+     */
+    if (value.trim().length === 0) throw new EmptyMessageError();
+    if (value.length > MAX_MESSAGE_LENGTH) throw new TooLongMessageError();
+
+    return new AppreciationMessage(value);
+  }
+}
+
 /**
  * 感謝ポイントを表す値オブジェクト
  * 複数の集約で共有される共通概念
  */
 export class AppreciationPoint {
   private constructor(readonly value: number) {}
-
+  /**
+   * 1未満の場合はエラーになる
+   * 120超えの場合はエラーになる
+   */
   static from(value: number): AppreciationPoint {
     if (value < MIN_APPRECIATION_POINT)
       throw new AppreciationPointTooLowError();
