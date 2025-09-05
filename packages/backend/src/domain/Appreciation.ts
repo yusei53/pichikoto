@@ -13,10 +13,25 @@ import {
 } from "./AppreciationError";
 import type { UserID } from "./User";
 
+/**
+ * 受信者の最大数
+ */
 export const MAX_RECEIVERS = 6;
+
+/**
+ * 感謝ポイントの最小値・最大値
+ */
 export const MIN_POINT_PER_RECEIVER = 1;
 export const MAX_POINT_PER_RECEIVER = 120;
+
+/**
+ * 総ポイントの最大値
+ */
 export const MAX_TOTAL_POINTS = 120;
+
+/**
+ * メッセージの最小値・最大値
+ */
 export const MIN_MESSAGE_LENGTH = 1;
 export const MAX_MESSAGE_LENGTH = 200;
 
