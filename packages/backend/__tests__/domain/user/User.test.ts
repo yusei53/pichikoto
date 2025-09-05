@@ -5,14 +5,14 @@ import {
   Faculty,
   User,
   UserID
-} from "../../src/domain/User";
+} from "../../../src/domain/user/User";
 import {
   InvalidDiscordIDError,
   EmptyFacultyError,
   FacultyTooLongError,
   EmptyDepartmentError,
   DepartmentTooLongError
-} from "../../src/domain/UserError";
+} from "../../../src/domain/user/UserError";
 import { CreatedAt } from "../../src/utils/CreatedAt";
 import { UUID } from "../../src/utils/UUID";
 

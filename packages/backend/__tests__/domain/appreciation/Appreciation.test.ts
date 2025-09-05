@@ -4,7 +4,7 @@ import {
   AppreciationID,
   AppreciationMessage,
   PointPerReceiver
-} from "../../src/domain/Appreciation";
+} from "../../../src/domain/appreciation/Appreciation";
 import {
   DuplicateReceiversError,
   EmptyMessageError,
@@ -15,8 +15,8 @@ import {
   TooLongMessageError,
   TooManyReceiversError,
   TotalPointExceedsLimitError
-} from "../../src/domain/AppreciationError";
-import { UserID } from "../../src/domain/User";
+} from "../../../src/domain/appreciation/AppreciationError";
+import { UserID } from "../../../src/domain/user/User";
 import { CreatedAt } from "../../src/utils/CreatedAt";
 import { UUID } from "../../src/utils/UUID";
 

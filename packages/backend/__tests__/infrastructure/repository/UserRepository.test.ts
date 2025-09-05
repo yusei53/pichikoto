@@ -6,7 +6,7 @@ import {
   Faculty,
   User,
   UserID
-} from "../../../src/domain/User";
+} from "../../../src/domain/user/User";
 import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { assertEqualUserTable } from "../../testing/table_assert/AssertEqualUserTable";

@@ -8,7 +8,7 @@ import {
   Faculty,
   User,
   UserID
-} from "../../domain/User";
+} from "../../domain/user/User";
 import { CreatedAt } from "../../utils/CreatedAt";
 
 export interface UserRepositoryInterface {

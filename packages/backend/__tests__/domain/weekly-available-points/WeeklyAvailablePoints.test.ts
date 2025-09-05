@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { UserID } from "../../src/domain/User";
+import { UserID } from "../../../src/domain/user/User";
 import {
   AvailablePoints,
   InitializedAt,
   WeeklyAvailablePoints,
   WeeklyAvailablePointsID
-} from "../../src/domain/WeeklyAvailablePoints";
+} from "../../../src/domain/weekly-available-points/WeeklyAvailablePoints";
 import { CreatedAt } from "../../src/utils/CreatedAt";
 import { UUID } from "../../src/utils/UUID";
 

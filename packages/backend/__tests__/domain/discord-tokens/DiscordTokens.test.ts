@@ -4,8 +4,8 @@ import {
   DiscordTokens,
   ExpiresAt,
   RefreshToken
-} from "../../src/domain/DiscordTokens";
-import { UserID } from "../../src/domain/User";
+} from "../../../src/domain/discord-tokens/DiscordTokens";
+import { UserID } from "../../../src/domain/user/User";
 import { CreatedAt } from "../../src/utils/CreatedAt";
 
 const MOCK_UUID = "00000000-0000-0000-0000-000000";
