@@ -1,20 +1,22 @@
 import { CreatedAt } from "../utils/CreatedAt";
 import { UUID } from "../utils/UUID";
 import {
-  AppreciationPointTooHighError,
-  AppreciationPointTooLowError,
   DuplicateReceiversError,
   EmptyMessageError,
   NoReceiversError,
+  PointPerReceiverTooHighError,
+  PointPerReceiverTooLowError,
   SenderInReceiversError,
   TooLongMessageError,
-  TooManyReceiversError
+  TooManyReceiversError,
+  TotalPointExceedsLimitError
 } from "./AppreciationError";
 import type { UserID } from "./User";
 
 export const MAX_RECEIVERS = 6;
-export const MIN_APPRECIATION_POINT = 1;
-export const MAX_APPRECIATION_POINT = 120;
+export const MIN_POINT_PER_RECEIVER = 1;
+export const MAX_POINT_PER_RECEIVER = 120;
+export const MAX_TOTAL_POINTS = 120;
 export const MIN_MESSAGE_LENGTH = 1;
 export const MAX_MESSAGE_LENGTH = 200;
 
@@ -24,7 +26,7 @@ export class Appreciation {
     readonly senderID: UserID,
     readonly receiverIDs: readonly UserID[],
     readonly message: AppreciationMessage,
-    readonly appreciationPoint: AppreciationPoint,
+    readonly pointPerReceiver: PointPerReceiver,
     readonly createdAt: CreatedAt
   ) {}
 
@@ -32,7 +34,7 @@ export class Appreciation {
     senderID: UserID,
     receiverIDs: UserID[],
     message: AppreciationMessage,
-    appreciationPoint: AppreciationPoint
+    pointPerReceiver: PointPerReceiver
   ): Appreciation {
     if (receiverIDs.length === 0) throw new NoReceiversError();
     if (receiverIDs.length > MAX_RECEIVERS) throw new TooManyReceiversError();
@@ -48,12 +50,18 @@ export class Appreciation {
       throw new SenderInReceiversError();
     }
 
+    // 総ポイント（ポイント×受信者数）が最大値を超えないかチェック
+    const totalPoints = pointPerReceiver.value * receiverIDs.length;
+    if (totalPoints > MAX_TOTAL_POINTS) {
+      throw new TotalPointExceedsLimitError(totalPoints);
+    }
+
     return new Appreciation(
       AppreciationID.new(),
       senderID,
       Object.freeze([...receiverIDs]), // イミュータブルな配列として扱う
       message,
-      appreciationPoint,
+      pointPerReceiver,
       CreatedAt.new()
     );
   }
@@ -63,7 +71,7 @@ export class Appreciation {
     senderID: UserID,
     receiverIDs: UserID[],
     message: AppreciationMessage,
-    appreciationPoint: AppreciationPoint,
+    pointPerReceiver: PointPerReceiver,
     createdAt: CreatedAt
   ): Appreciation {
     return new Appreciation(
@@ -71,7 +79,7 @@ export class Appreciation {
       senderID,
       Object.freeze([...receiverIDs]),
       message,
-      appreciationPoint,
+      pointPerReceiver,
       createdAt
     );
   }
@@ -109,25 +117,17 @@ export class AppreciationMessage {
  * 感謝ポイントを表す値オブジェクト
  * 複数の集約で共有される共通概念
  */
-export class AppreciationPoint {
+export class PointPerReceiver {
   private constructor(readonly value: number) {}
   /**
    * 1未満の場合はエラーになる
    * 120超えの場合はエラーになる
    */
-  static from(value: number): AppreciationPoint {
-    if (value < MIN_APPRECIATION_POINT)
-      throw new AppreciationPointTooLowError();
-    if (value > MAX_APPRECIATION_POINT)
-      throw new AppreciationPointTooHighError();
+  static from(value: number): PointPerReceiver {
+    if (value < MIN_POINT_PER_RECEIVER) throw new PointPerReceiverTooLowError();
+    if (value > MAX_POINT_PER_RECEIVER)
+      throw new PointPerReceiverTooHighError();
 
-    return new AppreciationPoint(value);
-  }
-
-  /**
-   * 指定されたポイントを掛け合わせる（複数受信者への配布用）
-   */
-  multiply(count: number): AppreciationPoint {
-    return AppreciationPoint.from(this.value * count);
+    return new PointPerReceiver(value);
   }
 }
