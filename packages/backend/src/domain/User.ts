@@ -1,20 +1,12 @@
-import z from "zod";
 import { CreatedAt } from "../utils/CreatedAt";
 import { UUID } from "../utils/UUID";
-
-const discordIDSchema = z
-  .string()
-  .regex(/^\d+$/, "Invalid Discord ID: must contain only digits");
-
-const facultySchema = z
-  .string()
-  .min(1, "Faculty cannot be empty")
-  .max(30, "Faculty must be 30 characters or less");
-
-const departmentSchema = z
-  .string()
-  .min(1, "Department cannot be empty")
-  .max(30, "Department must be 30 characters or less");
+import {
+  InvalidDiscordIDError,
+  EmptyFacultyError,
+  FacultyTooLongError,
+  EmptyDepartmentError,
+  DepartmentTooLongError
+} from "./UserError";
 
 export class User {
   private constructor(
@@ -82,7 +74,9 @@ export class DiscordID {
   private constructor(readonly value: string) {}
 
   static from(value: string): DiscordID {
-    discordIDSchema.parse(value);
+    if (!/^\d+$/.test(value)) {
+      throw new InvalidDiscordIDError();
+    }
     return new DiscordID(value);
   }
 }
@@ -91,7 +85,12 @@ export class Faculty {
   private constructor(readonly value: string) {}
 
   static from(value: string): Faculty {
-    facultySchema.parse(value);
+    if (value.length === 0) {
+      throw new EmptyFacultyError();
+    }
+    if (value.length > 30) {
+      throw new FacultyTooLongError();
+    }
     return new Faculty(value);
   }
 }
@@ -100,7 +99,12 @@ export class Department {
   private constructor(readonly value: string) {}
 
   static from(value: string): Department {
-    departmentSchema.parse(value);
+    if (value.length === 0) {
+      throw new EmptyDepartmentError();
+    }
+    if (value.length > 30) {
+      throw new DepartmentTooLongError();
+    }
     return new Department(value);
   }
 }
