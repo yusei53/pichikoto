@@ -3,17 +3,18 @@ import {
   Appreciation,
   AppreciationID,
   AppreciationMessage,
-  AppreciationPoint
+  PointPerReceiver
 } from "../../src/domain/Appreciation";
 import {
-  AppreciationPointTooHighError,
-  AppreciationPointTooLowError,
   DuplicateReceiversError,
   EmptyMessageError,
   NoReceiversError,
+  PointPerReceiverTooHighError,
+  PointPerReceiverTooLowError,
   SenderInReceiversError,
   TooLongMessageError,
-  TooManyReceiversError
+  TooManyReceiversError,
+  TotalPointExceedsLimitError
 } from "../../src/domain/AppreciationError";
 import { UserID } from "../../src/domain/User";
 import { CreatedAt } from "../../src/utils/CreatedAt";
@@ -44,7 +45,7 @@ describe("AppreciationDomainTest", () => {
   const receiverID2 = UserID.new();
   const receiverID3 = UserID.new();
   const message = AppreciationMessage.from("いつもお疲れ様です！");
-  const appreciationPoint = AppreciationPoint.from(50);
+  const pointPerReceiver = PointPerReceiver.from(30);
 
   describe("Appreciationドメインモデルの作成", () => {
     it("Appreciationドメインモデルを作成できること", () => {
@@ -53,7 +54,7 @@ describe("AppreciationDomainTest", () => {
         senderID,
         [receiverID1],
         message,
-        appreciationPoint,
+        pointPerReceiver,
         CreatedAt.new()
       );
 
@@ -61,7 +62,7 @@ describe("AppreciationDomainTest", () => {
         senderID,
         [receiverID1],
         message,
-        appreciationPoint
+        pointPerReceiver
       );
 
       expect(actual).toStrictEqual(expected);
@@ -74,7 +75,7 @@ describe("AppreciationDomainTest", () => {
         senderID,
         receivers,
         message,
-        appreciationPoint,
+        pointPerReceiver,
         CreatedAt.new()
       );
 
@@ -82,7 +83,7 @@ describe("AppreciationDomainTest", () => {
         senderID,
         receivers,
         message,
-        appreciationPoint
+        pointPerReceiver
       );
 
       expect(actual).toStrictEqual(expected);
@@ -92,7 +93,7 @@ describe("AppreciationDomainTest", () => {
   describe("Appreciationエンティティのバリデーション", () => {
     it("受信者が0人の場合はエラーになること", () => {
       expect(() => {
-        Appreciation.create(senderID, [], message, appreciationPoint);
+        Appreciation.create(senderID, [], message, pointPerReceiver);
       }).toThrow(NoReceiversError);
     });
 
@@ -104,7 +105,7 @@ describe("AppreciationDomainTest", () => {
           senderID,
           tooManyReceivers,
           message,
-          appreciationPoint
+          pointPerReceiver
         );
       }).toThrow(TooManyReceiversError);
     });
@@ -116,7 +117,7 @@ describe("AppreciationDomainTest", () => {
           senderID,
           [receiverID1],
           AppreciationMessage.from(tooLongMessage),
-          appreciationPoint
+          pointPerReceiver
         );
       }).toThrow(TooLongMessageError);
     });
@@ -127,7 +128,7 @@ describe("AppreciationDomainTest", () => {
           senderID,
           [receiverID1, receiverID1],
           message,
-          appreciationPoint
+          pointPerReceiver
         );
       }).toThrow(DuplicateReceiversError);
     });
@@ -138,7 +139,7 @@ describe("AppreciationDomainTest", () => {
           senderID,
           [senderID, receiverID1],
           message,
-          appreciationPoint
+          pointPerReceiver
         );
       }).toThrow(SenderInReceiversError);
     });
@@ -149,7 +150,7 @@ describe("AppreciationDomainTest", () => {
           senderID,
           [receiverID1],
           AppreciationMessage.from(""),
-          appreciationPoint
+          pointPerReceiver
         );
       }).toThrow(EmptyMessageError);
     });
@@ -160,7 +161,7 @@ describe("AppreciationDomainTest", () => {
           senderID,
           [receiverID1],
           AppreciationMessage.from("   "),
-          appreciationPoint
+          pointPerReceiver
         );
       }).toThrow(EmptyMessageError);
     });
@@ -171,9 +172,9 @@ describe("AppreciationDomainTest", () => {
           senderID,
           [receiverID1],
           message,
-          AppreciationPoint.from(0)
+          PointPerReceiver.from(0)
         );
-      }).toThrow(AppreciationPointTooLowError);
+      }).toThrow(PointPerReceiverTooLowError);
     });
 
     it("120を超えるポイントの場合はエラーになること", () => {
@@ -182,9 +183,18 @@ describe("AppreciationDomainTest", () => {
           senderID,
           [receiverID1],
           message,
-          AppreciationPoint.from(121)
+          PointPerReceiver.from(121)
         );
-      }).toThrow(AppreciationPointTooHighError);
+      }).toThrow(PointPerReceiverTooHighError);
+    });
+
+    it("総ポイント（ポイント×受信者数）が120を超える場合はエラーになること", () => {
+      const receivers = [receiverID1, receiverID2, receiverID3]; // 3人の受信者
+      const pointPerReceiver = PointPerReceiver.from(50); // 50ポイント × 3人 = 150ポイント > 120
+
+      expect(() => {
+        Appreciation.create(senderID, receivers, message, pointPerReceiver);
+      }).toThrow(TotalPointExceedsLimitError);
     });
   });
 });
