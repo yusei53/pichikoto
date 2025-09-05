@@ -79,40 +79,28 @@ export class UserID {
 }
 
 export class DiscordID {
-  private constructor(private readonly value: string) {}
+  private constructor(readonly value: string) {}
 
   static from(value: string): DiscordID {
     discordIDSchema.parse(value);
     return new DiscordID(value);
   }
-
-  getValue(): string {
-    return this.value;
-  }
 }
 
 export class Faculty {
-  private constructor(private readonly value: string) {}
+  private constructor(readonly value: string) {}
 
   static from(value: string): Faculty {
     facultySchema.parse(value);
     return new Faculty(value);
   }
-
-  getValue(): string {
-    return this.value;
-  }
 }
 
 export class Department {
-  private constructor(private readonly value: string) {}
+  private constructor(readonly value: string) {}
 
   static from(value: string): Department {
     departmentSchema.parse(value);
     return new Department(value);
-  }
-
-  getValue(): string {
-    return this.value;
   }
 }
