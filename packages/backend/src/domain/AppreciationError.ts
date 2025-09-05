@@ -1,8 +1,8 @@
 import {
-  MAX_APPRECIATION_POINT,
   MAX_MESSAGE_LENGTH,
+  MAX_POINT_PER_RECEIVER,
   MAX_RECEIVERS,
-  MIN_APPRECIATION_POINT
+  MIN_POINT_PER_RECEIVER
 } from "./Appreciation";
 
 // Appreciationエンティティに関するエラー
@@ -46,6 +46,16 @@ export class SenderInReceiversError extends Error {
   }
 }
 
+/**
+ * 送信者が受信者リストに含まれている場合のエラー
+ */
+export class TotalPointExceedsLimitError extends Error {
+  constructor(totalPoints: number) {
+    super(`Total points (${totalPoints}) cannot exceed the limit`);
+    this.name = "TotalPointExceedsLimitError";
+  }
+}
+
 // AppreciationMessageに関するエラー
 
 /**
@@ -68,23 +78,23 @@ export class TooLongMessageError extends Error {
   }
 }
 
-// AppreciationPointに関するエラー
+// PointPerReceiverに関するエラー
 /**
  * 感謝ポイントが最小値（1）未満の場合のエラー
  */
-export class AppreciationPointTooLowError extends Error {
+export class PointPerReceiverTooLowError extends Error {
   constructor() {
-    super(`AppreciationPoint must be at least ${MIN_APPRECIATION_POINT}`);
-    this.name = "AppreciationPointTooLowError";
+    super(`PointPerReceiver must be at least ${MIN_POINT_PER_RECEIVER}`);
+    this.name = "PointPerReceiverTooLowError";
   }
 }
 
 /**
  * 感謝ポイントが最大値（120）を超えた場合のエラー
  */
-export class AppreciationPointTooHighError extends Error {
+export class PointPerReceiverTooHighError extends Error {
   constructor() {
-    super(`AppreciationPoint must be at most ${MAX_APPRECIATION_POINT}`);
-    this.name = "AppreciationPointTooHighError";
+    super(`PointPerReceiver must be at most ${MAX_POINT_PER_RECEIVER}`);
+    this.name = "PointPerReceiverTooHighError";
   }
 }
