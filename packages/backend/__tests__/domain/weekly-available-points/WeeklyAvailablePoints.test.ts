@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { UserID } from "../../src/domain/User";
+import { UserID } from "../../../src/domain/user/User";
 import {
   AvailablePoints,
   InitializedAt,
   WeeklyAvailablePoints,
   WeeklyAvailablePointsID
-} from "../../src/domain/WeeklyAvailablePoints";
-import { CreatedAt } from "../../src/utils/CreatedAt";
-import { UUID } from "../../src/utils/UUID";
+} from "../../../src/domain/weekly-available-points/WeeklyAvailablePoints";
+import { CreatedAt } from "../../../src/utils/CreatedAt";
+import { UUID } from "../../../src/utils/UUID";
 
 const MOCK_WEEKLY_AVAILABLE_POINTS_ID = UUID.new().value;
 const MOCK_NOW_DATE = new Date("2025-01-01T00:00:00.000Z");

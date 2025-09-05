@@ -5,16 +5,16 @@ import {
   Faculty,
   User,
   UserID
-} from "../../src/domain/User";
+} from "../../../src/domain/user/User";
 import {
-  InvalidDiscordIDError,
+  DepartmentTooLongError,
+  EmptyDepartmentError,
   EmptyFacultyError,
   FacultyTooLongError,
-  EmptyDepartmentError,
-  DepartmentTooLongError
-} from "../../src/domain/UserError";
-import { CreatedAt } from "../../src/utils/CreatedAt";
-import { UUID } from "../../src/utils/UUID";
+  InvalidDiscordIDError
+} from "../../../src/domain/user/UserError";
+import { CreatedAt } from "../../../src/utils/CreatedAt";
+import { UUID } from "../../../src/utils/UUID";
 
 const MOCK_USER_ID = UUID.new().value;
 const MOCK_NOW_DATE = new Date("2025-01-01T00:00:00.000Z");

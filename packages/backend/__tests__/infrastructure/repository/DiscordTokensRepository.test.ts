@@ -5,8 +5,8 @@ import {
   DiscordTokens,
   ExpiresAt,
   RefreshToken
-} from "../../../src/domain/DiscordTokens";
-import { UserID } from "../../../src/domain/User";
+} from "../../../src/domain/discord-tokens/DiscordTokens";
+import { UserID } from "../../../src/domain/user/User";
 import { DiscordTokensRepository } from "../../../src/infrastructure/repositories/DiscordTokensRepository";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { assertEqualDiscordTokensTable } from "../../testing/table_assert/AssertEqualDiscordTokensTable";

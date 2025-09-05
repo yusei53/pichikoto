@@ -7,8 +7,8 @@ import {
   DiscordTokens,
   ExpiresAt,
   RefreshToken
-} from "../../domain/DiscordTokens";
-import { UserID } from "../../domain/User";
+} from "../../domain/discord-tokens/DiscordTokens";
+import { UserID } from "../../domain/user/User";
 import { CreatedAt } from "../../utils/CreatedAt";
 
 export interface DiscordTokensRepositoryInterface {

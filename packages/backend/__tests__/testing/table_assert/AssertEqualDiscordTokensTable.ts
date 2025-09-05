@@ -1,6 +1,6 @@
 import { expect } from "vitest";
 import type * as schema from "../../../database/schema";
-import type { DiscordTokens } from "../../../src/domain/DiscordTokens";
+import type { DiscordTokens } from "../../../src/domain/discord-tokens/DiscordTokens";
 
 /**
  * データベースのdiscordTokensテーブルと引数で渡されたDiscordTokensドメインオブジェクトが等しいことをアサート
