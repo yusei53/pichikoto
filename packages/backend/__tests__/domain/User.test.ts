@@ -7,27 +7,25 @@ import {
   UserID
 } from "../../src/domain/User";
 import { CreatedAt } from "../../src/utils/CreatedAt";
+import { UUID } from "../../src/utils/UUID";
 
-const MOCK_UUID = "00000000-0000-0000-0000-000000";
+const MOCK_USER_ID = UUID.new().value;
 const MOCK_NOW_DATE = new Date("2025-01-01T00:00:00.000Z");
-
-vi.mock("../../src/utils/UUID", () => {
-  return {
-    UUID: {
-      new: vi.fn(() => ({
-        value: MOCK_UUID
-      }))
-    }
-  };
-});
 
 beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(MOCK_NOW_DATE);
+
+  vi.spyOn(UserID, "new").mockReturnValue(
+    new (class {
+      constructor(public readonly value: UUID) {}
+    })(UUID.from(MOCK_USER_ID))
+  );
 });
 
 afterEach(() => {
   vi.useRealTimers();
+  vi.restoreAllMocks();
 });
 
 describe("UserDomainTest", () => {
