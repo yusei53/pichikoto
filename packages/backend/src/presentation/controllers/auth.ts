@@ -1,13 +1,13 @@
 import type { Context } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import { inject, injectable } from "inversify";
-import type { DiscordOIDCServiceInterface } from "../../application/services/discord-oidc";
 import type { JwtServiceInterface } from "../../application/services/jwt";
 import type { DiscordAuthCallbackUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
+import type { DiscordAuthInitiateUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
 import { TYPES } from "../../infrastructure/config/types";
 
 export interface AuthControllerInterface {
-  RedirectToAuthUrl(c: Context): Promise<Response>;
+  redirectToAuthURL(c: Context): Promise<Response>;
   callback(
     c: Context,
     code: string | undefined,
@@ -20,20 +20,20 @@ export interface AuthControllerInterface {
 @injectable()
 export class AuthController implements AuthControllerInterface {
   constructor(
-    @inject(TYPES.DiscordOIDCService)
-    private readonly discordOIDCService: DiscordOIDCServiceInterface,
+    @inject(TYPES.DiscordAuthInitiateUseCase)
+    private readonly discordAuthInitiateUseCase: DiscordAuthInitiateUseCaseInterface,
     @inject(TYPES.DiscordAuthCallbackUseCase)
     private readonly discordAuthCallbackUseCase: DiscordAuthCallbackUseCaseInterface,
     @inject(TYPES.JwtService)
     private readonly jwtService: JwtServiceInterface
   ) {}
 
-  async RedirectToAuthUrl(c: Context) {
-    const { authUrl, sessionId } =
-      await this.discordOIDCService.generateAuthUrl(c);
+  async redirectToAuthURL(c: Context) {
+    const { authURL, sessionID } =
+      await this.discordAuthInitiateUseCase.execute(c);
 
     // sessionIdをHttpOnlyCookieとして設定
-    setCookie(c, "oauth_session", sessionId, {
+    setCookie(c, "oauth_session", sessionID, {
       httpOnly: true,
       secure: c.env.NODE_ENV !== "development",
       sameSite: "None",
@@ -41,7 +41,7 @@ export class AuthController implements AuthControllerInterface {
       maxAge: 900 // 15分
     });
 
-    return c.redirect(authUrl);
+    return c.redirect(authURL);
   }
 
   async callback(
