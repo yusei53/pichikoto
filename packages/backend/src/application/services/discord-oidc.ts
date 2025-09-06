@@ -308,39 +308,6 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
     }
   }
 
-  private generateSecureRandomString(length: number): string {
-    // Web Crypto API を優先し、フォールバックは使わない（Workers/Node18+想定）
-    const bytes = new Uint8Array(length);
-
-    // @ts-ignore
-    (globalThis.crypto || crypto).getRandomValues(bytes);
-    const base64url = (arr: Uint8Array) =>
-      btoa(String.fromCharCode(...arr))
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=+$/, "");
-    // 指定長に合わせてエンコード結果を切り出し
-    return base64url(bytes).slice(0, length);
-  }
-
-  private async generateCodeChallenge(codeVerifier: string): Promise<string> {
-    const enc = new TextEncoder();
-    const data = enc.encode(codeVerifier);
-
-    // @ts-ignore
-    const digest = await (globalThis.crypto || crypto).subtle.digest(
-      "SHA-256",
-      data
-    );
-    const bytes = new Uint8Array(digest as ArrayBuffer);
-    const base64url = (arr: Uint8Array) =>
-      btoa(String.fromCharCode(...arr))
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=+$/, "");
-    return base64url(bytes);
-  }
-
   private isDiscordIdTokenPayload(
     payload: any
   ): payload is DiscordIdTokenPayload {
