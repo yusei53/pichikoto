@@ -5,9 +5,6 @@ import { TYPES } from "../../infrastructure/config/types";
 import type { StateRepositoryInterface } from "../../infrastructure/repositories/StateRepository";
 
 export interface DiscordOIDCServiceInterface {
-  generateAuthUrl(
-    c: Context
-  ): Promise<{ authUrl: string; state: string; sessionId: string }>;
   exchangeCodeForTokens(
     c: Context,
     code: string,
@@ -47,40 +44,6 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
     @inject(TYPES.StateRepository)
     private readonly stateRepository: StateRepositoryInterface
   ) {}
-
-  async generateAuthUrl(
-    c: Context
-  ): Promise<{ authUrl: string; state: string; sessionId: string }> {
-    // ランダムなsessionId、state、nonce値を生成
-    const sessionId = this.generateSecureRandomString(32);
-    const state = this.generateSecureRandomString(32);
-    const nonce = this.generateSecureRandomString(32);
-    const codeVerifier = this.generateSecureRandomString(64);
-    const codeChallenge = await this.generateCodeChallenge(codeVerifier);
-
-    // sessionId、state、nonceを15分間有効として保存
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-    await this.stateRepository.save(
-      sessionId,
-      state,
-      nonce,
-      codeVerifier,
-      expiresAt
-    );
-
-    const params = new URLSearchParams();
-    params.append("client_id", c.env.DISCORD_CLIENT_ID);
-    params.append("response_type", "code");
-    params.append("redirect_uri", `${c.env.BASE_URL}/api/auth/callback`);
-    params.append("scope", "identify openid");
-    params.append("state", state);
-    params.append("nonce", nonce);
-    params.append("code_challenge", codeChallenge);
-    params.append("code_challenge_method", "S256");
-
-    const authUrl = `https://discord.com/oauth2/authorize?${params.toString()}`;
-    return { authUrl, state, sessionId };
-  }
 
   async exchangeCodeForTokens(
     c: Context,
