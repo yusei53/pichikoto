@@ -5,6 +5,9 @@ import { TYPES } from "../../infrastructure/config/types";
 import type { StateRepositoryInterface } from "../../infrastructure/repositories/StateRepository";
 
 export interface DiscordOIDCServiceInterface {
+  generateAuthUrl(
+    c: Context
+  ): Promise<{ authUrl: string; state: string; sessionId: string }>;
   exchangeCodeForTokens(
     c: Context,
     code: string,
@@ -44,6 +47,40 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
     @inject(TYPES.StateRepository)
     private readonly stateRepository: StateRepositoryInterface
   ) {}
+
+  async generateAuthUrl(
+    c: Context
+  ): Promise<{ authUrl: string; state: string; sessionId: string }> {
+    // ランダムなsessionId、state、nonce値を生成
+    const sessionId = this.generateSecureRandomString(32);
+    const state = this.generateSecureRandomString(32);
+    const nonce = this.generateSecureRandomString(32);
+    const codeVerifier = this.generateSecureRandomString(64);
+    const codeChallenge = await this.generateCodeChallenge(codeVerifier);
+
+    // sessionId、state、nonceを15分間有効として保存
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+    await this.stateRepository.save(
+      sessionId,
+      state,
+      nonce,
+      codeVerifier,
+      expiresAt
+    );
+
+    const params = new URLSearchParams();
+    params.append("client_id", c.env.DISCORD_CLIENT_ID);
+    params.append("response_type", "code");
+    params.append("redirect_uri", `${c.env.BASE_URL}/api/auth/callback`);
+    params.append("scope", "identify openid");
+    params.append("state", state);
+    params.append("nonce", nonce);
+    params.append("code_challenge", codeChallenge);
+    params.append("code_challenge_method", "S256");
+
+    const authUrl = `https://discord.com/oauth2/authorize?${params.toString()}`;
+    return { authUrl, state, sessionId };
+  }
 
   async exchangeCodeForTokens(
     c: Context,
@@ -306,6 +343,39 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
       });
       throw error;
     }
+  }
+
+  private generateSecureRandomString(length: number): string {
+    // Web Crypto API を優先し、フォールバックは使わない（Workers/Node18+想定）
+    const bytes = new Uint8Array(length);
+
+    // @ts-ignore
+    (globalThis.crypto || crypto).getRandomValues(bytes);
+    const base64url = (arr: Uint8Array) =>
+      btoa(String.fromCharCode(...arr))
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
+    // 指定長に合わせてエンコード結果を切り出し
+    return base64url(bytes).slice(0, length);
+  }
+
+  private async generateCodeChallenge(codeVerifier: string): Promise<string> {
+    const enc = new TextEncoder();
+    const data = enc.encode(codeVerifier);
+
+    // @ts-ignore
+    const digest = await (globalThis.crypto || crypto).subtle.digest(
+      "SHA-256",
+      data
+    );
+    const bytes = new Uint8Array(digest as ArrayBuffer);
+    const base64url = (arr: Uint8Array) =>
+      btoa(String.fromCharCode(...arr))
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
+    return base64url(bytes);
   }
 
   private isDiscordIdTokenPayload(

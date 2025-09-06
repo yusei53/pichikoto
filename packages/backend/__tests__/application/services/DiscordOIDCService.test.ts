@@ -129,6 +129,62 @@ describe("DiscordOIDCService Tests", () => {
     vi.restoreAllMocks();
   });
 
+  describe("generateAuthUrl", () => {
+    it("正常にOAuth認証URLを生成できること", async () => {
+      // Arrange
+      const expectedExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+      mocks.stateRepository.save.mockResolvedValue(undefined);
+
+      // Act
+      const result = await service.generateAuthUrl(mocks.context);
+
+      // Assert
+      expect(result).toMatchObject({
+        authUrl: expect.stringContaining(
+          "https://discord.com/oauth2/authorize"
+        ),
+        state: expect.any(String),
+        sessionId: expect.any(String)
+      });
+
+      expect(result.authUrl).toContain(`client_id=${MOCK_CLIENT_ID}`);
+      expect(result.authUrl).toContain("response_type=code");
+      expect(result.authUrl).toContain(
+        `redirect_uri=${encodeURIComponent(`${MOCK_BASE_URL}/api/auth/callback`)}`
+      );
+      expect(result.authUrl).toContain("scope=identify");
+      expect(result.authUrl).toContain(`state=${result.state}`);
+      expect(result.authUrl).toContain("code_challenge_method=S256");
+
+      expect(mocks.stateRepository.save).toHaveBeenCalledWith(
+        result.sessionId,
+        result.state,
+        expect.any(String), // nonce
+        expect.any(String), // codeVerifier
+        expect.any(Date)
+      );
+
+      // 保存された有効期限が15分後であることを確認
+      const saveCall = mocks.stateRepository.save.mock.calls[0];
+      const savedExpiresAt = saveCall[4] as Date;
+      expect(savedExpiresAt.getTime()).toBeCloseTo(
+        expectedExpiresAt.getTime(),
+        -3
+      ); // 3桁の精度で比較
+    });
+
+    it("stateRepositoryでエラーが発生した場合、例外が発生すること", async () => {
+      // Arrange
+      const error = new Error("Database error");
+      mocks.stateRepository.save.mockRejectedValue(error);
+
+      // Act & Assert
+      await expect(service.generateAuthUrl(mocks.context)).rejects.toThrow(
+        "Database error"
+      );
+    });
+  });
+
   describe("exchangeCodeForTokens", () => {
     const mockTokenResponse: DiscordOIDCTokenResponse = {
       access_token: MOCK_ACCESS_TOKEN,
