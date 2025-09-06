@@ -1,8 +1,6 @@
 import type { Context } from "hono";
-import { inject, injectable } from "inversify";
+import { injectable } from "inversify";
 import * as jose from "jose";
-import { TYPES } from "../../infrastructure/config/types";
-import type { StateRepositoryInterface } from "../../infrastructure/repositories/StateRepository";
 
 export interface DiscordOIDCServiceInterface {
   exchangeCodeForTokens(
@@ -25,11 +23,6 @@ export interface DiscordOIDCServiceInterface {
     expectedNonce: string
   ): Promise<DiscordIdTokenPayload>;
   getDiscordPublicKeys(): Promise<any[]>;
-  verifyStateBySessionId(
-    c: Context,
-    sessionId: string,
-    state: string
-  ): Promise<{ valid: boolean; nonce?: string; codeVerifier?: string }>;
 }
 
 @injectable()
@@ -39,11 +32,6 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
   private publicKeysCache: any[] | null = null;
   private cacheExpiry: number = 0;
   private readonly cacheLifetime = 3600000;
-
-  constructor(
-    @inject(TYPES.StateRepository)
-    private readonly stateRepository: StateRepositoryInterface
-  ) {}
 
   async exchangeCodeForTokens(
     c: Context,
@@ -265,46 +253,6 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
     } catch (error) {
       console.error("Failed to fetch Discord public keys:", error);
       throw new Error("Could not retrieve Discord public keys");
-    }
-  }
-
-  async verifyStateBySessionId(
-    c: Context,
-    sessionId: string,
-    state: string
-  ): Promise<{ valid: boolean; nonce?: string; codeVerifier?: string }> {
-    try {
-      const stateRecord = await this.stateRepository.findBy(sessionId);
-
-      if (!stateRecord) {
-        return { valid: false };
-      }
-
-      // stateが一致しない場合
-      if (stateRecord.state !== state) {
-        // 不正なstateでアクセスされた場合もレコードを削除
-        await this.stateRepository.delete(sessionId);
-        return { valid: false };
-      }
-
-      // 期限切れチェック
-      if (stateRecord.expiresAt < new Date()) {
-        // 期限切れのstateは削除
-        await this.stateRepository.delete(sessionId);
-        return { valid: false };
-      }
-
-      // 検証成功時：nonce/codeVerifierを返してからレコードを削除
-      const nonce = stateRecord.nonce;
-      const codeVerifier = stateRecord.codeVerifier ?? undefined;
-      await this.stateRepository.delete(sessionId);
-      return { valid: true, nonce, codeVerifier };
-    } catch (error) {
-      // エラー時もレコードを削除
-      await this.stateRepository.delete(sessionId).catch(() => {
-        // delete失敗は無視（元のエラーを優先）
-      });
-      throw error;
     }
   }
 

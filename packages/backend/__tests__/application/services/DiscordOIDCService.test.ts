@@ -35,8 +35,6 @@ type MockedService<T> = {
 const MOCK_CLIENT_ID = "test_client_id";
 const MOCK_CLIENT_SECRET = "test_client_secret";
 const MOCK_BASE_URL = "https://api.test.com";
-const MOCK_SESSION_ID = "test_session_id";
-const MOCK_STATE = "test_state";
 const MOCK_NONCE = "test_nonce";
 const MOCK_CODE_VERIFIER = "test_code_verifier";
 const MOCK_CODE = "test_authorization_code";
@@ -63,10 +61,6 @@ const createMocks = () => ({
     }
   } as Context
 });
-
-// DiscordOIDCServiceインスタンス作成ファクトリー
-const createDiscordOIDCService = (mocks: ReturnType<typeof createMocks>) =>
-  new DiscordOIDCService(mocks.stateRepository);
 
 // fetch のモック
 const mockFetch = vi.fn();
@@ -121,7 +115,7 @@ describe("DiscordOIDCService Tests", () => {
 
   beforeEach(() => {
     mocks = createMocks();
-    service = createDiscordOIDCService(mocks);
+    service = new DiscordOIDCService();
     vi.clearAllMocks();
   });
 
@@ -437,123 +431,6 @@ describe("DiscordOIDCService Tests", () => {
       // Act & Assert
       await expect(service.getDiscordPublicKeys()).rejects.toThrow(
         "Could not retrieve Discord public keys"
-      );
-    });
-  });
-
-  describe("verifyStateBySessionId", () => {
-    const mockStateRecord = {
-      sessionId: MOCK_SESSION_ID,
-      state: MOCK_STATE,
-      nonce: MOCK_NONCE,
-      codeVerifier: MOCK_CODE_VERIFIER,
-      expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10分後
-    };
-
-    it("有効なstateの場合、検証に成功すること", async () => {
-      // Arrange
-      mocks.stateRepository.findBy.mockResolvedValue(mockStateRecord);
-      mocks.stateRepository.delete.mockResolvedValue(undefined);
-
-      // Act
-      const result = await service.verifyStateBySessionId(
-        mocks.context,
-        MOCK_SESSION_ID,
-        MOCK_STATE
-      );
-
-      // Assert
-      expect(result).toEqual({
-        valid: true,
-        nonce: MOCK_NONCE,
-        codeVerifier: MOCK_CODE_VERIFIER
-      });
-      expect(mocks.stateRepository.findBy).toHaveBeenCalledWith(
-        MOCK_SESSION_ID
-      );
-      expect(mocks.stateRepository.delete).toHaveBeenCalledWith(
-        MOCK_SESSION_ID
-      );
-    });
-
-    it("stateレコードが存在しない場合、検証に失敗すること", async () => {
-      // Arrange
-      mocks.stateRepository.findBy.mockResolvedValue(null);
-
-      // Act
-      const result = await service.verifyStateBySessionId(
-        mocks.context,
-        MOCK_SESSION_ID,
-        MOCK_STATE
-      );
-
-      // Assert
-      expect(result).toEqual({ valid: false });
-      expect(mocks.stateRepository.delete).not.toHaveBeenCalled();
-    });
-
-    it("stateが一致しない場合、検証に失敗してレコードを削除すること", async () => {
-      // Arrange
-      const invalidStateRecord = {
-        ...mockStateRecord,
-        state: "different_state"
-      };
-      mocks.stateRepository.findBy.mockResolvedValue(invalidStateRecord);
-      mocks.stateRepository.delete.mockResolvedValue(undefined);
-
-      // Act
-      const result = await service.verifyStateBySessionId(
-        mocks.context,
-        MOCK_SESSION_ID,
-        MOCK_STATE
-      );
-
-      // Assert
-      expect(result).toEqual({ valid: false });
-      expect(mocks.stateRepository.delete).toHaveBeenCalledWith(
-        MOCK_SESSION_ID
-      );
-    });
-
-    it("期限切れの場合、検証に失敗してレコードを削除すること", async () => {
-      // Arrange
-      const expiredRecord = {
-        ...mockStateRecord,
-        expiresAt: new Date(Date.now() - 1000) // 1秒前（期限切れ）
-      };
-      mocks.stateRepository.findBy.mockResolvedValue(expiredRecord);
-      mocks.stateRepository.delete.mockResolvedValue(undefined);
-
-      // Act
-      const result = await service.verifyStateBySessionId(
-        mocks.context,
-        MOCK_SESSION_ID,
-        MOCK_STATE
-      );
-
-      // Assert
-      expect(result).toEqual({ valid: false });
-      expect(mocks.stateRepository.delete).toHaveBeenCalledWith(
-        MOCK_SESSION_ID
-      );
-    });
-
-    it("エラー発生時にレコードを削除して例外を再スローすること", async () => {
-      // Arrange
-      const error = new Error("Database error");
-      mocks.stateRepository.findBy.mockRejectedValue(error);
-      mocks.stateRepository.delete.mockResolvedValue(undefined);
-
-      // Act & Assert
-      await expect(
-        service.verifyStateBySessionId(
-          mocks.context,
-          MOCK_SESSION_ID,
-          MOCK_STATE
-        )
-      ).rejects.toThrow("Database error");
-      expect(mocks.stateRepository.delete).toHaveBeenCalledWith(
-        MOCK_SESSION_ID
       );
     });
   });
