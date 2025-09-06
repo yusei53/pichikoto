@@ -15,7 +15,7 @@ import type {
   DiscordUserResource
 } from "../../../src/application/services/discord-oidc";
 import type { JwtServiceInterface } from "../../../src/application/services/jwt";
-import { AuthUsecase } from "../../../src/application/usecases/auth";
+import { AuthUsecase } from "../../../src/application/use-case/auth";
 import {
   AccessToken,
   DiscordTokens,
