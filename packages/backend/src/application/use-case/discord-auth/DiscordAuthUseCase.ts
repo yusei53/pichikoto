@@ -1,13 +1,13 @@
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
-import { DiscordTokens } from "../../domain/discord-tokens/DiscordTokens";
-import { DiscordID, User } from "../../domain/user/User";
-import { TYPES } from "../../infrastructure/config/types";
-import type { DiscordTokensRepositoryInterface } from "../../infrastructure/repositories/DiscordTokensRepository";
-import type { UserRepositoryInterface } from "../../infrastructure/repositories/UserRepository";
-import { toAuthPayloadDTO, type AuthPayloadDTO } from "../dtos/auth.dto";
-import type { DiscordOIDCServiceInterface } from "../services/discord-oidc";
-import type { JwtServiceInterface } from "../services/jwt";
+import { DiscordTokens } from "../../../domain/discord-tokens/DiscordTokens";
+import { DiscordID, User } from "../../../domain/user/User";
+import { TYPES } from "../../../infrastructure/config/types";
+import type { DiscordTokensRepositoryInterface } from "../../../infrastructure/repositories/DiscordTokensRepository";
+import type { UserRepositoryInterface } from "../../../infrastructure/repositories/UserRepository";
+import { toAuthPayloadDTO, type AuthPayloadDTO } from "../../dtos/auth.dto";
+import type { DiscordOIDCServiceInterface } from "../../services/discord-oidc";
+import type { JwtServiceInterface } from "../../services/jwt";
 
 export interface AuthUsecaseInterface {
   callback(

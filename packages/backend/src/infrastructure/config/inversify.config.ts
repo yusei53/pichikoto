@@ -5,8 +5,8 @@ import type { DiscordOIDCServiceInterface } from "../../application/services/dis
 import { DiscordOIDCService } from "../../application/services/discord-oidc";
 import type { JwtServiceInterface } from "../../application/services/jwt";
 import { JwtService } from "../../application/services/jwt";
-import type { AuthUsecaseInterface } from "../../application/use-case/DiscordAuthUseCase";
-import { AuthUsecase } from "../../application/use-case/DiscordAuthUseCase";
+import type { AuthUsecaseInterface } from "../../application/use-case/discord-auth/DiscordAuthUseCase";
+import { AuthUsecase } from "../../application/use-case/discord-auth/DiscordAuthUseCase";
 import type { AuthControllerInterface } from "../../presentation/controllers/auth";
 import { AuthController } from "../../presentation/controllers/auth";
 import type { DiscordTokensRepositoryInterface } from "../repositories/DiscordTokensRepository";
