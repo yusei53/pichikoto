@@ -1,5 +1,4 @@
 import type { UserID } from "../../domain/user/User";
-import { CreatedAt } from "../../utils/CreatedAt";
 
 export class DiscordTokens {
   private constructor(
@@ -8,8 +7,7 @@ export class DiscordTokens {
     readonly refreshToken: RefreshToken,
     readonly expiresAt: ExpiresAt,
     readonly scope: string,
-    readonly tokenType: string,
-    readonly createdAt: CreatedAt
+    readonly tokenType: string
   ) {}
 
   static create(
@@ -26,8 +24,7 @@ export class DiscordTokens {
       RefreshToken.from(refreshToken),
       ExpiresAt.new(expiresIn),
       scope,
-      tokenType,
-      CreatedAt.new()
+      tokenType
     );
   }
 
@@ -37,8 +34,7 @@ export class DiscordTokens {
     refreshToken: RefreshToken,
     expiresAt: ExpiresAt,
     scope: string,
-    tokenType: string,
-    createdAt: CreatedAt
+    tokenType: string
   ): DiscordTokens {
     return new DiscordTokens(
       userId,
@@ -46,8 +42,7 @@ export class DiscordTokens {
       refreshToken,
       expiresAt,
       scope,
-      tokenType,
-      createdAt
+      tokenType
     );
   }
 }
@@ -77,13 +72,5 @@ export class ExpiresAt {
 
   static from(expiresAt: Date): ExpiresAt {
     return new ExpiresAt(expiresAt);
-  }
-
-  isExpired(): boolean {
-    return this.value < new Date();
-  }
-
-  getRemainingTime(): number {
-    return this.value.getTime() - new Date().getTime();
   }
 }

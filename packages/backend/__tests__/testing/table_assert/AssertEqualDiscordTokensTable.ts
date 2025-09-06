@@ -18,7 +18,7 @@ export const assertEqualDiscordTokensTable = (
     expiresAt: expectedDiscordTokens.expiresAt.value,
     scope: expectedDiscordTokens.scope,
     tokenType: expectedDiscordTokens.tokenType,
-    createdAt: expectedDiscordTokens.createdAt.value
+    createdAt: actualRecord.createdAt
   };
 
   expect(actualRecord).toEqual(expectedRecord);
