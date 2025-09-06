@@ -9,8 +9,8 @@ import { toAuthPayloadDTO, type AuthPayloadDTO } from "../../dtos/auth.dto";
 import type { DiscordOIDCServiceInterface } from "../../services/discord-oidc";
 import type { JwtServiceInterface } from "../../services/jwt";
 
-export interface DiscordAuthUseCaseInterface {
-  callback(
+export interface DiscordAuthCallbackUseCaseInterface {
+  execute(
     c: Context,
     code: string,
     state: string,
@@ -19,7 +19,9 @@ export interface DiscordAuthUseCaseInterface {
 }
 
 @injectable()
-export class DiscordAuthUseCase implements DiscordAuthUseCaseInterface {
+export class DiscordAuthCallbackUseCase
+  implements DiscordAuthCallbackUseCaseInterface
+{
   constructor(
     @inject(TYPES.DiscordOIDCService)
     private readonly discordOIDCService: DiscordOIDCServiceInterface,
@@ -31,7 +33,7 @@ export class DiscordAuthUseCase implements DiscordAuthUseCaseInterface {
     private readonly jwtService: JwtServiceInterface
   ) {}
 
-  async callback(
+  async execute(
     c: Context,
     code: string,
     state: string,

@@ -15,7 +15,7 @@ import type {
   DiscordUserResource
 } from "../../../src/application/services/discord-oidc";
 import type { JwtServiceInterface } from "../../../src/application/services/jwt";
-import { DiscordAuthUseCase } from "../../../src/application/use-case/discord-auth/DiscordAuthUseCase";
+import { DiscordAuthCallbackUseCase } from "../../../src/application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import {
   AccessToken,
   DiscordTokens,
@@ -34,7 +34,7 @@ type MockedService<T> = {
 };
 
 describe("DiscordAuthUseCase Tests", () => {
-  let discordAuthUseCase: DiscordAuthUseCase;
+  let discordAuthCallbackUseCase: DiscordAuthCallbackUseCase;
   let mockDiscordOIDCService: MockedService<DiscordOIDCServiceInterface>;
   let mockUserRepository: MockedService<UserRepositoryInterface>;
   let mockDiscordTokensRepository: MockedService<DiscordTokensRepositoryInterface>;
@@ -86,7 +86,7 @@ describe("DiscordAuthUseCase Tests", () => {
     mockContext = {} as Context;
 
     // DiscordAuthUseCaseのインスタンス作成
-    discordAuthUseCase = new DiscordAuthUseCase(
+    discordAuthCallbackUseCase = new DiscordAuthCallbackUseCase(
       mockDiscordOIDCService,
       mockUserRepository,
       mockDiscordTokensRepository,
@@ -160,7 +160,7 @@ describe("DiscordAuthUseCase Tests", () => {
         mockUserRepository.findBy.mockResolvedValue(null);
 
         // act
-        const result = await discordAuthUseCase.callback(
+        const result = await discordAuthCallbackUseCase.execute(
           mockContext,
           MOCK_CODE,
           MOCK_STATE,
@@ -232,7 +232,7 @@ describe("DiscordAuthUseCase Tests", () => {
         );
 
         // act
-        const result = await discordAuthUseCase.callback(
+        const result = await discordAuthCallbackUseCase.execute(
           mockContext,
           MOCK_CODE,
           MOCK_STATE,
@@ -276,7 +276,7 @@ describe("DiscordAuthUseCase Tests", () => {
 
         // act & assert
         await expect(
-          discordAuthUseCase.callback(
+          discordAuthCallbackUseCase.execute(
             mockContext,
             MOCK_CODE,
             MOCK_STATE,
@@ -301,7 +301,7 @@ describe("DiscordAuthUseCase Tests", () => {
 
         // act & assert
         await expect(
-          discordAuthUseCase.callback(
+          discordAuthCallbackUseCase.execute(
             mockContext,
             MOCK_CODE,
             MOCK_STATE,
@@ -319,7 +319,7 @@ describe("DiscordAuthUseCase Tests", () => {
 
         // act & assert
         await expect(
-          discordAuthUseCase.callback(
+          discordAuthCallbackUseCase.execute(
             mockContext,
             MOCK_CODE,
             MOCK_STATE,
@@ -349,7 +349,7 @@ describe("DiscordAuthUseCase Tests", () => {
 
         // act & assert
         await expect(
-          discordAuthUseCase.callback(
+          discordAuthCallbackUseCase.execute(
             mockContext,
             MOCK_CODE,
             MOCK_STATE,
@@ -383,7 +383,7 @@ describe("DiscordAuthUseCase Tests", () => {
 
         // act & assert
         await expect(
-          discordAuthUseCase.callback(
+          discordAuthCallbackUseCase.execute(
             mockContext,
             MOCK_CODE,
             MOCK_STATE,
@@ -424,7 +424,7 @@ describe("DiscordAuthUseCase Tests", () => {
 
         // act & assert
         await expect(
-          discordAuthUseCase.callback(
+          discordAuthCallbackUseCase.execute(
             mockContext,
             MOCK_CODE,
             MOCK_STATE,
