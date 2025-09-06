@@ -13,16 +13,11 @@ import {
   FacultyTooLongError,
   InvalidDiscordIDError
 } from "../../../src/domain/user/UserError";
-import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { UUID } from "../../../src/utils/UUID";
 
 const MOCK_USER_ID = UUID.new().value;
-const MOCK_NOW_DATE = new Date("2025-01-01T00:00:00.000Z");
 
 beforeEach(() => {
-  vi.useFakeTimers();
-  vi.setSystemTime(MOCK_NOW_DATE);
-
   vi.spyOn(UserID, "new").mockReturnValue(
     new (class {
       constructor(public readonly value: UUID) {}
@@ -31,7 +26,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  vi.useRealTimers();
   vi.restoreAllMocks();
 });
 
@@ -51,8 +45,7 @@ describe("UserDomainTest", () => {
         discordUserName,
         discordAvatar,
         faculty,
-        department,
-        CreatedAt.new()
+        department
       );
 
       const actual = User.create(

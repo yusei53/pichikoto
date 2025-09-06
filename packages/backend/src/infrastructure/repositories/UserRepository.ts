@@ -9,7 +9,6 @@ import {
   User,
   UserID
 } from "../../domain/user/User";
-import { CreatedAt } from "../../utils/CreatedAt";
 
 export interface UserRepositoryInterface {
   findBy(discordID: DiscordID): Promise<User | null>;
@@ -38,8 +37,7 @@ export class UserRepository implements UserRepositoryInterface {
       discordUserName: user.discordUserName,
       discordAvatar: user.discordAvatar,
       faculty: user.faculty,
-      department: user.department,
-      createdAt: user.createdAt
+      department: user.department
     };
   }
 
@@ -50,8 +48,7 @@ export class UserRepository implements UserRepositoryInterface {
       userRecord.discordUserName,
       userRecord.discordAvatar,
       userRecord.faculty ? Faculty.from(userRecord.faculty) : null,
-      userRecord.department ? Department.from(userRecord.department) : null,
-      CreatedAt.from(userRecord.createdAt)
+      userRecord.department ? Department.from(userRecord.department) : null
     );
   }
 
@@ -62,8 +59,7 @@ export class UserRepository implements UserRepositoryInterface {
       discordUserName: user.discordUserName,
       discordAvatar: user.discordAvatar,
       faculty: user.faculty?.value ?? null,
-      department: user.department?.value ?? null,
-      createdAt: user.createdAt.value
+      department: user.department?.value ?? null
     });
   }
 }
@@ -75,5 +71,4 @@ type UserRecord = {
   discordAvatar: string;
   faculty: string | null;
   department: string | null;
-  createdAt: Date;
 };

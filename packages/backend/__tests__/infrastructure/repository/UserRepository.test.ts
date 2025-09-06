@@ -8,7 +8,6 @@ import {
   UserID
 } from "../../../src/domain/user/User";
 import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";
-import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { assertEqualUserTable } from "../../testing/table_assert/AssertEqualUserTable";
 import {
   createUserTableFixture,
@@ -47,8 +46,7 @@ describe("UserRepository Tests", () => {
         user1.discordUserName,
         user1.discordAvatar,
         Faculty.from(user1.faculty),
-        Department.from(user1.department),
-        CreatedAt.from(user1.createdAt)
+        Department.from(user1.department)
       );
 
       // act
@@ -67,8 +65,7 @@ describe("UserRepository Tests", () => {
         user2.discordUserName,
         user2.discordAvatar,
         user2.faculty,
-        user2.department,
-        CreatedAt.from(user2.createdAt)
+        user2.department
       );
 
       // act
@@ -104,8 +101,7 @@ describe("UserRepository Tests", () => {
         userRecord.discordUserName,
         userRecord.discordAvatar,
         userRecord.faculty ? Faculty.from(userRecord.faculty) : null,
-        userRecord.department ? Department.from(userRecord.department) : null,
-        CreatedAt.from(userRecord.createdAt)
+        userRecord.department ? Department.from(userRecord.department) : null
       );
 
       // act
@@ -127,8 +123,7 @@ describe("UserRepository Tests", () => {
         userRecord.discordUserName,
         userRecord.discordAvatar,
         userRecord.faculty ? Faculty.from(userRecord.faculty) : null,
-        userRecord.department ? Department.from(userRecord.department) : null,
-        CreatedAt.from(userRecord.createdAt)
+        userRecord.department ? Department.from(userRecord.department) : null
       );
 
       // act
