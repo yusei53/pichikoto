@@ -53,9 +53,6 @@ importers:
       ws:
         specifier: ^8.18.3
         version: 8.18.3
-      zod:
-        specifier: ^4.0.14
-        version: 4.0.14
     devDependencies:
       '@types/uuid':
         specifier: ^10.0.0
@@ -4227,9 +4224,6 @@ packages:
   zod@3.22.3:
     resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
 
-  zod@4.0.14:
-    resolution: {integrity: sha512-nGFJTnJN6cM2v9kXL+SOBq3AtjQby3Mv5ySGFof5UGRHrRioSJ5iG680cYNjE/yWk671nROcpPj4hAS8nyLhSw==}
-
 snapshots:
 
   '@adobe/css-tools@4.4.3': {}
@@ -8320,5 +8314,3 @@ snapshots:
       youch-core: 0.3.3
 
   zod@3.22.3: {}
-
-  zod@4.0.14: {}
