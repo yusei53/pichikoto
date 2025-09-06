@@ -3,7 +3,7 @@ import { getCookie, setCookie } from "hono/cookie";
 import { inject, injectable } from "inversify";
 import type { DiscordOIDCServiceInterface } from "../../application/services/discord-oidc";
 import type { JwtServiceInterface } from "../../application/services/jwt";
-import type { AuthUsecaseInterface } from "../../application/use-case/DiscordAuthenticationUseCase";
+import type { AuthUsecaseInterface } from "../../application/use-case/DiscordAuthUseCase";
 import { TYPES } from "../../infrastructure/config/types";
 
 export interface AuthControllerInterface {
