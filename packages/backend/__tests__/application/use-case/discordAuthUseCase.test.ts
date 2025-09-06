@@ -57,6 +57,7 @@ describe("DiscordAuthUseCase Tests", () => {
   beforeEach(() => {
     // モック作成
     mockDiscordOIDCService = {
+      generateAuthUrl: vi.fn(),
       exchangeCodeForTokens: vi.fn(),
       refreshTokens: vi.fn(),
       getUserResource: vi.fn(),

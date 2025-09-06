@@ -5,7 +5,7 @@ export const auth = new Hono<{ Variables: Variables }>();
 
 auth.get("/", async (c) => {
   const controller = c.get("authController");
-  return controller.redirectToAuthURL(c);
+  return controller.RedirectToAuthUrl(c);
 });
 
 auth.get("/callback", async (c) => {
