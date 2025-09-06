@@ -5,8 +5,8 @@ import type { DiscordOIDCServiceInterface } from "../../application/services/dis
 import { DiscordOIDCService } from "../../application/services/discord-oidc";
 import type { JwtServiceInterface } from "../../application/services/jwt";
 import { JwtService } from "../../application/services/jwt";
-import type { AuthUsecaseInterface } from "../../application/use-case/discord-auth/DiscordAuthUseCase";
-import { AuthUsecase } from "../../application/use-case/discord-auth/DiscordAuthUseCase";
+import type { DiscordAuthUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthUseCase";
+import { DiscordAuthUseCase } from "../../application/use-case/discord-auth/DiscordAuthUseCase";
 import type { AuthControllerInterface } from "../../presentation/controllers/auth";
 import { AuthController } from "../../presentation/controllers/auth";
 import type { DiscordTokensRepositoryInterface } from "../repositories/DiscordTokensRepository";
@@ -51,8 +51,8 @@ container
 
 // Usecases
 container
-  .bind<AuthUsecaseInterface>(TYPES.AuthUsecase)
-  .to(AuthUsecase)
+  .bind<DiscordAuthUseCaseInterface>(TYPES.DiscordAuthUseCase)
+  .to(DiscordAuthUseCase)
   .inRequestScope();
 
 // Controllers

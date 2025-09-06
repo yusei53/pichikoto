@@ -3,7 +3,7 @@ import { getCookie, setCookie } from "hono/cookie";
 import { inject, injectable } from "inversify";
 import type { DiscordOIDCServiceInterface } from "../../application/services/discord-oidc";
 import type { JwtServiceInterface } from "../../application/services/jwt";
-import type { AuthUsecaseInterface } from "../../application/use-case/discord-auth/DiscordAuthUseCase";
+import type { DiscordAuthUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthUseCase";
 import { TYPES } from "../../infrastructure/config/types";
 
 export interface AuthControllerInterface {
@@ -22,8 +22,8 @@ export class AuthController implements AuthControllerInterface {
   constructor(
     @inject(TYPES.DiscordOIDCService)
     private readonly discordOIDCService: DiscordOIDCServiceInterface,
-    @inject(TYPES.AuthUsecase)
-    private readonly authUsecase: AuthUsecaseInterface,
+    @inject(TYPES.DiscordAuthUseCase)
+    private readonly discordAuthUseCase: DiscordAuthUseCaseInterface,
     @inject(TYPES.JwtService)
     private readonly jwtService: JwtServiceInterface
   ) {}
@@ -69,7 +69,7 @@ export class AuthController implements AuthControllerInterface {
         return c.redirect(`${completeUrl}?error=no_session`);
       }
 
-      const authPayload = await this.authUsecase.callback(
+      const authPayload = await this.discordAuthUseCase.callback(
         c,
         code,
         state,

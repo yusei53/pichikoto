@@ -12,7 +12,7 @@ export const TYPES = {
   JwtService: Symbol.for("JwtService"),
 
   // Usecases
-  AuthUsecase: Symbol.for("AuthUsecase"),
+  DiscordAuthUseCase: Symbol.for("DiscordAuthUseCase"),
 
   // Controllers
   AuthController: Symbol.for("AuthController")
