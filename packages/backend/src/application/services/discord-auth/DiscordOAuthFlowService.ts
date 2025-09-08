@@ -4,7 +4,7 @@ import { err, ok } from "neverthrow";
 import { TYPES } from "../../../infrastructure/config/types";
 import type { StateRepositoryInterface } from "../../../infrastructure/repositories/StateRepository";
 
-export type StateVerification = {
+type StateVerification = {
   nonce: string;
   codeVerifier: string;
 };
@@ -14,9 +14,9 @@ export type StateVerification = {
  */
 export interface DiscordOAuthFlowServiceInterface {
   verifyStateBySessionID(
-    sessionId: string,
+    sessionID: string,
     state: string
-  ): Promise<Result<StateVerification, StateVerificationError>>;
+  ): Promise<Result<StateVerification, VerifyStateBySessionIDError>>;
 }
 
 /**
@@ -45,61 +45,45 @@ export class DiscordOAuthFlowService
    * 3. 有効期限の確認
    * 4. 必須データ（nonce/codeVerifier）の存在確認
    *
-   * @param sessionId - セッションID
+   * @param sessionID - セッションID
    * @param state - stateパラメータ
    * @returns 検証結果（成功時はnonce/codeVerifier、失敗時はエラー）
    */
   async verifyStateBySessionID(
-    sessionId: string,
+    sessionID: string,
     state: string
-  ): Promise<Result<StateVerification, StateVerificationError>> {
+  ): Promise<Result<StateVerification, VerifyStateBySessionIDError>> {
     try {
-      const stateRecord = await this.stateRepository.findBy(sessionId);
-      if (!stateRecord) return err(new StateNotFoundError(sessionId));
+      const stateRecord = await this.stateRepository.findBy(sessionID);
 
-      if (stateRecord.state !== state) {
-        await this.stateRepository.delete(sessionId);
-        return err(new StateMismatchError());
-      }
-
-      if (stateRecord.expiresAt < new Date()) {
-        await this.stateRepository.delete(sessionId);
+      if (!stateRecord) return err(new StateNotFoundError(sessionID));
+      if (stateRecord.state !== state) return err(new StateMismatchError());
+      if (stateRecord.expiresAt < new Date())
         return err(new StateExpiredError());
-      }
-
-      if (!stateRecord.nonce || !stateRecord.codeVerifier) {
-        await this.stateRepository.delete(sessionId);
-        return err(new MissingRequiredDataError());
-      }
-
-      await this.stateRepository.delete(sessionId);
 
       return ok({
         nonce: stateRecord.nonce,
         codeVerifier: stateRecord.codeVerifier
       });
-    } catch (error) {
-      // エラー時はレコードをクリーンアップしてエラーを返す
-      await this.stateRepository.delete(sessionId);
-      return err(new RepositoryError(error));
+    } finally {
+      // 成功・失敗に関わらずstateレコードを削除
+      await this.stateRepository.delete(sessionID);
     }
   }
 }
 
-type StateVerificationError =
+type VerifyStateBySessionIDError =
   | StateNotFoundError
   | StateMismatchError
-  | StateExpiredError
-  | MissingRequiredDataError
-  | RepositoryError;
+  | StateExpiredError;
 
 /**
  * Stateレコードが見つからない場合のエラー
  */
 class StateNotFoundError extends Error {
   readonly name = this.constructor.name;
-  constructor(sessionId: string) {
-    super(`State record not found for sessionId: ${sessionId}`);
+  constructor(sessionID: string) {
+    super(`State record not found for sessionID: ${sessionID}`);
   }
 }
 
@@ -120,25 +104,5 @@ class StateExpiredError extends Error {
   readonly name = this.constructor.name;
   constructor() {
     super("State has expired");
-  }
-}
-
-/**
- * 必須データ（nonce/codeVerifier）が不足している場合のエラー
- */
-class MissingRequiredDataError extends Error {
-  readonly name = this.constructor.name;
-  constructor() {
-    super("Required nonce or codeVerifier is missing from state record");
-  }
-}
-
-/**
- * データベース操作でエラーが発生した場合のエラー
- */
-class RepositoryError extends Error {
-  readonly name = this.constructor.name;
-  constructor(cause: unknown) {
-    super(`Database operation failed during state verification: ${cause}`);
   }
 }

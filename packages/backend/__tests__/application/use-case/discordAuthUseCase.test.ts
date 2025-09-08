@@ -289,7 +289,7 @@ describe("DiscordAuthUseCase Tests", () => {
             MOCK_STATE,
             MOCK_SESSION_ID
           )
-        ).rejects.toThrow("AuthenticationFailedError");
+        ).rejects.toThrow("AuthenticationUseCaseError");
 
         expect(
           mockDiscordOAuthFlowService.verifyStateBySessionID

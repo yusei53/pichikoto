@@ -5,6 +5,7 @@ import { DiscordID, User } from "../../../domain/user/User";
 import { TYPES } from "../../../infrastructure/config/types";
 import type { DiscordTokensRepositoryInterface } from "../../../infrastructure/repositories/DiscordTokensRepository";
 import type { UserRepositoryInterface } from "../../../infrastructure/repositories/UserRepository";
+import { handleResult } from "../../../utils/ResultHelper";
 import { toAuthPayloadDTO, type AuthPayloadDTO } from "../../dtos/auth.dto";
 import type { DiscordOAuthFlowServiceInterface } from "../../services/discord-auth/DiscordOAuthFlowService";
 import type { DiscordOIDCServiceInterface } from "../../services/discord-oidc";
@@ -42,14 +43,10 @@ export class DiscordAuthCallbackUseCase
     state: string,
     sessionId: string
   ): Promise<AuthPayloadDTO> {
-    const stateVerificationResult =
-      await this.oauthFlowService.verifyStateBySessionID(sessionId, state);
-    if (stateVerificationResult.isErr()) {
-      const error = stateVerificationResult.error;
-      throw new AuthenticationUseCaseError(error);
-    }
-
-    const { nonce, codeVerifier } = stateVerificationResult.value;
+    const { nonce, codeVerifier } = handleResult(
+      await this.oauthFlowService.verifyStateBySessionID(sessionId, state),
+      (error) => new AuthenticationUseCaseError(error)
+    );
 
     const tokenResponse = await this.discordOIDCService.exchangeCodeForTokens(
       c,
