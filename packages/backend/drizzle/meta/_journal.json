@@ -43,6 +43,13 @@
       "when": 1756601825615,
       "tag": "0005_flashy_human_torch",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1757215953291,
+      "tag": "0006_salty_abomination",
+      "breakpoints": true
     }
   ]
 }
