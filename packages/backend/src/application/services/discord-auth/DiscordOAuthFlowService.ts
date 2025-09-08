@@ -53,22 +53,28 @@ export class DiscordOAuthFlowService
     sessionID: string,
     state: string
   ): Promise<Result<StateVerification, VerifyStateBySessionIDError>> {
-    try {
-      const stateRecord = await this.stateRepository.findBy(sessionID);
+    const stateRecord = await this.stateRepository.findBy(sessionID);
 
-      if (!stateRecord) return err(new StateNotFoundError(sessionID));
-      if (stateRecord.state !== state) return err(new StateMismatchError());
-      if (stateRecord.expiresAt < new Date())
-        return err(new StateExpiredError());
-
-      return ok({
-        nonce: stateRecord.nonce,
-        codeVerifier: stateRecord.codeVerifier
-      });
-    } finally {
-      // 成功・失敗に関わらずstateレコードを削除
-      await this.stateRepository.delete(sessionID);
+    if (!stateRecord) {
+      return err(new StateNotFoundError(sessionID));
     }
+    if (stateRecord.state !== state) {
+      await this.stateRepository.delete(sessionID);
+      return err(new StateMismatchError());
+    }
+    if (stateRecord.expiresAt < new Date()) {
+      // 有効期限切れの場合はレコードを削除してからエラーを返す
+      await this.stateRepository.delete(sessionID);
+      return err(new StateExpiredError());
+    }
+
+    const result = {
+      nonce: stateRecord.nonce,
+      codeVerifier: stateRecord.codeVerifier
+    };
+
+    await this.stateRepository.delete(sessionID);
+    return ok(result);
   }
 }
 
