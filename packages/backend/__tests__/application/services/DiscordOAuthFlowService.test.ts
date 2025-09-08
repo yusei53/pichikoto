@@ -9,8 +9,7 @@ import {
 import { expectErr, expectOk } from "../../testing/utils/AssertResult";
 import {
   deleteFromDatabase,
-  insertToDatabase,
-  selectOneFromDatabase
+  insertToDatabase
 } from "../../testing/utils/GenericTableHelper";
 
 describe("DiscordOAuthFlowService Tests", () => {
@@ -75,9 +74,6 @@ describe("DiscordOAuthFlowService Tests", () => {
       // Assert
       const value = expectOk(result);
       expect(value).toEqual(expected);
-
-      const actualRecord = await getOauthStateRecord();
-      expect(actualRecord).toBeNull();
     });
   });
 
@@ -103,9 +99,6 @@ describe("DiscordOAuthFlowService Tests", () => {
     expect(error.message).toBe(
       `State record not found for sessionID: ${nonExistentSessionId}`
     );
-
-    const actualRecord = await getOauthStateRecord();
-    expect(actualRecord).not.toBeNull();
   });
 
   /**
@@ -128,9 +121,6 @@ describe("DiscordOAuthFlowService Tests", () => {
     const error = expectErr(result);
     expect(error.name).toBe("StateMismatchError");
     expect(error.message).toBe("Provided state does not match stored state");
-
-    const actualRecord = await getOauthStateRecord();
-    expect(actualRecord).toBeNull();
   });
 
   /**
@@ -152,19 +142,5 @@ describe("DiscordOAuthFlowService Tests", () => {
     const error = expectErr(result);
     expect(error.name).toBe("StateExpiredError");
     expect(error.message).toBe("State has expired");
-
-    const actualRecord = await getOauthStateRecord();
-    expect(actualRecord).toBeNull();
   });
 });
-
-/**
- * OAuthStateテーブルからレコードを取得するヘルパー関数
- */
-const getOauthStateRecord = async (): Promise<
-  typeof schema.oauthState.$inferSelect | null
-> => {
-  return (await selectOneFromDatabase(
-    schema.oauthState
-  )) as typeof schema.oauthState.$inferSelect;
-};

@@ -38,14 +38,14 @@ export const selectFromDatabase = async <T extends PgTable>(
 /**
  * 汎用的なテーブル検索ヘルパー（単一レコード）
  * @param table 検索対象のテーブル
- * @returns 検索結果の単一レコード（存在しない場合はnull）
+ * @returns 検索結果の単一レコード
  */
 export const selectOneFromDatabase = async <T extends PgTable>(
   table: T
-): Promise<InferSelectModel<T> | null> => {
+): Promise<InferSelectModel<T>> => {
   const results = (await db
     .select()
     .from(table as PgTable)
     .limit(1)) as InferSelectModel<T>[];
-  return results[0] || null;
+  return results[0];
 };
