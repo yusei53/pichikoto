@@ -1,1 +1,0 @@
-ALTER TABLE "oauth_state" ALTER COLUMN "code_verifier" SET NOT NULL;
