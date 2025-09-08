@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import * as schema from "../../../database/schema";
 import { DiscordOAuthFlowService } from "../../../src/application/services/discord-auth/DiscordOAuthFlowService";
 import { StateRepository } from "../../../src/infrastructure/repositories/StateRepository";
@@ -31,6 +31,10 @@ describe("DiscordOAuthFlowService Tests", () => {
 
     return { expiredState };
   };
+
+  beforeEach(async () => {
+    await deleteFromDatabase(schema.oauthState);
+  });
 
   afterEach(async () => {
     await deleteFromDatabase(schema.oauthState);
