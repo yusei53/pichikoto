@@ -1,5 +1,5 @@
-import { PointLog } from "@/features/common/PointLog";
 import { DiscordLoginButton } from "@/components/shared/auth/DiscordLoginButton";
+import { PointLog } from "@/features/common/PointLog";
 
 type TopPageProps = {
   sendPoint: number;
