@@ -3,15 +3,6 @@ import { injectable } from "inversify";
 import * as jose from "jose";
 
 export interface DiscordOIDCServiceInterface {
-  exchangeCodeForTokens(
-    c: Context,
-    code: string,
-    codeVerifier: string
-  ): Promise<DiscordOIDCTokenResponse>;
-  refreshTokens(
-    c: Context,
-    refreshToken: string
-  ): Promise<DiscordOIDCTokenResponse>;
   getUserResource(
     c: Context,
     accessToken: string
@@ -32,78 +23,6 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
   private publicKeysCache: any[] | null = null;
   private cacheExpiry: number = 0;
   private readonly cacheLifetime = 3600000;
-
-  async exchangeCodeForTokens(
-    c: Context,
-    code: string,
-    codeVerifier: string
-  ): Promise<DiscordOIDCTokenResponse> {
-    const params = new URLSearchParams();
-    params.append("client_id", c.env.DISCORD_CLIENT_ID);
-    params.append("client_secret", c.env.DISCORD_CLIENT_SECRET);
-    params.append("grant_type", "authorization_code");
-    params.append("code", code);
-    params.append("redirect_uri", `${c.env.BASE_URL}/api/auth/callback`);
-    params.append("code_verifier", codeVerifier);
-
-    const response = await fetch(`${this.discordApiBaseUrl}/oauth2/token`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: params
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        `Discord token exchange failed with status ${response.status}:`,
-        errorText
-      );
-      throw new Error(
-        `Discord token exchange failed: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const data = (await response.json()) as DiscordOIDCTokenResponse;
-    console.log("OIDC token exchange successful:", {
-      hasIdToken: !!data.id_token
-    });
-    return data;
-  }
-
-  async refreshTokens(
-    c: Context,
-    refreshToken: string
-  ): Promise<DiscordOIDCTokenResponse> {
-    const params = new URLSearchParams();
-    params.append("client_id", c.env.DISCORD_CLIENT_ID);
-    params.append("client_secret", c.env.DISCORD_CLIENT_SECRET);
-    params.append("grant_type", "refresh_token");
-    params.append("refresh_token", refreshToken);
-
-    const response = await fetch(`${this.discordApiBaseUrl}/oauth2/token`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: params
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        `Discord token refresh failed with status ${response.status}:`,
-        errorText
-      );
-      throw new Error(
-        `Discord token refresh failed: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const data = (await response.json()) as DiscordOIDCTokenResponse;
-    return data;
-  }
 
   async getUserResource(
     c: Context,
