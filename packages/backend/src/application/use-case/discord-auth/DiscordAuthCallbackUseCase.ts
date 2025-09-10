@@ -8,6 +8,7 @@ import type { UserRepositoryInterface } from "../../../infrastructure/repositori
 import { handleResult } from "../../../utils/ResultHelper";
 import { toAuthPayloadDTO, type AuthPayloadDTO } from "../../dtos/auth.dto";
 import type { DiscordOAuthFlowServiceInterface } from "../../services/discord-auth/DiscordOAuthFlowService";
+import type { DiscordTokenServiceInterface } from "../../services/discord-auth/DiscordTokenService";
 import type { DiscordOIDCServiceInterface } from "../../services/discord-oidc";
 import type { JwtServiceInterface } from "../../services/jwt";
 
@@ -27,6 +28,8 @@ export class DiscordAuthCallbackUseCase
   constructor(
     @inject(TYPES.DiscordOAuthFlowService)
     private readonly oauthFlowService: DiscordOAuthFlowServiceInterface,
+    @inject(TYPES.DiscordTokenService)
+    private readonly discordTokenService: DiscordTokenServiceInterface,
     @inject(TYPES.DiscordOIDCService)
     private readonly discordOIDCService: DiscordOIDCServiceInterface,
     @inject(TYPES.UserRepository)
@@ -48,15 +51,14 @@ export class DiscordAuthCallbackUseCase
       (error) => new AuthenticationUseCaseError(error)
     );
 
-    const tokenResponse = await this.discordOIDCService.exchangeCodeForTokens(
-      c,
-      code,
-      codeVerifier
+    const tokenResponse = handleResult(
+      await this.discordTokenService.exchangeCodeForTokens(
+        c,
+        code,
+        codeVerifier
+      ),
+      (error) => new AuthenticationUseCaseError(error)
     );
-
-    if (!tokenResponse.id_token) {
-      throw new Error("ID token not received from Discord OIDC");
-    }
 
     // nonceを使用してIDトークンを検証
     const idTokenPayload = await this.discordOIDCService.verifyIdToken(

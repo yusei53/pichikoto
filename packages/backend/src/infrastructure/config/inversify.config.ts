@@ -3,6 +3,8 @@ import type { DbClientInterface } from "../../../database/connection";
 import { DbClient } from "../../../database/connection";
 import type { DiscordOAuthFlowServiceInterface } from "../../application/services/discord-auth/DiscordOAuthFlowService";
 import { DiscordOAuthFlowService } from "../../application/services/discord-auth/DiscordOAuthFlowService";
+import type { DiscordTokenServiceInterface } from "../../application/services/discord-auth/DiscordTokenService";
+import { DiscordTokenService } from "../../application/services/discord-auth/DiscordTokenService";
 import type { DiscordOIDCServiceInterface } from "../../application/services/discord-oidc";
 import { DiscordOIDCService } from "../../application/services/discord-oidc";
 import type { JwtServiceInterface } from "../../application/services/jwt";
@@ -56,6 +58,10 @@ container
   .bind<DiscordOAuthFlowServiceInterface>(TYPES.DiscordOAuthFlowService)
   .to(DiscordOAuthFlowService)
   .inRequestScope();
+container
+  .bind<DiscordTokenServiceInterface>(TYPES.DiscordTokenService)
+  .to(DiscordTokenService)
+  .inSingletonScope();
 
 // Usecases
 container
