@@ -11,9 +11,12 @@ import {
 } from "vitest";
 import type { DiscordOAuthFlowServiceInterface } from "../../../src/application/services/discord-auth/DiscordOAuthFlowService";
 import type {
+  DiscordToken,
+  DiscordTokenServiceInterface
+} from "../../../src/application/services/discord-auth/DiscordTokenService";
+import type {
   DiscordIdTokenPayload,
   DiscordOIDCServiceInterface,
-  DiscordOIDCTokenResponse,
   DiscordUserResource
 } from "../../../src/application/services/discord-oidc";
 import type { JwtServiceInterface } from "../../../src/application/services/jwt";
@@ -42,6 +45,7 @@ describe("DiscordAuthUseCase Tests", () => {
   let mockDiscordTokensRepository: MockedService<DiscordTokensRepositoryInterface>;
   let mockJwtService: MockedService<JwtServiceInterface>;
   let mockDiscordOAuthFlowService: MockedService<DiscordOAuthFlowServiceInterface>;
+  let mockDiscordTokenService: MockedService<DiscordTokenServiceInterface>;
   let mockContext: Context;
 
   const MOCK_USER_ID = UUID.new().value;
@@ -60,8 +64,6 @@ describe("DiscordAuthUseCase Tests", () => {
   beforeEach(() => {
     // モック作成
     mockDiscordOIDCService = {
-      exchangeCodeForTokens: vi.fn(),
-      refreshTokens: vi.fn(),
       getUserResource: vi.fn(),
       revokeAccessToken: vi.fn(),
       verifyIdToken: vi.fn(),
@@ -88,11 +90,16 @@ describe("DiscordAuthUseCase Tests", () => {
       refreshAccessToken: vi.fn()
     };
 
+    mockDiscordTokenService = {
+      exchangeCodeForTokens: vi.fn()
+    };
+
     mockContext = {} as Context;
 
     // DiscordAuthUseCaseのインスタンス作成
     discordAuthCallbackUseCase = new DiscordAuthCallbackUseCase(
       mockDiscordOAuthFlowService,
+      mockDiscordTokenService,
       mockDiscordOIDCService,
       mockUserRepository,
       mockDiscordTokensRepository,
@@ -112,7 +119,7 @@ describe("DiscordAuthUseCase Tests", () => {
   });
 
   describe("callback", () => {
-    const mockTokenResponse: DiscordOIDCTokenResponse = {
+    const mockTokenResponse: DiscordToken = {
       access_token: MOCK_ACCESS_TOKEN,
       refresh_token: MOCK_REFRESH_TOKEN,
       id_token: MOCK_ID_TOKEN,
@@ -146,8 +153,8 @@ describe("DiscordAuthUseCase Tests", () => {
           })
         );
 
-        mockDiscordOIDCService.exchangeCodeForTokens.mockResolvedValue(
-          mockTokenResponse
+        mockDiscordTokenService.exchangeCodeForTokens.mockResolvedValue(
+          ok(mockTokenResponse)
         );
         mockDiscordOIDCService.verifyIdToken.mockResolvedValue(
           mockIdTokenPayload
@@ -179,7 +186,7 @@ describe("DiscordAuthUseCase Tests", () => {
           mockDiscordOAuthFlowService.verifyStateBySessionID
         ).toHaveBeenCalledWith(MOCK_SESSION_ID, MOCK_STATE);
         expect(
-          mockDiscordOIDCService.exchangeCodeForTokens
+          mockDiscordTokenService.exchangeCodeForTokens
         ).toHaveBeenCalledWith(mockContext, MOCK_CODE, MOCK_CODE_VERIFIER);
         expect(mockDiscordOIDCService.verifyIdToken).toHaveBeenCalledWith(
           mockContext,
@@ -295,7 +302,7 @@ describe("DiscordAuthUseCase Tests", () => {
           mockDiscordOAuthFlowService.verifyStateBySessionID
         ).toHaveBeenCalledWith(MOCK_SESSION_ID, MOCK_STATE);
         expect(
-          mockDiscordOIDCService.exchangeCodeForTokens
+          mockDiscordTokenService.exchangeCodeForTokens
         ).not.toHaveBeenCalled();
       });
 
@@ -315,7 +322,10 @@ describe("DiscordAuthUseCase Tests", () => {
           scope: "identify",
           token_type: "Bearer"
         };
-        mockDiscordOIDCService.exchangeCodeForTokens.mockResolvedValue(
+        mockDiscordTokenService.exchangeCodeForTokens.mockResolvedValue(
+          ok(tokenResponseWithoutIdToken as any)
+        );
+        mockDiscordTokenService.exchangeCodeForTokens.mockResolvedValue(
           tokenResponseWithoutIdToken as any
         );
 
@@ -339,8 +349,8 @@ describe("DiscordAuthUseCase Tests", () => {
           })
         );
 
-        mockDiscordOIDCService.exchangeCodeForTokens.mockResolvedValue(
-          mockTokenResponse
+        mockDiscordTokenService.exchangeCodeForTokens.mockResolvedValue(
+          ok(mockTokenResponse)
         );
         mockDiscordOIDCService.verifyIdToken.mockResolvedValue(
           mockIdTokenPayload
@@ -374,8 +384,8 @@ describe("DiscordAuthUseCase Tests", () => {
           })
         );
 
-        mockDiscordOIDCService.exchangeCodeForTokens.mockResolvedValue(
-          mockTokenResponse
+        mockDiscordTokenService.exchangeCodeForTokens.mockResolvedValue(
+          ok(mockTokenResponse)
         );
         mockDiscordOIDCService.verifyIdToken.mockResolvedValue(
           mockIdTokenPayload

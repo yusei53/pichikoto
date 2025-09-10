@@ -12,7 +12,6 @@ import {
   DiscordOIDCService,
   type DiscordIdTokenPayload,
   type DiscordJWK,
-  type DiscordOIDCTokenResponse,
   type DiscordUserResource
 } from "../../../src/application/services/discord-oidc";
 import type { StateRepositoryInterface } from "../../../src/infrastructure/repositories/StateRepository";
@@ -36,10 +35,7 @@ const MOCK_CLIENT_ID = "test_client_id";
 const MOCK_CLIENT_SECRET = "test_client_secret";
 const MOCK_BASE_URL = "https://api.test.com";
 const MOCK_NONCE = "test_nonce";
-const MOCK_CODE_VERIFIER = "test_code_verifier";
-const MOCK_CODE = "test_authorization_code";
 const MOCK_ACCESS_TOKEN = "test_access_token";
-const MOCK_REFRESH_TOKEN = "test_refresh_token";
 const MOCK_ID_TOKEN = "test_id_token";
 const MOCK_USER_ID = "123456789012345678";
 const MOCK_USERNAME = "testuser";
@@ -121,144 +117,6 @@ describe("DiscordOIDCService Tests", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
-  });
-
-  describe("exchangeCodeForTokens", () => {
-    const mockTokenResponse: DiscordOIDCTokenResponse = {
-      access_token: MOCK_ACCESS_TOKEN,
-      expires_in: 3600,
-      refresh_token: MOCK_REFRESH_TOKEN,
-      scope: "identify openid",
-      token_type: "Bearer",
-      id_token: MOCK_ID_TOKEN
-    };
-
-    it("正常にトークンを取得できること", async () => {
-      // Arrange
-      mockFetch.mockResolvedValue({
-        ok: true,
-        json: vi.fn().mockResolvedValue(mockTokenResponse)
-      });
-
-      // Act
-      const result = await service.exchangeCodeForTokens(
-        mocks.context,
-        MOCK_CODE,
-        MOCK_CODE_VERIFIER
-      );
-
-      // Assert
-      expect(result).toEqual(mockTokenResponse);
-      expect(mockFetch).toHaveBeenCalledWith(
-        "https://discord.com/api/oauth2/token",
-        expect.objectContaining({
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
-          body: expect.any(URLSearchParams)
-        })
-      );
-
-      const fetchCall = mockFetch.mock.calls[0];
-      const body = fetchCall[1].body as URLSearchParams;
-      expect(body.get("client_id")).toBe(MOCK_CLIENT_ID);
-      expect(body.get("client_secret")).toBe(MOCK_CLIENT_SECRET);
-      expect(body.get("grant_type")).toBe("authorization_code");
-      expect(body.get("code")).toBe(MOCK_CODE);
-      expect(body.get("code_verifier")).toBe(MOCK_CODE_VERIFIER);
-    });
-
-    it("Discord APIがエラーレスポンスを返した場合、例外が発生すること", async () => {
-      // Arrange
-      mockFetch.mockResolvedValue({
-        ok: false,
-        status: 400,
-        statusText: "Bad Request",
-        text: vi.fn().mockResolvedValue("Invalid request")
-      });
-
-      // Act & Assert
-      await expect(
-        service.exchangeCodeForTokens(
-          mocks.context,
-          MOCK_CODE,
-          MOCK_CODE_VERIFIER
-        )
-      ).rejects.toThrow("Discord token exchange failed: 400 Bad Request");
-    });
-
-    it("fetchでネットワークエラーが発生した場合、例外が発生すること", async () => {
-      // Arrange
-      mockFetch.mockRejectedValue(new Error("Network error"));
-
-      // Act & Assert
-      await expect(
-        service.exchangeCodeForTokens(
-          mocks.context,
-          MOCK_CODE,
-          MOCK_CODE_VERIFIER
-        )
-      ).rejects.toThrow("Network error");
-    });
-  });
-
-  describe("refreshTokens", () => {
-    const mockTokenResponse: DiscordOIDCTokenResponse = {
-      access_token: "new_access_token",
-      expires_in: 3600,
-      refresh_token: "new_refresh_token",
-      scope: "identify openid",
-      token_type: "Bearer",
-      id_token: "new_id_token"
-    };
-
-    it("正常にトークンをリフレッシュできること", async () => {
-      // Arrange
-      mockFetch.mockResolvedValue({
-        ok: true,
-        json: vi.fn().mockResolvedValue(mockTokenResponse)
-      });
-
-      // Act
-      const result = await service.refreshTokens(
-        mocks.context,
-        MOCK_REFRESH_TOKEN
-      );
-
-      // Assert
-      expect(result).toEqual(mockTokenResponse);
-      expect(mockFetch).toHaveBeenCalledWith(
-        "https://discord.com/api/oauth2/token",
-        expect.objectContaining({
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
-          body: expect.any(URLSearchParams)
-        })
-      );
-
-      const fetchCall = mockFetch.mock.calls[0];
-      const body = fetchCall[1].body as URLSearchParams;
-      expect(body.get("grant_type")).toBe("refresh_token");
-      expect(body.get("refresh_token")).toBe(MOCK_REFRESH_TOKEN);
-    });
-
-    it("無効なリフレッシュトークンの場合、例外が発生すること", async () => {
-      // Arrange
-      mockFetch.mockResolvedValue({
-        ok: false,
-        status: 401,
-        statusText: "Unauthorized",
-        text: vi.fn().mockResolvedValue("Invalid refresh token")
-      });
-
-      // Act & Assert
-      await expect(
-        service.refreshTokens(mocks.context, "invalid_token")
-      ).rejects.toThrow("Discord token refresh failed: 401 Unauthorized");
-    });
   });
 
   describe("getUserResource", () => {
