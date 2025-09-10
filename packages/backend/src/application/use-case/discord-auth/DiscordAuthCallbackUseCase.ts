@@ -5,7 +5,9 @@ import { DiscordID, User } from "../../../domain/user/User";
 import { TYPES } from "../../../infrastructure/config/types";
 import type { DiscordTokensRepositoryInterface } from "../../../infrastructure/repositories/DiscordTokensRepository";
 import type { UserRepositoryInterface } from "../../../infrastructure/repositories/UserRepository";
+import { handleResult } from "../../../utils/ResultHelper";
 import { toAuthPayloadDTO, type AuthPayloadDTO } from "../../dtos/auth.dto";
+import type { DiscordOAuthFlowServiceInterface } from "../../services/discord-auth/DiscordOAuthFlowService";
 import type { DiscordOIDCServiceInterface } from "../../services/discord-oidc";
 import type { JwtServiceInterface } from "../../services/jwt";
 
@@ -23,6 +25,8 @@ export class DiscordAuthCallbackUseCase
   implements DiscordAuthCallbackUseCaseInterface
 {
   constructor(
+    @inject(TYPES.DiscordOAuthFlowService)
+    private readonly oauthFlowService: DiscordOAuthFlowServiceInterface,
     @inject(TYPES.DiscordOIDCService)
     private readonly discordOIDCService: DiscordOIDCServiceInterface,
     @inject(TYPES.UserRepository)
@@ -39,25 +43,15 @@ export class DiscordAuthCallbackUseCase
     state: string,
     sessionId: string
   ): Promise<AuthPayloadDTO> {
-    // sessionIdとstateパラメータの検証（nonceも取得）
-    const stateVerification =
-      await this.discordOIDCService.verifyStateBySessionId(c, sessionId, state);
-    if (
-      !stateVerification.valid ||
-      !stateVerification.nonce ||
-      !stateVerification.codeVerifier
-    ) {
-      console.error("Invalid or expired state parameter:", {
-        sessionId,
-        state
-      });
-      throw new Error("Invalid or expired state parameter");
-    }
+    const { nonce, codeVerifier } = handleResult(
+      await this.oauthFlowService.verifyStateBySessionID(sessionId, state),
+      (error) => new AuthenticationUseCaseError(error)
+    );
 
     const tokenResponse = await this.discordOIDCService.exchangeCodeForTokens(
       c,
       code,
-      stateVerification.codeVerifier
+      codeVerifier
     );
 
     if (!tokenResponse.id_token) {
@@ -68,7 +62,7 @@ export class DiscordAuthCallbackUseCase
     const idTokenPayload = await this.discordOIDCService.verifyIdToken(
       c,
       tokenResponse.id_token,
-      stateVerification.nonce
+      nonce
     );
     console.log("ID token verification successful:", {
       sub: idTokenPayload.sub
@@ -124,5 +118,12 @@ export class DiscordAuthCallbackUseCase
     );
 
     return toAuthPayloadDTO(user, accessToken, refreshToken);
+  }
+}
+
+class AuthenticationUseCaseError extends Error {
+  readonly name = this.constructor.name;
+  constructor(cause: Error) {
+    super(`AuthenticationUseCaseError(cause: ${cause.name}: ${cause.message})`);
   }
 }

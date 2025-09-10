@@ -1,4 +1,5 @@
 import type { Context } from "hono";
+import { err, ok } from "neverthrow";
 import {
   afterEach,
   beforeEach,
@@ -8,6 +9,7 @@ import {
   vi,
   type MockedFunction
 } from "vitest";
+import type { DiscordOAuthFlowServiceInterface } from "../../../src/application/services/discord-auth/DiscordOAuthFlowService";
 import type {
   DiscordIdTokenPayload,
   DiscordOIDCServiceInterface,
@@ -39,6 +41,7 @@ describe("DiscordAuthUseCase Tests", () => {
   let mockUserRepository: MockedService<UserRepositoryInterface>;
   let mockDiscordTokensRepository: MockedService<DiscordTokensRepositoryInterface>;
   let mockJwtService: MockedService<JwtServiceInterface>;
+  let mockDiscordOAuthFlowService: MockedService<DiscordOAuthFlowServiceInterface>;
   let mockContext: Context;
 
   const MOCK_USER_ID = UUID.new().value;
@@ -62,8 +65,11 @@ describe("DiscordAuthUseCase Tests", () => {
       getUserResource: vi.fn(),
       revokeAccessToken: vi.fn(),
       verifyIdToken: vi.fn(),
-      getDiscordPublicKeys: vi.fn(),
-      verifyStateBySessionId: vi.fn()
+      getDiscordPublicKeys: vi.fn()
+    };
+
+    mockDiscordOAuthFlowService = {
+      verifyStateBySessionID: vi.fn()
     };
 
     mockUserRepository = {
@@ -86,6 +92,7 @@ describe("DiscordAuthUseCase Tests", () => {
 
     // DiscordAuthUseCaseのインスタンス作成
     discordAuthCallbackUseCase = new DiscordAuthCallbackUseCase(
+      mockDiscordOAuthFlowService,
       mockDiscordOIDCService,
       mockUserRepository,
       mockDiscordTokensRepository,
@@ -132,11 +139,12 @@ describe("DiscordAuthUseCase Tests", () => {
     describe("正常系", () => {
       beforeEach(() => {
         // 共通のモック設定
-        mockDiscordOIDCService.verifyStateBySessionId.mockResolvedValue({
-          valid: true,
-          nonce: MOCK_NONCE,
-          codeVerifier: MOCK_CODE_VERIFIER
-        });
+        mockDiscordOAuthFlowService.verifyStateBySessionID.mockResolvedValue(
+          ok({
+            nonce: MOCK_NONCE,
+            codeVerifier: MOCK_CODE_VERIFIER
+          })
+        );
 
         mockDiscordOIDCService.exchangeCodeForTokens.mockResolvedValue(
           mockTokenResponse
@@ -168,8 +176,8 @@ describe("DiscordAuthUseCase Tests", () => {
 
         // assert
         expect(
-          mockDiscordOIDCService.verifyStateBySessionId
-        ).toHaveBeenCalledWith(mockContext, MOCK_SESSION_ID, MOCK_STATE);
+          mockDiscordOAuthFlowService.verifyStateBySessionID
+        ).toHaveBeenCalledWith(MOCK_SESSION_ID, MOCK_STATE);
         expect(
           mockDiscordOIDCService.exchangeCodeForTokens
         ).toHaveBeenCalledWith(mockContext, MOCK_CODE, MOCK_CODE_VERIFIER);
@@ -269,9 +277,9 @@ describe("DiscordAuthUseCase Tests", () => {
     describe("異常系", () => {
       it("stateパラメータが無効な場合、エラーを投げること", async () => {
         // arrange
-        mockDiscordOIDCService.verifyStateBySessionId.mockResolvedValue({
-          valid: false
-        });
+        mockDiscordOAuthFlowService.verifyStateBySessionID.mockResolvedValue(
+          err(new Error("State verification failed"))
+        );
 
         // act & assert
         await expect(
@@ -281,59 +289,24 @@ describe("DiscordAuthUseCase Tests", () => {
             MOCK_STATE,
             MOCK_SESSION_ID
           )
-        ).rejects.toThrow("Invalid or expired state parameter");
+        ).rejects.toThrow("AuthenticationUseCaseError");
 
         expect(
-          mockDiscordOIDCService.verifyStateBySessionId
-        ).toHaveBeenCalledWith(mockContext, MOCK_SESSION_ID, MOCK_STATE);
+          mockDiscordOAuthFlowService.verifyStateBySessionID
+        ).toHaveBeenCalledWith(MOCK_SESSION_ID, MOCK_STATE);
         expect(
           mockDiscordOIDCService.exchangeCodeForTokens
         ).not.toHaveBeenCalled();
       });
 
-      it("nonceが存在しない場合、エラーを投げること", async () => {
-        // arrange
-        mockDiscordOIDCService.verifyStateBySessionId.mockResolvedValue({
-          valid: true,
-          codeVerifier: MOCK_CODE_VERIFIER
-        });
-
-        // act & assert
-        await expect(
-          discordAuthCallbackUseCase.execute(
-            mockContext,
-            MOCK_CODE,
-            MOCK_STATE,
-            MOCK_SESSION_ID
-          )
-        ).rejects.toThrow("Invalid or expired state parameter");
-      });
-
-      it("codeVerifierが存在しない場合、エラーを投げること", async () => {
-        // arrange
-        mockDiscordOIDCService.verifyStateBySessionId.mockResolvedValue({
-          valid: true,
-          nonce: MOCK_NONCE
-        });
-
-        // act & assert
-        await expect(
-          discordAuthCallbackUseCase.execute(
-            mockContext,
-            MOCK_CODE,
-            MOCK_STATE,
-            MOCK_SESSION_ID
-          )
-        ).rejects.toThrow("Invalid or expired state parameter");
-      });
-
       it("IDトークンが取得できない場合、エラーを投げること", async () => {
         // arrange
-        mockDiscordOIDCService.verifyStateBySessionId.mockResolvedValue({
-          valid: true,
-          nonce: MOCK_NONCE,
-          codeVerifier: MOCK_CODE_VERIFIER
-        });
+        mockDiscordOAuthFlowService.verifyStateBySessionID.mockResolvedValue(
+          ok({
+            nonce: MOCK_NONCE,
+            codeVerifier: MOCK_CODE_VERIFIER
+          })
+        );
 
         const tokenResponseWithoutIdToken = {
           access_token: MOCK_ACCESS_TOKEN,
@@ -359,11 +332,12 @@ describe("DiscordAuthUseCase Tests", () => {
 
       it("IDトークンとAPI応答でユーザーIDが一致しない場合、エラーを投げること", async () => {
         // arrange
-        mockDiscordOIDCService.verifyStateBySessionId.mockResolvedValue({
-          valid: true,
-          nonce: MOCK_NONCE,
-          codeVerifier: MOCK_CODE_VERIFIER
-        });
+        mockDiscordOAuthFlowService.verifyStateBySessionID.mockResolvedValue(
+          ok({
+            nonce: MOCK_NONCE,
+            codeVerifier: MOCK_CODE_VERIFIER
+          })
+        );
 
         mockDiscordOIDCService.exchangeCodeForTokens.mockResolvedValue(
           mockTokenResponse
@@ -393,11 +367,12 @@ describe("DiscordAuthUseCase Tests", () => {
 
       it("既存ユーザーのDiscordTokensが見つからない場合、エラーを投げること", async () => {
         // arrange
-        mockDiscordOIDCService.verifyStateBySessionId.mockResolvedValue({
-          valid: true,
-          nonce: MOCK_NONCE,
-          codeVerifier: MOCK_CODE_VERIFIER
-        });
+        mockDiscordOAuthFlowService.verifyStateBySessionID.mockResolvedValue(
+          ok({
+            nonce: MOCK_NONCE,
+            codeVerifier: MOCK_CODE_VERIFIER
+          })
+        );
 
         mockDiscordOIDCService.exchangeCodeForTokens.mockResolvedValue(
           mockTokenResponse

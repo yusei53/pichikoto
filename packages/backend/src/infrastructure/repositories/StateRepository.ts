@@ -15,7 +15,7 @@ export interface StateRepositoryInterface {
     sessionId: string;
     state: string;
     nonce: string;
-    codeVerifier: string | null;
+    codeVerifier: string;
     expiresAt: Date;
   } | null>;
   delete(sessionId: string): Promise<void>;
@@ -43,7 +43,7 @@ export class StateRepository implements StateRepositoryInterface {
     sessionId: string;
     state: string;
     nonce: string;
-    codeVerifier: string | null;
+    codeVerifier: string;
     expiresAt: Date;
   } | null> {
     const stateRecord = await db.query.oauthState.findFirst({
@@ -56,7 +56,7 @@ export class StateRepository implements StateRepositoryInterface {
       sessionId: stateRecord.sessionId,
       state: stateRecord.state,
       nonce: stateRecord.nonce,
-      codeVerifier: stateRecord.codeVerifier ?? null,
+      codeVerifier: stateRecord.codeVerifier,
       expiresAt: stateRecord.expiresAt
     };
   }
