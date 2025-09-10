@@ -39,7 +39,6 @@ export class DiscordTokenService implements DiscordTokenServiceInterface {
    * 以下の処理を行う：
    * 1. Discord OAuth2 トークンエンドポイントにリクエスト送信
    * 2. PKCEのcode_verifierを使用した検証
-   * 3. エラー時の詳細ログ出力
    *
    * @param c - Honoコンテキスト（環境変数アクセス用）
    * @param code - Discord認証コード
