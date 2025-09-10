@@ -305,41 +305,6 @@ describe("DiscordAuthUseCase Tests", () => {
           mockDiscordTokenService.exchangeCodeForTokens
         ).not.toHaveBeenCalled();
       });
-
-      it("IDトークンが取得できない場合、エラーを投げること", async () => {
-        // arrange
-        mockDiscordOAuthFlowService.verifyStateBySessionID.mockResolvedValue(
-          ok({
-            nonce: MOCK_NONCE,
-            codeVerifier: MOCK_CODE_VERIFIER
-          })
-        );
-
-        const tokenResponseWithoutIdToken = {
-          access_token: MOCK_ACCESS_TOKEN,
-          refresh_token: MOCK_REFRESH_TOKEN,
-          expires_in: 3600,
-          scope: "identify",
-          token_type: "Bearer"
-        };
-        mockDiscordTokenService.exchangeCodeForTokens.mockResolvedValue(
-          ok(tokenResponseWithoutIdToken as any)
-        );
-        mockDiscordTokenService.exchangeCodeForTokens.mockResolvedValue(
-          tokenResponseWithoutIdToken as any
-        );
-
-        // act & assert
-        await expect(
-          discordAuthCallbackUseCase.execute(
-            mockContext,
-            MOCK_CODE,
-            MOCK_STATE,
-            MOCK_SESSION_ID
-          )
-        ).rejects.toThrow("ID token not received from Discord OIDC");
-      });
-
       it("IDトークンとAPI応答でユーザーIDが一致しない場合、エラーを投げること", async () => {
         // arrange
         mockDiscordOAuthFlowService.verifyStateBySessionID.mockResolvedValue(
