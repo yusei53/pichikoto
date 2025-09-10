@@ -29,9 +29,6 @@ export interface DiscordUserServiceInterface {
  */
 @injectable()
 export class DiscordUserService implements DiscordUserServiceInterface {
-  private readonly DISCORD_USER_RESOURCE_ENDPOINT =
-    "https://discord.com/api/users/@me";
-
   /**
    * Discord APIからユーザー情報を取得する
    *
@@ -45,7 +42,9 @@ export class DiscordUserService implements DiscordUserServiceInterface {
   async getUserResource(
     accessToken: string
   ): Promise<Result<DiscordUserResource, GetUserResourceError>> {
-    const response = await fetch(`${this.DISCORD_USER_RESOURCE_ENDPOINT}`, {
+    const DISCORD_USER_RESOURCE_ENDPOINT = "https://discord.com/api/users/@me";
+
+    const response = await fetch(`${DISCORD_USER_RESOURCE_ENDPOINT}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }
