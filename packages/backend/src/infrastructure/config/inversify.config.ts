@@ -5,8 +5,6 @@ import type { DiscordOAuthFlowServiceInterface } from "../../application/service
 import { DiscordOAuthFlowService } from "../../application/services/discord-auth/DiscordOAuthFlowService";
 import type { DiscordTokenServiceInterface } from "../../application/services/discord-auth/DiscordTokenService";
 import { DiscordTokenService } from "../../application/services/discord-auth/DiscordTokenService";
-import type { DiscordUserServiceInterface } from "../../application/services/discord-auth/DiscordUserService";
-import { DiscordUserService } from "../../application/services/discord-auth/DiscordUserService";
 import type { DiscordOIDCServiceInterface } from "../../application/services/discord-oidc";
 import { DiscordOIDCService } from "../../application/services/discord-oidc";
 import type { JwtServiceInterface } from "../../application/services/jwt";
@@ -63,10 +61,6 @@ container
 container
   .bind<DiscordTokenServiceInterface>(TYPES.DiscordTokenService)
   .to(DiscordTokenService)
-  .inSingletonScope();
-container
-  .bind<DiscordUserServiceInterface>(TYPES.DiscordUserService)
-  .to(DiscordUserService)
   .inSingletonScope();
 
 // Usecases

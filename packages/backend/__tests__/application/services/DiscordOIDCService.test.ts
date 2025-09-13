@@ -11,7 +11,8 @@ import {
 import {
   DiscordOIDCService,
   type DiscordIdTokenPayload,
-  type DiscordJWK
+  type DiscordJWK,
+  type DiscordUserResource
 } from "../../../src/application/services/discord-oidc";
 import type { StateRepositoryInterface } from "../../../src/infrastructure/repositories/StateRepository";
 
@@ -37,6 +38,8 @@ const MOCK_NONCE = "test_nonce";
 const MOCK_ACCESS_TOKEN = "test_access_token";
 const MOCK_ID_TOKEN = "test_id_token";
 const MOCK_USER_ID = "123456789012345678";
+const MOCK_USERNAME = "testuser";
+const MOCK_AVATAR = "avatar_hash";
 
 // モック作成ファクトリー
 const createMocks = () => ({
@@ -114,6 +117,56 @@ describe("DiscordOIDCService Tests", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  describe("getUserResource", () => {
+    const mockUserResource: DiscordUserResource = {
+      id: MOCK_USER_ID,
+      username: MOCK_USERNAME,
+      avatar: MOCK_AVATAR
+    };
+
+    it("正常にユーザー情報を取得できること", async () => {
+      // Arrange
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue(mockUserResource)
+      });
+
+      // Act
+      const result = await service.getUserResource(
+        mocks.context,
+        MOCK_ACCESS_TOKEN
+      );
+
+      // Assert
+      expect(result).toEqual(mockUserResource);
+      expect(mockFetch).toHaveBeenCalledWith(
+        "https://discord.com/api/users/@me",
+        {
+          headers: {
+            Authorization: `Bearer ${MOCK_ACCESS_TOKEN}`
+          }
+        }
+      );
+    });
+
+    it("無効なアクセストークンの場合、例外が発生すること", async () => {
+      // Arrange
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 401,
+        statusText: "Unauthorized",
+        text: vi.fn().mockResolvedValue("Invalid access token")
+      });
+
+      // Act & Assert
+      await expect(
+        service.getUserResource(mocks.context, "invalid_token")
+      ).rejects.toThrow(
+        "Discord user resource retrieval failed: 401 Unauthorized"
+      );
+    });
   });
 
   describe("revokeAccessToken", () => {
