@@ -3,6 +3,10 @@ import { injectable } from "inversify";
 import * as jose from "jose";
 
 export interface DiscordOIDCServiceInterface {
+  getUserResource(
+    c: Context,
+    accessToken: string
+  ): Promise<DiscordUserResource>;
   revokeAccessToken(c: Context, accessToken: string): Promise<void>;
   verifyIdToken(
     c: Context,
@@ -20,6 +24,30 @@ export class DiscordOIDCService implements DiscordOIDCServiceInterface {
   private cacheExpiry: number = 0;
   private readonly cacheLifetime = 3600000;
 
+  async getUserResource(
+    c: Context,
+    accessToken: string
+  ): Promise<DiscordUserResource> {
+    const response = await fetch(`${this.discordApiBaseUrl}/users/@me`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        `Discord user resource retrieval failed with status ${response.status}:`,
+        errorText
+      );
+      throw new Error(
+        `Discord user resource retrieval failed: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const data = (await response.json()) as DiscordUserResource;
+    return data;
+  }
 
   async revokeAccessToken(c: Context, accessToken: string): Promise<void> {
     const params = new URLSearchParams();
@@ -186,6 +214,11 @@ export interface DiscordOIDCTokenResponse {
   id_token: string;
 }
 
+export interface DiscordUserResource {
+  id: string;
+  username: string;
+  avatar: string;
+}
 
 export interface DiscordIdTokenPayload {
   iss: string; // https://discord.com

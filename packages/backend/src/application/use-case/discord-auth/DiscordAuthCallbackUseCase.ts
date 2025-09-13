@@ -9,7 +9,6 @@ import { handleResult } from "../../../utils/ResultHelper";
 import { toAuthPayloadDTO, type AuthPayloadDTO } from "../../dtos/auth.dto";
 import type { DiscordOAuthFlowServiceInterface } from "../../services/discord-auth/DiscordOAuthFlowService";
 import type { DiscordTokenServiceInterface } from "../../services/discord-auth/DiscordTokenService";
-import type { DiscordUserServiceInterface } from "../../services/discord-auth/DiscordUserService";
 import type { DiscordOIDCServiceInterface } from "../../services/discord-oidc";
 import type { JwtServiceInterface } from "../../services/jwt";
 
@@ -31,8 +30,6 @@ export class DiscordAuthCallbackUseCase
     private readonly oauthFlowService: DiscordOAuthFlowServiceInterface,
     @inject(TYPES.DiscordTokenService)
     private readonly discordTokenService: DiscordTokenServiceInterface,
-    @inject(TYPES.DiscordUserService)
-    private readonly discordUserService: DiscordUserServiceInterface,
     @inject(TYPES.DiscordOIDCService)
     private readonly discordOIDCService: DiscordOIDCServiceInterface,
     @inject(TYPES.UserRepository)
@@ -73,9 +70,9 @@ export class DiscordAuthCallbackUseCase
       sub: idTokenPayload.sub
     });
 
-    const discordUserResource = handleResult(
-      await this.discordUserService.getUserResource(tokenResponse.access_token),
-      (error) => new AuthenticationUseCaseError(error)
+    const discordUserResource = await this.discordOIDCService.getUserResource(
+      c,
+      tokenResponse.access_token
     );
 
     if (idTokenPayload.sub !== discordUserResource.id) {

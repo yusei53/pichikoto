@@ -11,7 +11,6 @@ export const TYPES = {
   DiscordOIDCService: Symbol.for("DiscordOIDCService"),
   DiscordOAuthFlowService: Symbol.for("DiscordOAuthFlowService"),
   DiscordTokenService: Symbol.for("DiscordTokenService"),
-  DiscordUserService: Symbol.for("DiscordUserService"),
   JwtService: Symbol.for("JwtService"),
 
   // Usecases
