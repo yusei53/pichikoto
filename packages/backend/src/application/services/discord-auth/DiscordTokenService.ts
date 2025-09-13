@@ -1,7 +1,10 @@
 import type { Context } from "hono";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
+import type { JWTPayload } from "jose";
 import type { Result } from "neverthrow";
 import { err, ok } from "neverthrow";
+import { TYPES } from "../../../infrastructure/config/types";
+import type { DiscordJWKServiceInterface } from "./DiscordJWKService";
 
 /**
  * Discord トークン交換レスポンス
@@ -16,6 +19,24 @@ export type DiscordToken = {
 };
 
 /**
+ * Discord ID Tokenのペイロード
+ *
+ * MEMO:
+ * JWT仕様（RFC 7519）とOpenID Connect仕様で定められた標準的なクレーム名になっているため、
+ * 変更すると他のライブラリやサービスとの互換性が失われてしまうため、変更しないこと
+ */
+export interface DiscordIdTokenPayload extends JWTPayload {
+  iss: string; // https://discord.com
+  sub: string; // Discord User ID
+  aud: string | string[]; // Discord Client ID (文字列または配列)
+  exp: number; // Expiration time
+  iat: number; // Issued at time
+  auth_time?: number; // Authentication time (optional)
+  nonce: string; // Nonce value
+  at_hash?: string; // Access token hash
+}
+
+/**
  * Discord トークンサービスのインターフェース
  */
 export interface DiscordTokenServiceInterface {
@@ -24,15 +45,26 @@ export interface DiscordTokenServiceInterface {
     code: string,
     codeVerifier: string
   ): Promise<Result<DiscordToken, ExchangeCodeForTokensError>>;
+  verifyIdToken(
+    c: Context,
+    idToken: string,
+    expectedNonce: string
+  ): Promise<Result<DiscordIdTokenPayload, VerifyIdTokenError>>;
 }
 
 /**
  * Discord トークンサービス
  *
  * Discord OAuth認証フローにおけるトークン関連の処理を担当する。
+ * - OAuth2 トークン交換
+ * - ID Token検証
  */
 @injectable()
 export class DiscordTokenService implements DiscordTokenServiceInterface {
+  constructor(
+    @inject(TYPES.DiscordJWKService)
+    private readonly jwkService: DiscordJWKServiceInterface
+  ) {}
   /**
    * Discord認証コードをアクセストークンに交換する
    *
@@ -76,6 +108,86 @@ export class DiscordTokenService implements DiscordTokenServiceInterface {
     const data = (await response.json()) as DiscordToken;
     return ok(data);
   }
+
+  /**
+   * TODO: 絶対リファクタしろよ？？？？？
+   * Discord ID Tokenを検証する
+   *
+   * 以下の処理を行う：
+   * 1. JWTヘッダーからkidを取得
+   * 2. Discord公開鍵を取得
+   * 3. JWT署名を検証
+   * 4. Issuer、Audience、Nonceを検証
+   *
+   * @param c - Honoコンテキスト（環境変数アクセス用）
+   * @param idToken - 検証対象のID Token
+   * @param expectedNonce - 期待するNonce値
+   * @returns ID Token検証結果（成功時はペイロード、失敗時はエラー）
+   */
+  async verifyIdToken(
+    c: Context,
+    idToken: string,
+    expectedNonce: string
+  ): Promise<Result<DiscordIdTokenPayload, VerifyIdTokenError>> {
+    // JWTヘッダーからkidを取得
+    const headerResult = this.jwkService.decodeJWTHeader(idToken);
+    if (headerResult.isErr()) {
+      return err(
+        new IdTokenVerificationFailedError(
+          `JWT header decode failed: ${headerResult.error.message}`
+        )
+      );
+    }
+
+    const header = headerResult.value;
+    if (!header.kid) {
+      return err(new IdTokenVerificationFailedError("JWT header missing kid"));
+    }
+
+    // Discord公開鍵を取得
+    const publicKeysResult = await this.jwkService.getPublicKeys();
+    if (publicKeysResult.isErr()) {
+      return err(publicKeysResult.error);
+    }
+
+    const publicKeys = publicKeysResult.value;
+    const publicKey = publicKeys.find((key) => key.kid === header.kid);
+    if (!publicKey) {
+      return err(
+        new IdTokenVerificationFailedError(
+          `Public key with kid ${header.kid} not found`
+        )
+      );
+    }
+
+    // JWT署名を検証
+    const signatureResult = await this.jwkService.verifyJWTSignature(
+      idToken,
+      publicKey,
+      c.env.DISCORD_CLIENT_ID
+    );
+    if (signatureResult.isErr()) {
+      return err(
+        new IdTokenVerificationFailedError(
+          `JWT signature verification failed: ${signatureResult.error.message}`
+        )
+      );
+    }
+
+    const payload = signatureResult.value;
+
+    // nonce検証
+    // nonce検証はverifyJWTSignatureで行っていいかも
+    if (payload.nonce !== expectedNonce) {
+      return err(
+        new IdTokenVerificationFailedError(
+          `Invalid nonce mismatch: expected: ${expectedNonce}, received: ${payload.nonce}`
+        )
+      );
+    }
+
+    return ok(payload as DiscordIdTokenPayload);
+  }
 }
 
 /**
@@ -108,6 +220,9 @@ const toTokenRequestURLSearchParams = (
 };
 
 type ExchangeCodeForTokensError = TokenExchangeFailedError;
+type VerifyIdTokenError =
+  | IdTokenVerificationFailedError
+  | import("./DiscordJWKService").PublicKeysRetrievalFailedError;
 
 /**
  * Discord API呼び出しが失敗した場合のエラー
@@ -119,5 +234,15 @@ class TokenExchangeFailedError extends Error {
     public readonly responseText: string
   ) {
     super(`Discord token exchange failed: ${statusCode} - ${responseText}`);
+  }
+}
+
+/**
+ * ID Token検証が失敗した場合のエラー
+ */
+class IdTokenVerificationFailedError extends Error {
+  readonly name = this.constructor.name;
+  constructor(message: string) {
+    super(`ID token verification failed: ${message} `);
   }
 }

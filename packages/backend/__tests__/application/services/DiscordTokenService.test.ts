@@ -1,5 +1,6 @@
 import type { Context } from "hono";
 import { describe, expect, it, vi } from "vitest";
+import { DiscordJWKService } from "../../../src/application/services/discord-auth/DiscordJWKService";
 import {
   DiscordTokenService,
   type DiscordToken
@@ -24,7 +25,7 @@ describe("DiscordTokenService Tests", () => {
     }
   } as Context;
 
-  const discordTokenService = new DiscordTokenService();
+  const discordTokenService = new DiscordTokenService(new DiscordJWKService());
 
   describe("exchangeCodeForTokens", () => {
     /**

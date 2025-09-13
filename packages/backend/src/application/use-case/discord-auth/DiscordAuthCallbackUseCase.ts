@@ -10,7 +10,6 @@ import { toAuthPayloadDTO, type AuthPayloadDTO } from "../../dtos/auth.dto";
 import type { DiscordOAuthFlowServiceInterface } from "../../services/discord-auth/DiscordOAuthFlowService";
 import type { DiscordTokenServiceInterface } from "../../services/discord-auth/DiscordTokenService";
 import type { DiscordUserServiceInterface } from "../../services/discord-auth/DiscordUserService";
-import type { DiscordOIDCServiceInterface } from "../../services/discord-oidc";
 import type { JwtServiceInterface } from "../../services/jwt";
 
 export interface DiscordAuthCallbackUseCaseInterface {
@@ -33,8 +32,6 @@ export class DiscordAuthCallbackUseCase
     private readonly discordTokenService: DiscordTokenServiceInterface,
     @inject(TYPES.DiscordUserService)
     private readonly discordUserService: DiscordUserServiceInterface,
-    @inject(TYPES.DiscordOIDCService)
-    private readonly discordOIDCService: DiscordOIDCServiceInterface,
     @inject(TYPES.UserRepository)
     private readonly userRepository: UserRepositoryInterface,
     @inject(TYPES.DiscordTokensRepository)
@@ -63,11 +60,13 @@ export class DiscordAuthCallbackUseCase
       (error) => new AuthenticationUseCaseError(error)
     );
 
-    // nonceを使用してIDトークンを検証
-    const idTokenPayload = await this.discordOIDCService.verifyIdToken(
-      c,
-      tokenResponse.id_token,
-      nonce
+    const idTokenPayload = handleResult(
+      await this.discordTokenService.verifyIdToken(
+        c,
+        tokenResponse.id_token,
+        nonce
+      ),
+      (error) => new AuthenticationUseCaseError(error)
     );
     console.log("ID token verification successful:", {
       sub: idTokenPayload.sub
