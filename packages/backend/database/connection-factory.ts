@@ -1,24 +1,21 @@
 import type { EnvironmentConnectionParams } from "./config";
 import { DatabaseConfig } from "./config";
-import type { DatabaseConnectionStrategy } from "./connection-strategies";
-import {
-  NeonConnectionStrategy,
-  PostgresConnectionStrategy
-} from "./connection-strategies";
+import type { DatabaseConnection } from "./connection-database";
+import { NeonConnection, PostgresConnection } from "./connection-database";
 
 /**
  * データベース接続ファクトリー
  * 環境に応じて適切な接続戦略を選択し、DB接続を作成する
  */
 export class DatabaseConnectionFactory {
-  private static neonStrategy = new NeonConnectionStrategy();
-  private static postgresStrategy = new PostgresConnectionStrategy();
+  private static neonConnection = new NeonConnection();
+  private static postgresConnection = new PostgresConnection();
 
   /**
    * 環境に応じたDB接続を作成
    */
   static createConnection(params?: EnvironmentConnectionParams) {
-    const strategy = this.selectStrategy();
+    const strategy = this.selectConnection();
     const config = this.buildConfig(params);
     return strategy.createConnection(config);
   }
@@ -26,11 +23,14 @@ export class DatabaseConnectionFactory {
   /**
    * 環境に応じて適切な接続戦略を選択
    */
-  private static selectStrategy(): DatabaseConnectionStrategy {
-    if (DatabaseConfig.isTestEnvironment()) {
-      return this.postgresStrategy;
+  private static selectConnection(): DatabaseConnection {
+    if (
+      DatabaseConfig.isTestEnvironment() ||
+      DatabaseConfig.isDevelopmentEnvironment()
+    ) {
+      return this.postgresConnection;
     }
-    return this.neonStrategy;
+    return this.neonConnection;
   }
 
   /**
@@ -56,7 +56,7 @@ export class DatabaseConnectionFactory {
    */
   static createTestConnection() {
     const config = DatabaseConfig.getDatabaseConfig();
-    return this.postgresStrategy.createConnection(config);
+    return this.postgresConnection.createConnection(config);
   }
 
   /**
@@ -64,6 +64,6 @@ export class DatabaseConnectionFactory {
    */
   static createNeonConnection(params?: EnvironmentConnectionParams) {
     const config = this.buildConfig(params);
-    return this.neonStrategy.createConnection(config);
+    return this.neonConnection.createConnection(config);
   }
 }

@@ -41,7 +41,6 @@ const connectToDatabase = (c: Context) => {
 
 /**
  * 環境に応じたグローバルDB接続インスタンス
- * テスト環境以外では、このインスタンスを使用可能
  */
 export const db = DatabaseConnectionFactory.createConnection();
 
