@@ -48,50 +48,52 @@ export class DiscordAuthCallbackUseCase
   ): Promise<AuthPayloadDTO> {
     const { nonce, codeVerifier } = handleResult(
       await this.oauthFlowService.verifyStateBySessionID(sessionId, state),
-      (error) => new AuthenticationUseCaseError(error)
+      (error) => new DiscordAuthCallbackUseCaseError(error)
     );
 
-    const tokenResponse = handleResult(
+    const discordToken = handleResult(
       await this.discordTokenService.exchangeCodeForTokens(
         c,
         code,
         codeVerifier
       ),
-      (error) => new AuthenticationUseCaseError(error)
+      (error) => new DiscordAuthCallbackUseCaseError(error)
     );
 
     const idTokenPayload = handleResult(
       await this.discordTokenService.verifyIdToken(
         c,
-        tokenResponse.id_token,
+        discordToken.id_token,
         nonce
       ),
-      (error) => new AuthenticationUseCaseError(error)
+      (error) => new DiscordAuthCallbackUseCaseError(error)
     );
-    console.log("ID token verification successful:", {
-      sub: idTokenPayload.sub
-    });
 
     const discordUserResource = handleResult(
-      await this.discordUserService.getUserResource(tokenResponse.access_token),
-      (error) => new AuthenticationUseCaseError(error)
+      await this.discordUserService.getUserResource(discordToken.access_token),
+      (error) => new DiscordAuthCallbackUseCaseError(error)
     );
 
     if (idTokenPayload.sub !== discordUserResource.id) {
-      throw new Error("User ID mismatch between ID token and API response");
+      throw new DiscordAuthCallbackUseCaseError(
+        new Error("User ID mismatch between ID token and API response")
+      );
     }
 
     const existsUser = await this.userRepository.findBy(
       DiscordID.from(discordUserResource.id)
     );
 
-    if (existsUser !== null) {
+    if (existsUser) {
       const discordTokens = await this.discordTokensRepository.findBy(
         existsUser.userID
       );
-      if (!discordTokens) {
-        throw new Error("DiscordTokens not found");
+      if (discordTokens === null) {
+        throw new DiscordAuthCallbackUseCaseError(
+          new Error("DiscordTokens not found")
+        );
       }
+
       const { accessToken, refreshToken } =
         await this.jwtService.generateTokens(c, existsUser.userID.value.value);
       return toAuthPayloadDTO(existsUser, accessToken, refreshToken);
@@ -108,11 +110,11 @@ export class DiscordAuthCallbackUseCase
 
     const discordTokens = DiscordTokens.create(
       user.userID,
-      tokenResponse.access_token,
-      tokenResponse.refresh_token,
-      tokenResponse.expires_in,
-      tokenResponse.scope,
-      tokenResponse.token_type
+      discordToken.access_token,
+      discordToken.refresh_token,
+      discordToken.expires_in,
+      discordToken.scope,
+      discordToken.token_type
     );
     await this.discordTokensRepository.save(discordTokens);
 
@@ -125,9 +127,11 @@ export class DiscordAuthCallbackUseCase
   }
 }
 
-class AuthenticationUseCaseError extends Error {
+class DiscordAuthCallbackUseCaseError extends Error {
   readonly name = this.constructor.name;
   constructor(cause: Error) {
-    super(`AuthenticationUseCaseError(cause: ${cause.name}: ${cause.message})`);
+    super(
+      `DiscordAuthCallbackUseCaseError(cause: ${cause.name}: ${cause.message})`
+    );
   }
 }
