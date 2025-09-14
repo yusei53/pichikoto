@@ -28,7 +28,7 @@ export class DiscordTokensRepository
   private async findByUserID(
     userID: UserID
   ): Promise<DiscordTokensRecord | null> {
-    const discordTokens = await db.query.discordTokens.findFirst({
+    const discordTokens = await db().query.discordTokens.findFirst({
       where: eq(discordTokensSchema.userId, userID.value.value)
     });
 
@@ -59,7 +59,7 @@ export class DiscordTokensRepository
   }
 
   async save(discordTokens: DiscordTokens): Promise<void> {
-    await db.insert(discordTokensSchema).values({
+    await db().insert(discordTokensSchema).values({
       userId: discordTokens.userId.value.value,
       accessToken: discordTokens.accessToken.value,
       refreshToken: discordTokens.refreshToken.value,
