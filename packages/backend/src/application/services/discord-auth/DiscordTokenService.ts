@@ -4,6 +4,7 @@ import type { JWTPayload } from "jose";
 import type { Result } from "neverthrow";
 import { err, ok } from "neverthrow";
 import { TYPES } from "../../../infrastructure/config/types";
+import { handleResult } from "../../../utils/ResultHelper";
 import type { DiscordJWKServiceInterface } from "./DiscordJWKService";
 
 /**
@@ -25,7 +26,7 @@ export type DiscordToken = {
  * JWT仕様（RFC 7519）とOpenID Connect仕様で定められた標準的なクレーム名になっているため、
  * 変更すると他のライブラリやサービスとの互換性が失われてしまうため、変更しないこと
  */
-export interface DiscordIdTokenPayload extends JWTPayload {
+type DiscordIdTokenPayload = JWTPayload & {
   iss: string; // https://discord.com
   sub: string; // Discord User ID
   aud: string | string[]; // Discord Client ID (文字列または配列)
@@ -34,7 +35,7 @@ export interface DiscordIdTokenPayload extends JWTPayload {
   auth_time?: number; // Authentication time (optional)
   nonce: string; // Nonce value
   at_hash?: string; // Access token hash
-}
+};
 
 /**
  * Discord トークンサービスのインターフェース
@@ -130,63 +131,38 @@ export class DiscordTokenService implements DiscordTokenServiceInterface {
     expectedNonce: string
   ): Promise<Result<DiscordIdTokenPayload, VerifyIdTokenError>> {
     // JWTヘッダーからkidを取得
-    const headerResult = this.jwkService.decodeJWTHeader(idToken);
-    if (headerResult.isErr()) {
-      return err(
-        new IdTokenVerificationFailedError(
-          `JWT header decode failed: ${headerResult.error.message}`
-        )
-      );
-    }
-
-    const header = headerResult.value;
-    if (!header.kid) {
-      return err(new IdTokenVerificationFailedError("JWT header missing kid"));
-    }
+    const header = handleResult(
+      this.jwkService.decodeJWTHeader(idToken),
+      (error) => new IdTokenVerificationFailedError(error)
+    );
 
     // Discord公開鍵を取得
-    const publicKeysResult = await this.jwkService.getPublicKeys();
-    if (publicKeysResult.isErr()) {
-      return err(publicKeysResult.error);
-    }
+    const publicKeys = handleResult(
+      await this.jwkService.getPublicKeys(),
+      (error) => new IdTokenVerificationFailedError(error)
+    );
 
-    const publicKeys = publicKeysResult.value;
     const publicKey = publicKeys.find((key) => key.kid === header.kid);
     if (!publicKey) {
       return err(
         new IdTokenVerificationFailedError(
-          `Public key with kid ${header.kid} not found`
+          new Error(`Public key with kid ${header.kid} not found`)
         )
       );
     }
 
     // JWT署名を検証
-    const signatureResult = await this.jwkService.verifyJWTSignature(
-      idToken,
-      publicKey,
-      c.env.DISCORD_CLIENT_ID
+    const jwtPayload = handleResult(
+      await this.jwkService.verifyJWTSignature(
+        idToken,
+        publicKey,
+        c.env.DISCORD_CLIENT_ID,
+        expectedNonce
+      ),
+      (error) => new IdTokenVerificationFailedError(error)
     );
-    if (signatureResult.isErr()) {
-      return err(
-        new IdTokenVerificationFailedError(
-          `JWT signature verification failed: ${signatureResult.error.message}`
-        )
-      );
-    }
 
-    const payload = signatureResult.value;
-
-    // nonce検証
-    // nonce検証はverifyJWTSignatureで行っていいかも
-    if (payload.nonce !== expectedNonce) {
-      return err(
-        new IdTokenVerificationFailedError(
-          `Invalid nonce mismatch: expected: ${expectedNonce}, received: ${payload.nonce}`
-        )
-      );
-    }
-
-    return ok(payload as DiscordIdTokenPayload);
+    return ok(jwtPayload as DiscordIdTokenPayload);
   }
 }
 
@@ -220,9 +196,7 @@ const toTokenRequestURLSearchParams = (
 };
 
 type ExchangeCodeForTokensError = TokenExchangeFailedError;
-type VerifyIdTokenError =
-  | IdTokenVerificationFailedError
-  | import("./DiscordJWKService").PublicKeysRetrievalFailedError;
+type VerifyIdTokenError = IdTokenVerificationFailedError;
 
 /**
  * Discord API呼び出しが失敗した場合のエラー
@@ -242,7 +216,7 @@ class TokenExchangeFailedError extends Error {
  */
 class IdTokenVerificationFailedError extends Error {
   readonly name = this.constructor.name;
-  constructor(message: string) {
-    super(`ID token verification failed: ${message} `);
+  constructor(error: Error) {
+    super(`cause: ${error} `);
   }
 }
