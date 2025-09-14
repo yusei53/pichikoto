@@ -1,6 +1,6 @@
 import type { Context } from "hono";
 import { injectable } from "inversify";
-import { DatabaseConnectionFactory } from "./connection-factory";
+import { DatabaseConnectionFactory } from "./factory";
 
 export interface DbClientInterface {
   init(c: Context): void;
