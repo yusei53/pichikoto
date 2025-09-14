@@ -1,5 +1,5 @@
 import type { MiddlewareHandler } from "hono";
-import type { DbClientInterface } from "../../../database/connection";
+import type { DbClientInterface } from "../../../database/client";
 import { container } from "../../infrastructure/config/inversify.config";
 import { TYPES } from "../../infrastructure/config/types";
 import type { AuthControllerInterface } from "../controllers/auth";

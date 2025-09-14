@@ -1,6 +1,6 @@
 import { Container } from "inversify";
-import type { DbClientInterface } from "../../../database/connection";
-import { DbClient } from "../../../database/connection";
+import type { DbClientInterface } from "../../../database/client";
+import { DbClient } from "../../../database/client";
 import type { DiscordOAuthFlowServiceInterface } from "../../application/services/discord-auth/DiscordOAuthFlowService";
 import { DiscordOAuthFlowService } from "../../application/services/discord-auth/DiscordOAuthFlowService";
 import type { DiscordTokenServiceInterface } from "../../application/services/discord-auth/DiscordTokenService";
