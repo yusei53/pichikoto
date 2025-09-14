@@ -5,10 +5,9 @@ import {
   DiscordTokens,
   ExpiresAt,
   RefreshToken
-} from "../../../src/domain/DiscordTokens";
-import { UserID } from "../../../src/domain/User";
+} from "../../../src/domain/discord-tokens/DiscordTokens";
+import { UserID } from "../../../src/domain/user/User";
 import { DiscordTokensRepository } from "../../../src/infrastructure/repositories/DiscordTokensRepository";
-import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { assertEqualDiscordTokensTable } from "../../testing/table_assert/AssertEqualDiscordTokensTable";
 import {
   createDiscordTokensTableFixture,
@@ -60,8 +59,7 @@ describe("DiscordTokensRepository Tests", () => {
         RefreshToken.from(discordTokens1.refreshToken),
         ExpiresAt.from(discordTokens1.expiresAt),
         discordTokens1.scope,
-        discordTokens1.tokenType,
-        CreatedAt.from(discordTokens1.createdAt)
+        discordTokens1.tokenType
       );
 
       // act
@@ -80,8 +78,7 @@ describe("DiscordTokensRepository Tests", () => {
         RefreshToken.from(discordTokens2.refreshToken),
         ExpiresAt.from(discordTokens2.expiresAt),
         discordTokens2.scope,
-        discordTokens2.tokenType,
-        CreatedAt.from(discordTokens2.createdAt)
+        discordTokens2.tokenType
       );
 
       // act
@@ -122,8 +119,7 @@ describe("DiscordTokensRepository Tests", () => {
         RefreshToken.from(discordTokensRecord.refreshToken),
         ExpiresAt.from(discordTokensRecord.expiresAt),
         discordTokensRecord.scope,
-        discordTokensRecord.tokenType,
-        CreatedAt.from(discordTokensRecord.createdAt)
+        discordTokensRecord.tokenType
       );
 
       // act

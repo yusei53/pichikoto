@@ -1,12 +1,18 @@
 import { Container } from "inversify";
 import type { DbClientInterface } from "../../../database/connection";
 import { DbClient } from "../../../database/connection";
+import type { DiscordOAuthFlowServiceInterface } from "../../application/services/discord-auth/DiscordOAuthFlowService";
+import { DiscordOAuthFlowService } from "../../application/services/discord-auth/DiscordOAuthFlowService";
+import type { DiscordTokenServiceInterface } from "../../application/services/discord-auth/DiscordTokenService";
+import { DiscordTokenService } from "../../application/services/discord-auth/DiscordTokenService";
 import type { DiscordOIDCServiceInterface } from "../../application/services/discord-oidc";
 import { DiscordOIDCService } from "../../application/services/discord-oidc";
 import type { JwtServiceInterface } from "../../application/services/jwt";
 import { JwtService } from "../../application/services/jwt";
-import type { AuthUsecaseInterface } from "../../application/usecases/auth";
-import { AuthUsecase } from "../../application/usecases/auth";
+import type { DiscordAuthCallbackUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
+import { DiscordAuthCallbackUseCase } from "../../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
+import type { DiscordAuthInitiateUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
+import { DiscordAuthInitiateUseCase } from "../../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
 import type { AuthControllerInterface } from "../../presentation/controllers/auth";
 import { AuthController } from "../../presentation/controllers/auth";
 import type { DiscordTokensRepositoryInterface } from "../repositories/DiscordTokensRepository";
@@ -48,11 +54,23 @@ container
   .bind<DiscordOIDCServiceInterface>(TYPES.DiscordOIDCService)
   .to(DiscordOIDCService)
   .inSingletonScope();
+container
+  .bind<DiscordOAuthFlowServiceInterface>(TYPES.DiscordOAuthFlowService)
+  .to(DiscordOAuthFlowService)
+  .inRequestScope();
+container
+  .bind<DiscordTokenServiceInterface>(TYPES.DiscordTokenService)
+  .to(DiscordTokenService)
+  .inSingletonScope();
 
 // Usecases
 container
-  .bind<AuthUsecaseInterface>(TYPES.AuthUsecase)
-  .to(AuthUsecase)
+  .bind<DiscordAuthCallbackUseCaseInterface>(TYPES.DiscordAuthCallbackUseCase)
+  .to(DiscordAuthCallbackUseCase)
+  .inRequestScope();
+container
+  .bind<DiscordAuthInitiateUseCaseInterface>(TYPES.DiscordAuthInitiateUseCase)
+  .to(DiscordAuthInitiateUseCase)
   .inRequestScope();
 
 // Controllers

@@ -7,9 +7,8 @@ import {
   DiscordTokens,
   ExpiresAt,
   RefreshToken
-} from "../../domain/DiscordTokens";
-import { UserID } from "../../domain/User";
-import { CreatedAt } from "../../utils/CreatedAt";
+} from "../../domain/discord-tokens/DiscordTokens";
+import { UserID } from "../../domain/user/User";
 
 export interface DiscordTokensRepositoryInterface {
   findBy(userID: UserID): Promise<DiscordTokens | null>;
@@ -55,8 +54,7 @@ export class DiscordTokensRepository
       RefreshToken.from(discordTokensRecord.refreshToken),
       ExpiresAt.from(discordTokensRecord.expiresAt),
       discordTokensRecord.scope,
-      discordTokensRecord.tokenType,
-      CreatedAt.from(discordTokensRecord.createdAt)
+      discordTokensRecord.tokenType
     );
   }
 
@@ -67,8 +65,7 @@ export class DiscordTokensRepository
       refreshToken: discordTokens.refreshToken.value,
       expiresAt: discordTokens.expiresAt.value,
       scope: discordTokens.scope,
-      tokenType: discordTokens.tokenType,
-      createdAt: discordTokens.createdAt.value
+      tokenType: discordTokens.tokenType
     });
   }
 }

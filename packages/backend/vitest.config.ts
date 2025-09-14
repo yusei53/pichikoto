@@ -6,19 +6,10 @@ export default defineConfig({
     environment: "node",
     include: ["**/__tests__/**/*.test.ts"],
     globalSetup: ["./__tests__/setup/test-setup.ts"],
-    // リポジトリテストのみ順次実行、他は並列実行
-    poolMatchGlobs: [
-      // リポジトリテストは順次実行
-      ["**/__tests__/infrastructure/repository/**/*.test.ts", "forks"],
-      // その他のテストは並列実行
-      ["**/__tests__/**/*.test.ts", "threads"]
-    ],
+    pool: "forks",
     poolOptions: {
       forks: {
-        singleFork: true // リポジトリテスト：単一プロセスで順次実行
-      },
-      threads: {
-        singleThread: false // その他のテスト：並列実行
+        singleFork: true
       }
     },
     coverage: {

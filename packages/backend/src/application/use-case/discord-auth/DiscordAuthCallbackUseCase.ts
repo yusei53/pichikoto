@@ -1,16 +1,19 @@
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
-import { DiscordTokens } from "../../domain/DiscordTokens";
-import { DiscordID, User } from "../../domain/User";
-import { TYPES } from "../../infrastructure/config/types";
-import type { DiscordTokensRepositoryInterface } from "../../infrastructure/repositories/DiscordTokensRepository";
-import type { UserRepositoryInterface } from "../../infrastructure/repositories/UserRepository";
-import { toAuthPayloadDTO, type AuthPayloadDTO } from "../dtos/auth.dto";
-import type { DiscordOIDCServiceInterface } from "../services/discord-oidc";
-import type { JwtServiceInterface } from "../services/jwt";
+import { DiscordTokens } from "../../../domain/discord-tokens/DiscordTokens";
+import { DiscordID, User } from "../../../domain/user/User";
+import { TYPES } from "../../../infrastructure/config/types";
+import type { DiscordTokensRepositoryInterface } from "../../../infrastructure/repositories/DiscordTokensRepository";
+import type { UserRepositoryInterface } from "../../../infrastructure/repositories/UserRepository";
+import { handleResult } from "../../../utils/ResultHelper";
+import { toAuthPayloadDTO, type AuthPayloadDTO } from "../../dtos/auth.dto";
+import type { DiscordOAuthFlowServiceInterface } from "../../services/discord-auth/DiscordOAuthFlowService";
+import type { DiscordTokenServiceInterface } from "../../services/discord-auth/DiscordTokenService";
+import type { DiscordOIDCServiceInterface } from "../../services/discord-oidc";
+import type { JwtServiceInterface } from "../../services/jwt";
 
-export interface AuthUsecaseInterface {
-  callback(
+export interface DiscordAuthCallbackUseCaseInterface {
+  execute(
     c: Context,
     code: string,
     state: string,
@@ -19,8 +22,14 @@ export interface AuthUsecaseInterface {
 }
 
 @injectable()
-export class AuthUsecase implements AuthUsecaseInterface {
+export class DiscordAuthCallbackUseCase
+  implements DiscordAuthCallbackUseCaseInterface
+{
   constructor(
+    @inject(TYPES.DiscordOAuthFlowService)
+    private readonly oauthFlowService: DiscordOAuthFlowServiceInterface,
+    @inject(TYPES.DiscordTokenService)
+    private readonly discordTokenService: DiscordTokenServiceInterface,
     @inject(TYPES.DiscordOIDCService)
     private readonly discordOIDCService: DiscordOIDCServiceInterface,
     @inject(TYPES.UserRepository)
@@ -31,42 +40,31 @@ export class AuthUsecase implements AuthUsecaseInterface {
     private readonly jwtService: JwtServiceInterface
   ) {}
 
-  async callback(
+  async execute(
     c: Context,
     code: string,
     state: string,
     sessionId: string
   ): Promise<AuthPayloadDTO> {
-    // sessionIdとstateパラメータの検証（nonceも取得）
-    const stateVerification =
-      await this.discordOIDCService.verifyStateBySessionId(c, sessionId, state);
-    if (
-      !stateVerification.valid ||
-      !stateVerification.nonce ||
-      !stateVerification.codeVerifier
-    ) {
-      console.error("Invalid or expired state parameter:", {
-        sessionId,
-        state
-      });
-      throw new Error("Invalid or expired state parameter");
-    }
-
-    const tokenResponse = await this.discordOIDCService.exchangeCodeForTokens(
-      c,
-      code,
-      stateVerification.codeVerifier
+    const { nonce, codeVerifier } = handleResult(
+      await this.oauthFlowService.verifyStateBySessionID(sessionId, state),
+      (error) => new AuthenticationUseCaseError(error)
     );
 
-    if (!tokenResponse.id_token) {
-      throw new Error("ID token not received from Discord OIDC");
-    }
+    const tokenResponse = handleResult(
+      await this.discordTokenService.exchangeCodeForTokens(
+        c,
+        code,
+        codeVerifier
+      ),
+      (error) => new AuthenticationUseCaseError(error)
+    );
 
     // nonceを使用してIDトークンを検証
     const idTokenPayload = await this.discordOIDCService.verifyIdToken(
       c,
       tokenResponse.id_token,
-      stateVerification.nonce
+      nonce
     );
     console.log("ID token verification successful:", {
       sub: idTokenPayload.sub
@@ -122,5 +120,12 @@ export class AuthUsecase implements AuthUsecaseInterface {
     );
 
     return toAuthPayloadDTO(user, accessToken, refreshToken);
+  }
+}
+
+class AuthenticationUseCaseError extends Error {
+  readonly name = this.constructor.name;
+  constructor(cause: Error) {
+    super(`AuthenticationUseCaseError(cause: ${cause.name}: ${cause.message})`);
   }
 }

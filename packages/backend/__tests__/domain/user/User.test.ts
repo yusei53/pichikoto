@@ -5,29 +5,28 @@ import {
   Faculty,
   User,
   UserID
-} from "../../src/domain/User";
-import { CreatedAt } from "../../src/utils/CreatedAt";
+} from "../../../src/domain/user/User";
+import {
+  DepartmentTooLongError,
+  EmptyDepartmentError,
+  EmptyFacultyError,
+  FacultyTooLongError,
+  InvalidDiscordIDError
+} from "../../../src/domain/user/UserError";
+import { UUID } from "../../../src/utils/UUID";
 
-const MOCK_UUID = "00000000-0000-0000-0000-000000";
-const MOCK_NOW_DATE = new Date("2025-01-01T00:00:00.000Z");
-
-vi.mock("../../src/utils/UUID", () => {
-  return {
-    UUID: {
-      new: vi.fn(() => ({
-        value: MOCK_UUID
-      }))
-    }
-  };
-});
+const MOCK_USER_ID = UUID.new().value;
 
 beforeEach(() => {
-  vi.useFakeTimers();
-  vi.setSystemTime(MOCK_NOW_DATE);
+  vi.spyOn(UserID, "new").mockReturnValue(
+    new (class {
+      constructor(public readonly value: UUID) {}
+    })(UUID.from(MOCK_USER_ID))
+  );
 });
 
 afterEach(() => {
-  vi.useRealTimers();
+  vi.restoreAllMocks();
 });
 
 describe("UserDomainTest", () => {
@@ -46,8 +45,7 @@ describe("UserDomainTest", () => {
         discordUserName,
         discordAvatar,
         faculty,
-        department,
-        CreatedAt.new()
+        department
       );
 
       const actual = User.create(
@@ -64,66 +62,36 @@ describe("UserDomainTest", () => {
     describe("DiscordIDのバリデーション", () => {
       it("数字でないDiscordIDの場合はエラーになること", () => {
         expect(() => {
-          User.create(
-            DiscordID.from("InvalidStringID"),
-            discordUserName,
-            discordAvatar,
-            faculty,
-            department
-          );
-        }).toThrow("Invalid Discord ID: must contain only digits");
+          DiscordID.from("InvalidStringID");
+        }).toThrow(InvalidDiscordIDError);
       });
     });
 
     describe("学部名のバリデーション", () => {
       it("学部名が空文字の場合はエラーになること", () => {
         expect(() => {
-          User.create(
-            discordID,
-            discordUserName,
-            discordAvatar,
-            Faculty.from(""),
-            department
-          );
-        }).toThrow("Faculty cannot be empty");
+          Faculty.from("");
+        }).toThrow(EmptyFacultyError);
       });
 
       it("学部名が30文字を超える場合はエラーになること", () => {
         expect(() => {
-          User.create(
-            discordID,
-            discordUserName,
-            discordAvatar,
-            Faculty.from("A".repeat(31)),
-            department
-          );
-        }).toThrow("Faculty must be 30 characters or less");
+          Faculty.from("A".repeat(31));
+        }).toThrow(FacultyTooLongError);
       });
     });
 
     describe("学科名のバリデーション", () => {
       it("学科名が空文字の場合はエラーになること", () => {
         expect(() => {
-          User.create(
-            discordID,
-            discordUserName,
-            discordAvatar,
-            faculty,
-            Department.from("")
-          );
-        }).toThrow("Department cannot be empty");
+          Department.from("");
+        }).toThrow(EmptyDepartmentError);
       });
 
       it("学科名が30文字を超える場合はエラーになること", () => {
         expect(() => {
-          User.create(
-            discordID,
-            discordUserName,
-            discordAvatar,
-            faculty,
-            Department.from("A".repeat(31))
-          );
-        }).toThrow("Department must be 30 characters or less");
+          Department.from("A".repeat(31));
+        }).toThrow(DepartmentTooLongError);
       });
     });
   });

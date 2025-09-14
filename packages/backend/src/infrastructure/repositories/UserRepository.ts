@@ -8,8 +8,7 @@ import {
   Faculty,
   User,
   UserID
-} from "../../domain/User";
-import { CreatedAt } from "../../utils/CreatedAt";
+} from "../../domain/user/User";
 
 export interface UserRepositoryInterface {
   findBy(discordID: DiscordID): Promise<User | null>;
@@ -27,7 +26,7 @@ export class UserRepository implements UserRepositoryInterface {
     discordID: DiscordID
   ): Promise<UserRecord | null> {
     const user = await db.query.user.findFirst({
-      where: eq(userSchema.discordId, discordID.getValue())
+      where: eq(userSchema.discordId, discordID.value)
     });
 
     if (!user) return null;
@@ -38,8 +37,7 @@ export class UserRepository implements UserRepositoryInterface {
       discordUserName: user.discordUserName,
       discordAvatar: user.discordAvatar,
       faculty: user.faculty,
-      department: user.department,
-      createdAt: user.createdAt
+      department: user.department
     };
   }
 
@@ -50,20 +48,18 @@ export class UserRepository implements UserRepositoryInterface {
       userRecord.discordUserName,
       userRecord.discordAvatar,
       userRecord.faculty ? Faculty.from(userRecord.faculty) : null,
-      userRecord.department ? Department.from(userRecord.department) : null,
-      CreatedAt.from(userRecord.createdAt)
+      userRecord.department ? Department.from(userRecord.department) : null
     );
   }
 
   async save(user: User): Promise<void> {
     await db.insert(userSchema).values({
       id: user.userID.value.value,
-      discordId: user.discordID.getValue(),
+      discordId: user.discordID.value,
       discordUserName: user.discordUserName,
       discordAvatar: user.discordAvatar,
-      faculty: user.faculty?.getValue() ?? null,
-      department: user.department?.getValue() ?? null,
-      createdAt: user.createdAt.value
+      faculty: user.faculty?.value ?? null,
+      department: user.department?.value ?? null
     });
   }
 }
@@ -75,5 +71,4 @@ type UserRecord = {
   discordAvatar: string;
   faculty: string | null;
   department: string | null;
-  createdAt: Date;
 };
