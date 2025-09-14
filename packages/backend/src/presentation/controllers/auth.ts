@@ -36,7 +36,7 @@ export class AuthController implements AuthControllerInterface {
     setCookie(c, "oauth_session", sessionID, {
       httpOnly: true,
       secure: c.env.NODE_ENV !== "development",
-      sameSite: "None",
+      sameSite: c.env.NODE_ENV === "development" ? "Lax" : "None",
       path: "/",
       maxAge: 900 // 15分
     });
@@ -81,7 +81,7 @@ export class AuthController implements AuthControllerInterface {
         setCookie(c, "refresh_token", authPayload.refreshToken, {
           httpOnly: true,
           secure: c.env.NODE_ENV !== "development",
-          sameSite: "None",
+          sameSite: c.env.NODE_ENV === "development" ? "Lax" : "None",
           path: "/",
           maxAge: 60 * 60 * 24 * 365 // 1年
         });
@@ -91,7 +91,7 @@ export class AuthController implements AuthControllerInterface {
       setCookie(c, "oauth_session", "", {
         httpOnly: true,
         secure: c.env.NODE_ENV !== "development",
-        sameSite: "None",
+        sameSite: c.env.NODE_ENV === "development" ? "Lax" : "None",
         path: "/",
         maxAge: 0
       });
@@ -106,7 +106,7 @@ export class AuthController implements AuthControllerInterface {
       setCookie(c, "oauth_session", "", {
         httpOnly: true,
         secure: c.env.NODE_ENV !== "development",
-        sameSite: "None",
+        sameSite: c.env.NODE_ENV === "development" ? "Lax" : "None",
         path: "/",
         maxAge: 0
       });
