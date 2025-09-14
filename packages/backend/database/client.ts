@@ -4,7 +4,6 @@ import { DatabaseConnectionFactory } from "./factory";
 
 export interface DbClientInterface {
   init(c: Context): void;
-  getDb(): ReturnType<typeof DatabaseConnectionFactory.createConnection>;
 }
 
 @injectable()
@@ -12,20 +11,11 @@ export class DbClient implements DbClientInterface {
   private db: ReturnType<
     typeof DatabaseConnectionFactory.createConnection
   > | null = null;
-  private context: Context | null = null;
 
   public init(c: Context): void {
-    this.context = c;
     if (!this.db) {
       this.db = connectToDatabase(c);
     }
-  }
-
-  getDb(): ReturnType<typeof DatabaseConnectionFactory.createConnection> {
-    if (!this.db || !this.context) {
-      throw new Error("DbClient not initialized. Call init() first.");
-    }
-    return this.db;
   }
 }
 
@@ -40,8 +30,7 @@ const connectToDatabase = (c: Context) => {
 };
 
 /**
- * 環境に応じたグローバルDB接続インスタンス
+ * 環境に応じたDB接続を取得する関数
+ * リクエスト毎に新しい接続を作成してCloudflare Workersの制約を回避
  */
-export const db = DatabaseConnectionFactory.createConnection();
-
-export type DbType = typeof db;
+export const db = () => DatabaseConnectionFactory.createConnection();

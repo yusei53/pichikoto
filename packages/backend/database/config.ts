@@ -33,13 +33,6 @@ export class DatabaseConfig {
   }
 
   /**
-   * 本番環境かどうかを判定
-   */
-  static isProductionEnvironment(): boolean {
-    return this.getEnvVar("NODE_ENV") === "production";
-  }
-
-  /**
    * データベース設定を取得
    */
   static getDatabaseConfig(): DatabaseConnectionConfig {
