@@ -278,7 +278,7 @@ describe("DiscordOIDCService Tests", () => {
       expect(result).toHaveLength(2);
     });
 
-    it("JWKS取得でエラーが発生した場合、例外が発生すること", async () => {
+    it("JWKS取得でエラーが発生した場合、フォールバックが使用されること", async () => {
       // Arrange
       mockFetch.mockResolvedValue({
         ok: false,
@@ -286,9 +286,14 @@ describe("DiscordOIDCService Tests", () => {
         statusText: "Internal Server Error"
       });
 
-      // Act & Assert
-      await expect(service.getDiscordPublicKeys()).rejects.toThrow(
-        "Could not retrieve Discord public keys"
+      // Act
+      const result = await service.getDiscordPublicKeys();
+
+      // Assert
+      expect(result).toHaveLength(1); // フォールバックキーが1つ
+      expect(result[0]).toHaveProperty(
+        "kid",
+        "yQ5JCk8zI3K1iz8pL4Ul6GyGzlNbP00rQZaR7VdoEtU"
       );
     });
   });
