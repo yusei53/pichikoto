@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import type { JWTPayload } from "jose";
 import type { Result } from "neverthrow";
 import { err, ok } from "neverthrow";
-import { TYPES } from "../../../infrastructure/config/types";
+import { TYPES } from "../../../di-container/types";
 import type { DiscordJWKServiceInterface } from "./DiscordJWKService";
 
 /**

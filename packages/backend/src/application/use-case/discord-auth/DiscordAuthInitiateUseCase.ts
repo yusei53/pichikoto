@@ -1,6 +1,6 @@
 import type { Context } from "hono";
 import { inject } from "inversify";
-import { TYPES } from "../../../infrastructure/config/types";
+import { TYPES } from "../../../di-container/types";
 import type { StateRepositoryInterface } from "../../../infrastructure/repositories/StateRepository";
 
 /** Discord OAuth 2.0認証エンドポイントのベースURL */
