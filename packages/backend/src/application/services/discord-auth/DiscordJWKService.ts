@@ -11,16 +11,12 @@ type HeaderAfterDecode = {
 };
 
 /**
- * importJWKの戻り値とDiscord固有のプロパティを組み合わせた型
- */
-export type DiscordCryptoKey = (CryptoKey | Uint8Array) & DiscordPublicKey;
-
-/**
  * JWKから変換されたDiscord公開鍵
  *
- * importJWKの戻り値にDiscord固有のプロパティ（kid, alg）を追加したもの
+ * CryptoKeyオブジェクトとDiscord固有のメタデータを分離して管理
  */
-type DiscordPublicKey = {
+export type DiscordCryptoKey = {
+  cryptoKey: CryptoKey | Uint8Array; // jose.importJWKの戻り値
   kid: string; // Key ID - JWKから取得した鍵の識別子
   alg: string; // Algorithm - JWKから取得したアルゴリズム
 };
@@ -249,11 +245,11 @@ export class DiscordJWKService implements DiscordJWKServiceInterface {
       }
 
       const cryptoKey = await jose.importJWK(jwk);
-      const discordPublicKey = {
-        ...cryptoKey,
+      const discordPublicKey: DiscordCryptoKey = {
+        cryptoKey,
         kid: jwk.kid,
         alg: jwk.alg
-      } as DiscordCryptoKey;
+      };
 
       return discordPublicKey;
     } catch (importError) {
@@ -291,9 +287,12 @@ export class DiscordJWKService implements DiscordJWKServiceInterface {
     audience: string,
     expectedNonce: string
   ): Promise<Result<jose.JWTPayload, VerifyJWTSignatureError>> {
+    // DiscordCryptoKeyからCryptoKey部分を取得
+    const cryptoKey = publicKey.cryptoKey;
+
     const safeJWTVerify = fromThrowable(
       async () =>
-        await jose.jwtVerify(token, publicKey, {
+        await jose.jwtVerify(token, cryptoKey, {
           issuer: "https://discord.com",
           audience,
           algorithms: ["RS256"]
