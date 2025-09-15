@@ -1,14 +1,14 @@
 import { Container } from "inversify";
 import type { DbClientInterface } from "../../../database/client";
 import { DbClient } from "../../../database/client";
+import type { DiscordJWKServiceInterface } from "../../application/services/discord-auth/DiscordJWKService";
+import { DiscordJWKService } from "../../application/services/discord-auth/DiscordJWKService";
 import type { DiscordOAuthFlowServiceInterface } from "../../application/services/discord-auth/DiscordOAuthFlowService";
 import { DiscordOAuthFlowService } from "../../application/services/discord-auth/DiscordOAuthFlowService";
 import type { DiscordTokenServiceInterface } from "../../application/services/discord-auth/DiscordTokenService";
 import { DiscordTokenService } from "../../application/services/discord-auth/DiscordTokenService";
 import type { DiscordUserServiceInterface } from "../../application/services/discord-auth/DiscordUserService";
 import { DiscordUserService } from "../../application/services/discord-auth/DiscordUserService";
-import type { DiscordOIDCServiceInterface } from "../../application/services/discord-oidc";
-import { DiscordOIDCService } from "../../application/services/discord-oidc";
 import type { JwtServiceInterface } from "../../application/services/jwt";
 import { JwtService } from "../../application/services/jwt";
 import type { DiscordAuthCallbackUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
@@ -53,13 +53,13 @@ container
   .to(JwtService)
   .inSingletonScope();
 container
-  .bind<DiscordOIDCServiceInterface>(TYPES.DiscordOIDCService)
-  .to(DiscordOIDCService)
-  .inSingletonScope();
-container
   .bind<DiscordOAuthFlowServiceInterface>(TYPES.DiscordOAuthFlowService)
   .to(DiscordOAuthFlowService)
   .inRequestScope();
+container
+  .bind<DiscordJWKServiceInterface>(TYPES.DiscordJWKService)
+  .to(DiscordJWKService)
+  .inSingletonScope();
 container
   .bind<DiscordTokenServiceInterface>(TYPES.DiscordTokenService)
   .to(DiscordTokenService)

@@ -8,10 +8,10 @@ export const TYPES = {
   StateRepository: Symbol.for("StateRepository"),
 
   // Services
-  DiscordOIDCService: Symbol.for("DiscordOIDCService"),
   DiscordOAuthFlowService: Symbol.for("DiscordOAuthFlowService"),
   DiscordTokenService: Symbol.for("DiscordTokenService"),
   DiscordUserService: Symbol.for("DiscordUserService"),
+  DiscordJWKService: Symbol.for("DiscordJWKService"),
   JwtService: Symbol.for("JwtService"),
 
   // Usecases
