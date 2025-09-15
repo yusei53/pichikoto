@@ -15,7 +15,6 @@ import type { DiscordAuthCallbackUseCaseInterface } from "../application/use-cas
 import { DiscordAuthCallbackUseCase } from "../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import type { DiscordAuthInitiateUseCaseInterface } from "../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
 import { DiscordAuthInitiateUseCase } from "../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
-import { TYPES } from "../di-container/types";
 import type { DiscordTokensRepositoryInterface } from "../infrastructure/repositories/DiscordTokensRepository";
 import { DiscordTokensRepository } from "../infrastructure/repositories/DiscordTokensRepository";
 import type { StateRepositoryInterface } from "../infrastructure/repositories/StateRepository";
@@ -24,6 +23,7 @@ import type { UserRepositoryInterface } from "../infrastructure/repositories/Use
 import { UserRepository } from "../infrastructure/repositories/UserRepository";
 import type { AuthControllerInterface } from "../presentation/controllers/auth";
 import { AuthController } from "../presentation/controllers/auth";
+import { TYPES } from "./types";
 
 const container = new Container();
 
