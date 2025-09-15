@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import "reflect-metadata";
-import type { container } from "./infrastructure/config/inversify.config";
+import type { container } from "./di-container/inversify.config";
 import type { AuthControllerInterface } from "./presentation/controllers/auth";
 import { injectDependencies } from "./presentation/middleware/injectDependencies";
 import { auth } from "./presentation/routes/auth";

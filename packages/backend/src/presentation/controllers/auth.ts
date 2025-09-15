@@ -4,7 +4,7 @@ import { inject, injectable } from "inversify";
 import type { JwtServiceInterface } from "../../application/services/jwt";
 import type { DiscordAuthCallbackUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import type { DiscordAuthInitiateUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
-import { TYPES } from "../../infrastructure/config/types";
+import { TYPES } from "../../di-container/types";
 
 export interface AuthControllerInterface {
   redirectToAuthURL(c: Context): Promise<Response>;
