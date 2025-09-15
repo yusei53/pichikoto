@@ -1,6 +1,8 @@
 import { Container } from "inversify";
 import type { DbClientInterface } from "../../database/client";
 import { DbClient } from "../../database/client";
+import type { DiscordJWKServiceInterface } from "../application/services/discord-auth/DiscordJWKService";
+import { DiscordJWKService } from "../application/services/discord-auth/DiscordJWKService";
 import type { DiscordOAuthFlowServiceInterface } from "../application/services/discord-auth/DiscordOAuthFlowService";
 import { DiscordOAuthFlowService } from "../application/services/discord-auth/DiscordOAuthFlowService";
 import type { DiscordTokenServiceInterface } from "../application/services/discord-auth/DiscordTokenService";
@@ -61,6 +63,10 @@ container
 container
   .bind<DiscordUserServiceInterface>(TYPES.DiscordUserService)
   .to(DiscordUserService)
+  .inSingletonScope();
+container
+  .bind<DiscordJWKServiceInterface>(TYPES.DiscordJWKService)
+  .to(DiscordJWKService)
   .inSingletonScope();
 
 // Usecases
