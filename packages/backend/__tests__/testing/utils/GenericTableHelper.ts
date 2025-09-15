@@ -1,6 +1,6 @@
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import type { PgTable } from "drizzle-orm/pg-core";
-import { db } from "../../../database/client";
+import { getTestDb } from "../../setup/test-database";
 
 /**
  * 汎用的なテーブル挿入ヘルパー
@@ -11,7 +11,7 @@ export const insertToDatabase = async <T extends PgTable>(
   table: T,
   data: InferInsertModel<T>
 ): Promise<void> => {
-  await db().insert(table).values(data);
+  await getTestDb().insert(table).values(data);
 };
 
 /**
@@ -21,7 +21,7 @@ export const insertToDatabase = async <T extends PgTable>(
 export const deleteFromDatabase = async <T extends PgTable>(
   table: T
 ): Promise<void> => {
-  await db().delete(table);
+  await getTestDb().delete(table);
 };
 
 /**
@@ -32,7 +32,7 @@ export const deleteFromDatabase = async <T extends PgTable>(
 export const selectFromDatabase = async <T extends PgTable>(
   table: T
 ): Promise<InferSelectModel<T>[]> => {
-  return (await db()
+  return (await getTestDb()
     .select()
     .from(table as PgTable)) as InferSelectModel<T>[];
 };
@@ -45,7 +45,7 @@ export const selectFromDatabase = async <T extends PgTable>(
 export const selectOneFromDatabase = async <T extends PgTable>(
   table: T
 ): Promise<InferSelectModel<T> | null> => {
-  const results = (await db()
+  const results = (await getTestDb()
     .select()
     .from(table as PgTable)
     .limit(1)) as InferSelectModel<T>[];
