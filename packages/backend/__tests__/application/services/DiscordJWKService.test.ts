@@ -274,7 +274,7 @@ describe("DiscordJWKService Tests", () => {
       const mockJWTResult = {
         payload: expectedPayload,
         protectedHeader: { kid: "test-kid", alg: "RS256" },
-        key: mockPublicKey
+        key: mockPublicKey.cryptoKey
       };
 
       mockJwtVerify.mockResolvedValue(mockJWTResult);
@@ -310,7 +310,7 @@ describe("DiscordJWKService Tests", () => {
       const mockJWTResult = {
         payload: mockPayload,
         protectedHeader: { kid: "test-kid", alg: "RS256" },
-        key: mockPublicKey
+        key: mockPublicKey.cryptoKey
       };
 
       mockJwtVerify.mockResolvedValue(mockJWTResult);
