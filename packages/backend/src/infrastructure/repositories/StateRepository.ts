@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { injectable } from "inversify";
-import { db } from "../../../database/connection";
+import { db } from "../../../database/client";
 import { oauthState as oauthStateSchema } from "../../../database/schema";
 
 export interface StateRepositoryInterface {
@@ -30,7 +30,7 @@ export class StateRepository implements StateRepositoryInterface {
     codeVerifier: string,
     expiresAt: Date
   ): Promise<void> {
-    await db.insert(oauthStateSchema).values({
+    await db().insert(oauthStateSchema).values({
       sessionId,
       state,
       nonce,
@@ -46,7 +46,7 @@ export class StateRepository implements StateRepositoryInterface {
     codeVerifier: string;
     expiresAt: Date;
   } | null> {
-    const stateRecord = await db.query.oauthState.findFirst({
+    const stateRecord = await db().query.oauthState.findFirst({
       where: eq(oauthStateSchema.sessionId, sessionId)
     });
 
@@ -62,7 +62,7 @@ export class StateRepository implements StateRepositoryInterface {
   }
 
   async delete(sessionId: string): Promise<void> {
-    await db
+    await db()
       .delete(oauthStateSchema)
       .where(eq(oauthStateSchema.sessionId, sessionId));
   }
