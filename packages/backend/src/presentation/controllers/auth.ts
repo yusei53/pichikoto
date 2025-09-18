@@ -38,7 +38,8 @@ export class AuthController implements AuthControllerInterface {
       secure: true,
       sameSite: "None",
       path: "/",
-      maxAge: 900 // 15分
+      maxAge: 900, // 15分
+      domain: c.env.BASE_URL
     });
 
     return c.redirect(authURL);
@@ -83,7 +84,8 @@ export class AuthController implements AuthControllerInterface {
         secure: true,
         sameSite: "None",
         path: "/",
-        maxAge: 60 * 60 * 24 * 365 // 1年
+        maxAge: 60 * 60 * 24 * 365, // 1年
+        domain: c.env.BASE_URL
       });
 
       // 使用済みのセッションCookieを削除
@@ -92,7 +94,8 @@ export class AuthController implements AuthControllerInterface {
         secure: true,
         sameSite: "None",
         path: "/",
-        maxAge: 0
+        maxAge: 0,
+        domain: c.env.BASE_URL
       });
 
       c.header("Cache-Control", "no-store");
@@ -107,7 +110,8 @@ export class AuthController implements AuthControllerInterface {
         secure: true,
         sameSite: "None",
         path: "/",
-        maxAge: 0
+        maxAge: 0,
+        domain: c.env.BASE_URL
       });
 
       return c.redirect(`${completeUrl}?error=auth_failed`);
@@ -150,7 +154,8 @@ export class AuthController implements AuthControllerInterface {
         secure: true,
         sameSite: "None",
         path: "/",
-        maxAge: 60 * 60 * 24 * 365
+        maxAge: 60 * 60 * 24 * 365,
+        domain: c.env.BASE_URL
       });
 
       // レスポンスはアクセストークンのみ返す
