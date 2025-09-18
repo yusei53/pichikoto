@@ -11,6 +11,7 @@ import type {
   DiscordUserResource,
   DiscordUserServiceInterface
 } from "../../../src/application/services/discord-auth/DiscordUserService";
+import type { JwtServiceInterface } from "../../../src/application/services/jwt";
 import { DiscordAuthCallbackUseCase } from "../../../src/application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import { DiscordTokensRepository } from "../../../src/infrastructure/repositories/DiscordTokensRepository";
 import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";
@@ -90,12 +91,17 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
     getUserResource: vi.fn()
   };
 
+  const mockJwtService = {
+    generateTokens: vi.fn()
+  };
+
   const discordAuthCallbackUseCase = new DiscordAuthCallbackUseCase(
     mockOAuthFlowService as DiscordOAuthFlowServiceInterface,
     mockDiscordTokenService as DiscordTokenServiceInterface,
     mockDiscordUserService as DiscordUserServiceInterface,
     userRepository,
-    discordTokensRepository
+    discordTokensRepository,
+    mockJwtService as JwtServiceInterface
   );
 
   // 共通のテストデータ
@@ -116,6 +122,10 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
     mockDiscordUserService.getUserResource.mockResolvedValue(
       ok(mockDiscordUserResource)
     );
+    mockJwtService.generateTokens.mockResolvedValue({
+      accessToken: "jwt_access_token",
+      refreshToken: "jwt_refresh_token"
+    });
 
     // 共通のテストデータ準備
     stateFixture = createOauthStateTableFixture();
@@ -168,8 +178,8 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
           faculty: userFixture.faculty,
           department: userFixture.department
         },
-        accessToken: expect.any(String),
-        refreshToken: expect.any(String)
+        accessToken: "jwt_access_token",
+        refreshToken: "jwt_refresh_token"
       };
 
       // Act
@@ -210,8 +220,8 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
           faculty: "",
           department: ""
         },
-        accessToken: expect.any(String),
-        refreshToken: expect.any(String)
+        accessToken: "jwt_access_token",
+        refreshToken: "jwt_refresh_token"
       };
 
       // Act
