@@ -39,8 +39,8 @@ export class AuthController implements AuthControllerInterface {
     // sessionIdをHttpOnlyCookieとして設定
     setCookie(c, "oauth_session", sessionID, {
       httpOnly: true,
-      secure: c.env.NODE_ENV !== "development",
-      sameSite: c.env.NODE_ENV === "development" ? "Lax" : "None",
+      secure: true,
+      sameSite: "None",
       path: "/",
       maxAge: 900 // 15分
     });
@@ -81,21 +81,20 @@ export class AuthController implements AuthControllerInterface {
       );
 
       // Refresh TokenはHttpOnly Cookieで付与（クライアントJSから不可視）
-      if (authPayload.refreshToken) {
-        setCookie(c, "refresh_token", authPayload.refreshToken, {
-          httpOnly: true,
-          secure: c.env.NODE_ENV !== "development",
-          sameSite: c.env.NODE_ENV === "development" ? "Lax" : "None",
-          path: "/",
-          maxAge: 60 * 60 * 24 * 365 // 1年
-        });
-      }
+      authPayload.refreshToken;
+      setCookie(c, "refresh_token", authPayload.refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365 // 1年
+      });
 
       // 使用済みのセッションCookieを削除
       setCookie(c, "oauth_session", "", {
         httpOnly: true,
-        secure: c.env.NODE_ENV !== "development",
-        sameSite: c.env.NODE_ENV === "development" ? "Lax" : "None",
+        secure: true,
+        sameSite: "None",
         path: "/",
         maxAge: 0
       });
@@ -109,8 +108,8 @@ export class AuthController implements AuthControllerInterface {
       // エラー時もセッションCookieを削除
       setCookie(c, "oauth_session", "", {
         httpOnly: true,
-        secure: c.env.NODE_ENV !== "development",
-        sameSite: c.env.NODE_ENV === "development" ? "Lax" : "None",
+        secure: true,
+        sameSite: "None",
         path: "/",
         maxAge: 0
       });
@@ -155,7 +154,7 @@ export class AuthController implements AuthControllerInterface {
       // Refresh Tokenをローテーションし、Cookieを更新
       setCookie(c, "refresh_token", tokens.refreshToken, {
         httpOnly: true,
-        secure: c.env.NODE_ENV !== "development",
+        secure: true,
         sameSite: "None",
         path: "/",
         maxAge: 60 * 60 * 24 * 365
