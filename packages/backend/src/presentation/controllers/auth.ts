@@ -38,8 +38,7 @@ export class AuthController implements AuthControllerInterface {
       secure: true,
       sameSite: "None",
       path: "/",
-      maxAge: 900, // 15分
-      domain: c.env.BASE_URL
+      maxAge: 900 // 15分
     });
 
     return c.redirect(authURL);
@@ -77,15 +76,19 @@ export class AuthController implements AuthControllerInterface {
         sessionId
       );
 
-      // Refresh TokenはHttpOnly Cookieで付与（クライアントJSから不可視）
-      authPayload.refreshToken;
-      setCookie(c, "refresh_token", authPayload.refreshToken, {
-        httpOnly: true,
+      // アクセス/リフレッシュトークンをクライアント参照可能なCookieで付与
+      setCookie(c, "accessToken", authPayload.accessToken, {
         secure: true,
         sameSite: "None",
         path: "/",
-        maxAge: 60 * 60 * 24 * 365, // 1年
-        domain: c.env.BASE_URL
+        maxAge: 60 * 60 * 24 * 30 // 30日
+      });
+
+      setCookie(c, "refreshToken", authPayload.refreshToken, {
+        secure: true,
+        sameSite: "None",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365 // 1年
       });
 
       // 使用済みのセッションCookieを削除
@@ -94,8 +97,7 @@ export class AuthController implements AuthControllerInterface {
         secure: true,
         sameSite: "None",
         path: "/",
-        maxAge: 0,
-        domain: c.env.BASE_URL
+        maxAge: 0
       });
 
       c.header("Cache-Control", "no-store");
@@ -110,8 +112,7 @@ export class AuthController implements AuthControllerInterface {
         secure: true,
         sameSite: "None",
         path: "/",
-        maxAge: 0,
-        domain: c.env.BASE_URL
+        maxAge: 0
       });
 
       return c.redirect(`${completeUrl}?error=auth_failed`);
@@ -139,27 +140,36 @@ export class AuthController implements AuthControllerInterface {
         return c.json({ error: "Forbidden" }, 403);
       }
 
-      // HttpOnly Cookie から refresh_token を取得
-      const refreshToken = getCookie(c, "refresh_token");
+      const requestBody = await c.req
+        .json<{ refreshToken?: string }>()
+        .catch(() => ({ refreshToken: undefined }));
+      const refreshToken = requestBody.refreshToken;
 
       if (!refreshToken) {
-        return c.json({ error: "Refresh token cookie is required" }, 401);
+        return c.json({ error: "Refresh token is required" }, 401);
       }
 
       const tokens = await this.jwtService.refreshAccessToken(c, refreshToken);
 
-      // Refresh Tokenをローテーションし、Cookieを更新
-      setCookie(c, "refresh_token", tokens.refreshToken, {
-        httpOnly: true,
+      // トークンをローテーションし、Cookieを更新
+      setCookie(c, "accessToken", tokens.accessToken, {
         secure: true,
         sameSite: "None",
         path: "/",
-        maxAge: 60 * 60 * 24 * 365,
-        domain: c.env.BASE_URL
+        maxAge: 60 * 60 * 24 * 30
       });
 
-      // レスポンスはアクセストークンのみ返す
-      return c.json({ accessToken: tokens.accessToken });
+      setCookie(c, "refreshToken", tokens.refreshToken, {
+        secure: true,
+        sameSite: "None",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365
+      });
+
+      return c.json({
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken
+      });
     } catch (error) {
       console.error("Token refresh error:", error);
       return c.json({ error: "Invalid refresh token" }, 401);

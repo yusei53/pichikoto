@@ -7,6 +7,7 @@ type ApiError = {
 
 type RefreshTokenResponse = {
   accessToken: string;
+  refreshToken: string;
 };
 
 type VerifyTokenResponse = {
@@ -65,13 +66,20 @@ class ApiClient {
   }
 
   private async refreshAccessToken(): Promise<string> {
+    const refreshToken = cookieUtils.auth.getRefreshToken();
+
+    if (!refreshToken) {
+      throw new Error("リフレッシュトークンが存在しません");
+    }
+
     const response = await fetch(`${this.baseURL}/auth/refresh`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Accept: "application/json"
       },
-      // HttpOnly Cookie の refresh_token を送信
-      credentials: "include"
+      credentials: "include",
+      body: JSON.stringify({ refreshToken })
     });
 
     if (!response.ok) {
@@ -80,6 +88,7 @@ class ApiClient {
 
     const data: RefreshTokenResponse = await response.json();
     cookieUtils.auth.setAccessToken(data.accessToken);
+    cookieUtils.auth.setRefreshToken(data.refreshToken);
     return data.accessToken;
   }
 
