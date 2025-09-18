@@ -42,32 +42,39 @@ describe("JwtVerifyUseCase Tests", () => {
       const result = await jwtVerifyUseCase.execute(mockContext, validAccessToken);
 
       // Assert
-      expect(result).not.toBeNull();
-      expect(result).toHaveProperty("sub", MOCK_USER_ID);
-      expect(result).toHaveProperty("exp");
-      expect(typeof result!.exp).toBe("number");
-      expect(result!.exp).toBeGreaterThan(Math.floor(Date.now() / 1000));
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        const payload = result.value;
+        expect(payload).toHaveProperty("sub", MOCK_USER_ID);
+        expect(payload).toHaveProperty("exp");
+        expect(typeof payload.exp).toBe("number");
+        expect(payload.exp).toBeGreaterThan(Math.floor(Date.now() / 1000));
+      }
     });
 
     /**
-     * 正常ケース：無効なトークンでnullが返される場合のテストケース
+     * 異常ケース：無効なトークンでエラーが返される場合のテストケース
      *
-     * @description 無効なトークンでnullが返されることを確認
+     * @description 無効なトークンでエラーが返されることを確認
      */
-    it("無効なJWTトークンの場合、nullが返却されること", async () => {
+    it("無効なJWTトークンの場合、JwtVerifyUseCaseErrorが返されること", async () => {
       // Act
       const result = await jwtVerifyUseCase.execute(mockContext, "invalid_token");
 
       // Assert
-      expect(result).toBeNull();
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.name).toBe("JwtVerifyUseCaseError");
+        expect(result.error.message).toContain("JWT verification failed");
+      }
     });
 
     /**
      * 異常ケース：期限切れJWTトークンのテストケース
      *
-     * @description 期限切れのJWTトークンでnullが返されることを確認
+     * @description 期限切れのJWTトークンでエラーが返されることを確認
      */
-    it("期限切れのJWTトークンの場合、nullが返却されること", async () => {
+    it("期限切れのJWTトークンの場合、JwtVerifyUseCaseErrorが返されること", async () => {
       // Arrange - 期限切れのトークンを生成
       const expiredToken = await sign(
         {
@@ -81,20 +88,28 @@ describe("JwtVerifyUseCase Tests", () => {
       const result = await jwtVerifyUseCase.execute(mockContext, expiredToken);
 
       // Assert
-      expect(result).toBeNull();
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.name).toBe("JwtVerifyUseCaseError");
+        expect(result.error.message).toContain("JWT verification failed");
+      }
     });
 
     /**
      * 異常ケース：不正な形式のJWTトークンのテストケース
      *
-     * @description 不正な形式のJWTトークンでnullが返されることを確認
+     * @description 不正な形式のJWTトークンでエラーが返されることを確認
      */
-    it("不正な形式のJWTトークンの場合、nullが返却されること", async () => {
+    it("不正な形式のJWTトークンの場合、JwtVerifyUseCaseErrorが返されること", async () => {
       // Act
       const result = await jwtVerifyUseCase.execute(mockContext, "malformed.token");
 
       // Assert
-      expect(result).toBeNull();
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.name).toBe("JwtVerifyUseCaseError");
+        expect(result.error.message).toContain("JWT verification failed");
+      }
     });
 
     /**
@@ -102,7 +117,7 @@ describe("JwtVerifyUseCase Tests", () => {
      *
      * @description JWT_SECRETが環境変数に設定されていない場合のエラー処理を確認
      */
-    it("JWT_SECRETが設定されていない場合、エラーが発生すること", async () => {
+    it("JWT_SECRETが設定されていない場合、エラーが返されること", async () => {
       // Arrange
       const contextWithoutSecret: Context = {
         env: {
@@ -111,10 +126,15 @@ describe("JwtVerifyUseCase Tests", () => {
         }
       } as Context;
 
-      // Act & Assert
-      await expect(
-        jwtVerifyUseCase.execute(contextWithoutSecret, validAccessToken)
-      ).rejects.toThrow("JWT_SECRET is not set in environment variables");
+      // Act
+      const result = await jwtVerifyUseCase.execute(contextWithoutSecret, validAccessToken);
+
+      // Assert
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.name).toBe("JwtVerifyUseCaseError");
+        expect(result.error.message).toContain("JWT_SECRET is not set in environment variables");
+      }
     });
   });
 });

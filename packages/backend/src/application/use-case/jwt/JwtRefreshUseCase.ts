@@ -1,9 +1,16 @@
 import type { Context } from "hono";
 import { sign, verify } from "hono/jwt";
 import { injectable } from "inversify";
+import type { Result } from "neverthrow";
+import { err, ok } from "neverthrow";
+
+type JwtTokenPair = {
+  accessToken: string;
+  refreshToken: string;
+};
 
 export interface JwtRefreshUseCaseInterface {
-  execute(c: Context, refreshToken: string): Promise<{ accessToken: string; refreshToken: string }>;
+  execute(c: Context, refreshToken: string): Promise<Result<JwtTokenPair, JwtRefreshUseCaseError>>;
 }
 
 @injectable()
@@ -18,7 +25,7 @@ export class JwtRefreshUseCase implements JwtRefreshUseCaseInterface {
     return secret;
   }
 
-  async execute(c: Context, refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+  async execute(c: Context, refreshToken: string): Promise<Result<JwtTokenPair, JwtRefreshUseCaseError>> {
     try {
       const secret = this.getSecret(c);
       
@@ -43,21 +50,22 @@ export class JwtRefreshUseCase implements JwtRefreshUseCaseInterface {
         secret
       );
       
-      return { 
+      return ok({ 
         accessToken: newAccessToken, 
         refreshToken: newRefreshToken 
-      };
+      });
     } catch (error) {
-      throw new JwtRefreshUseCaseError(error as Error);
+      return err(new JwtRefreshUseCaseError(error as Error));
     }
   }
 }
 
-class JwtRefreshUseCaseError extends Error {
+export class JwtRefreshUseCaseError extends Error {
   readonly name = this.constructor.name;
   constructor(cause: Error) {
     super(
-      `JwtRefreshUseCaseError(cause: ${cause.name}: ${cause.message})`
+      `JWT refresh failed: ${cause.message}`
     );
+    this.cause = cause;
   }
 }

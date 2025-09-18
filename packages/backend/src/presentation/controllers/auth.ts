@@ -6,6 +6,7 @@ import type { DiscordAuthInitiateUseCaseInterface } from "../../application/use-
 import type { JwtRefreshUseCaseInterface } from "../../application/use-case/jwt/JwtRefreshUseCase";
 import type { JwtVerifyUseCaseInterface } from "../../application/use-case/jwt/JwtVerifyUseCase";
 import { TYPES } from "../../di-container/types";
+import { handleResult } from "../../utils/ResultHelper";
 
 export interface AuthControllerInterface {
   redirectToAuthURL(c: Context): Promise<Response>;
@@ -146,7 +147,10 @@ export class AuthController implements AuthControllerInterface {
         return c.json({ error: "Refresh token cookie is required" }, 401);
       }
 
-      const tokens = await this.jwtRefreshUseCase.execute(c, refreshToken);
+      const tokens = handleResult(
+        await this.jwtRefreshUseCase.execute(c, refreshToken),
+        (error) => error
+      );
 
       // Refresh Tokenをローテーションし、Cookieを更新
       setCookie(c, "refresh_token", tokens.refreshToken, {
@@ -174,11 +178,13 @@ export class AuthController implements AuthControllerInterface {
       }
 
       const token = authHeader.substring(7); // "Bearer "を除去
-      const payload = await this.jwtVerifyUseCase.execute(c, token);
-
-      if (!payload) {
+      const result = await this.jwtVerifyUseCase.execute(c, token);
+      
+      if (result.isErr()) {
         return c.json({ error: "Invalid or expired token" }, 401);
       }
+      
+      const payload = result.value;
 
       return c.json({
         valid: true,

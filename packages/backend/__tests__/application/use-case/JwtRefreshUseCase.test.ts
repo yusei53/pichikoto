@@ -51,15 +51,18 @@ describe("JwtRefreshUseCase Tests", () => {
       const result = await jwtRefreshUseCase.execute(mockContext, validRefreshToken);
 
       // Assert
-      expect(result).toHaveProperty("accessToken");
-      expect(result).toHaveProperty("refreshToken");
-      expect(typeof result.accessToken).toBe("string");
-      expect(typeof result.refreshToken).toBe("string");
-      expect(result.accessToken).not.toBe(validRefreshToken);
-      // リフレッシュトークンは新しく生成されるが、同じユーザーIDと期限なので同じになる可能性がある
-      // 新しいトークンは元のトークンとは異なる期限を持つ
-      expect(result.accessToken.length).toBeGreaterThan(0);
-      expect(result.refreshToken.length).toBeGreaterThan(0);
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        const tokens = result.value;
+        expect(tokens).toHaveProperty("accessToken");
+        expect(tokens).toHaveProperty("refreshToken");
+        expect(typeof tokens.accessToken).toBe("string");
+        expect(typeof tokens.refreshToken).toBe("string");
+        expect(tokens.accessToken).not.toBe(validRefreshToken);
+        // 新しいトークンは元のトークンとは異なる期限を持つ
+        expect(tokens.accessToken.length).toBeGreaterThan(0);
+        expect(tokens.refreshToken.length).toBeGreaterThan(0);
+      }
     });
 
     /**
@@ -67,11 +70,16 @@ describe("JwtRefreshUseCase Tests", () => {
      *
      * @description 無効なリフレッシュトークンでエラーが正しく処理されることを確認
      */
-    it("無効なリフレッシュトークンの場合、JwtRefreshUseCaseErrorが発生すること", async () => {
-      // Act & Assert
-      await expect(
-        jwtRefreshUseCase.execute(mockContext, "invalid_token")
-      ).rejects.toThrow("JwtRefreshUseCaseError");
+    it("無効なリフレッシュトークンの場合、JwtRefreshUseCaseErrorが返されること", async () => {
+      // Act
+      const result = await jwtRefreshUseCase.execute(mockContext, "invalid_token");
+
+      // Assert
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.name).toBe("JwtRefreshUseCaseError");
+        expect(result.error.message).toContain("JWT refresh failed");
+      }
     });
 
     /**
@@ -79,7 +87,7 @@ describe("JwtRefreshUseCase Tests", () => {
      *
      * @description 期限切れのリフレッシュトークンでエラーが正しく処理されることを確認
      */
-    it("期限切れのリフレッシュトークンの場合、JwtRefreshUseCaseErrorが発生すること", async () => {
+    it("期限切れのリフレッシュトークンの場合、JwtRefreshUseCaseErrorが返されること", async () => {
       // Arrange - 期限切れのトークンを生成
       const expiredToken = await sign(
         {
@@ -89,10 +97,15 @@ describe("JwtRefreshUseCase Tests", () => {
         MOCK_JWT_SECRET
       );
 
-      // Act & Assert
-      await expect(
-        jwtRefreshUseCase.execute(mockContext, expiredToken)
-      ).rejects.toThrow("JwtRefreshUseCaseError");
+      // Act
+      const result = await jwtRefreshUseCase.execute(mockContext, expiredToken);
+
+      // Assert
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.name).toBe("JwtRefreshUseCaseError");
+        expect(result.error.message).toContain("JWT refresh failed");
+      }
     });
 
     /**
@@ -100,7 +113,7 @@ describe("JwtRefreshUseCase Tests", () => {
      *
      * @description JWT_SECRETが環境変数に設定されていない場合のエラー処理を確認
      */
-    it("JWT_SECRETが設定されていない場合、エラーが発生すること", async () => {
+    it("JWT_SECRETが設定されていない場合、エラーが返されること", async () => {
       // Arrange
       const contextWithoutSecret: Context = {
         env: {
@@ -109,10 +122,15 @@ describe("JwtRefreshUseCase Tests", () => {
         }
       } as Context;
 
-      // Act & Assert
-      await expect(
-        jwtRefreshUseCase.execute(contextWithoutSecret, validRefreshToken)
-      ).rejects.toThrow("JWT_SECRET is not set in environment variables");
+      // Act
+      const result = await jwtRefreshUseCase.execute(contextWithoutSecret, validRefreshToken);
+
+      // Assert
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.name).toBe("JwtRefreshUseCaseError");
+        expect(result.error.message).toContain("JWT_SECRET is not set in environment variables");
+      }
     });
   });
 });
