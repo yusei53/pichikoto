@@ -4,13 +4,11 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { JwtVerifyUseCase } from "../../../src/application/use-case/jwt/JwtVerifyUseCase";
 
 // モック定数
-const MOCK_BASE_URL = "https://api.test.com";
 const MOCK_JWT_SECRET = "test_jwt_secret";
 const MOCK_USER_ID = "123456789";
 
 const mockContext: Context = {
   env: {
-    BASE_URL: MOCK_BASE_URL,
     JWT_SECRET: MOCK_JWT_SECRET
   }
 } as Context;
@@ -39,7 +37,10 @@ describe("JwtVerifyUseCase Tests", () => {
      */
     it("有効なJWTトークンで正常にペイロードが取得されること", async () => {
       // Act
-      const result = await jwtVerifyUseCase.execute(mockContext, validAccessToken);
+      const result = await jwtVerifyUseCase.execute(
+        mockContext,
+        validAccessToken
+      );
 
       // Assert
       expect(result.isOk()).toBe(true);
@@ -59,7 +60,10 @@ describe("JwtVerifyUseCase Tests", () => {
      */
     it("無効なJWTトークンの場合、JwtVerifyUseCaseErrorが返されること", async () => {
       // Act
-      const result = await jwtVerifyUseCase.execute(mockContext, "invalid_token");
+      const result = await jwtVerifyUseCase.execute(
+        mockContext,
+        "invalid_token"
+      );
 
       // Assert
       expect(result.isErr()).toBe(true);
@@ -102,7 +106,10 @@ describe("JwtVerifyUseCase Tests", () => {
      */
     it("不正な形式のJWTトークンの場合、JwtVerifyUseCaseErrorが返されること", async () => {
       // Act
-      const result = await jwtVerifyUseCase.execute(mockContext, "malformed.token");
+      const result = await jwtVerifyUseCase.execute(
+        mockContext,
+        "malformed.token"
+      );
 
       // Assert
       expect(result.isErr()).toBe(true);
@@ -127,13 +134,18 @@ describe("JwtVerifyUseCase Tests", () => {
       } as Context;
 
       // Act
-      const result = await jwtVerifyUseCase.execute(contextWithoutSecret, validAccessToken);
+      const result = await jwtVerifyUseCase.execute(
+        contextWithoutSecret,
+        validAccessToken
+      );
 
       // Assert
       expect(result.isErr()).toBe(true);
       if (result.isErr()) {
         expect(result.error.name).toBe("JwtVerifyUseCaseError");
-        expect(result.error.message).toContain("JWT_SECRET is not set in environment variables");
+        expect(result.error.message).toContain(
+          "JWT_SECRET is not set in environment variables"
+        );
       }
     });
   });

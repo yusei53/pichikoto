@@ -178,17 +178,15 @@ export class AuthController implements AuthControllerInterface {
 
       const token = authHeader.substring(7); // "Bearer "を除去
       const result = await this.jwtVerifyUseCase.execute(c, token);
-      
+
       if (result.isErr()) {
         return c.json({ error: "Invalid or expired token" }, 401);
       }
-      
-      const payload = result.value;
 
       return c.json({
         valid: true,
-        userId: payload.sub,
-        expiresAt: payload.exp
+        userId: result.value.jwtPayload.sub,
+        expiresAt: result.value.jwtPayload.exp
       });
     } catch (error) {
       console.error("Token verification error:", error);

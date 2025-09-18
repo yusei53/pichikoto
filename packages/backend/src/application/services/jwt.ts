@@ -1,11 +1,6 @@
 import type { Context } from "hono";
-import { sign, verify } from "hono/jwt";
+import { sign } from "hono/jwt";
 import { injectable } from "inversify";
-
-type AppJwtPayload = {
-  sub: string;
-  exp: number;
-};
 
 export interface JwtServiceInterface {
   generateTokens(
@@ -47,5 +42,4 @@ export class JwtService implements JwtServiceInterface {
     );
     return { accessToken, refreshToken };
   }
-
 }
