@@ -1,4 +1,5 @@
 import type { Context } from "hono";
+import { sign } from "hono/jwt";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../../di-container/types";
 import { DiscordTokens } from "../../../domain/discord-tokens/DiscordTokens";
@@ -10,7 +11,6 @@ import { toAuthPayloadDTO, type AuthPayloadDTO } from "../../dtos/auth.dto";
 import type { DiscordOAuthFlowServiceInterface } from "../../services/discord-auth/DiscordOAuthFlowService";
 import type { DiscordTokenServiceInterface } from "../../services/discord-auth/DiscordTokenService";
 import type { DiscordUserServiceInterface } from "../../services/discord-auth/DiscordUserService";
-import type { JwtServiceInterface } from "../../services/jwt";
 
 export interface DiscordAuthCallbackUseCaseInterface {
   execute(
@@ -35,10 +35,38 @@ export class DiscordAuthCallbackUseCase
     @inject(TYPES.UserRepository)
     private readonly userRepository: UserRepositoryInterface,
     @inject(TYPES.DiscordTokensRepository)
-    private readonly discordTokensRepository: DiscordTokensRepositoryInterface,
-    @inject(TYPES.JwtService)
-    private readonly jwtService: JwtServiceInterface
+    private readonly discordTokensRepository: DiscordTokensRepositoryInterface
   ) {}
+
+  private getJwtSecret(c: Context): string {
+    const secret = c.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error("JWT_SECRET is not set in environment variables");
+    }
+    return secret;
+  }
+
+  private async generateTokens(
+    c: Context,
+    userId: string
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const secret = this.getJwtSecret(c);
+    const accessToken = await sign(
+      {
+        sub: userId,
+        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30 // 30日後
+      },
+      secret
+    );
+    const refreshToken = await sign(
+      {
+        sub: userId,
+        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 365 // 1年後
+      },
+      secret
+    );
+    return { accessToken, refreshToken };
+  }
 
   async execute(
     c: Context,
@@ -95,7 +123,7 @@ export class DiscordAuthCallbackUseCase
       }
 
       const { accessToken, refreshToken } =
-        await this.jwtService.generateTokens(c, existsUser.userID.value.value);
+        await this.generateTokens(c, existsUser.userID.value.value);
       return toAuthPayloadDTO(existsUser, accessToken, refreshToken);
     }
 
@@ -118,7 +146,7 @@ export class DiscordAuthCallbackUseCase
     );
     await this.discordTokensRepository.save(discordTokens);
 
-    const { accessToken, refreshToken } = await this.jwtService.generateTokens(
+    const { accessToken, refreshToken } = await this.generateTokens(
       c,
       user.userID.value.value
     );

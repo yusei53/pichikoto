@@ -1,12 +1,11 @@
 import type { Context } from "hono";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { JwtServiceInterface } from "../../../src/application/services/jwt";
+import { sign } from "hono/jwt";
+import { beforeEach, describe, expect, it } from "vitest";
 import { JwtVerifyUseCase } from "../../../src/application/use-case/jwt/JwtVerifyUseCase";
 
 // モック定数
 const MOCK_BASE_URL = "https://api.test.com";
 const MOCK_JWT_SECRET = "test_jwt_secret";
-const MOCK_ACCESS_TOKEN = "mock_access_token";
 const MOCK_USER_ID = "123456789";
 
 const mockContext: Context = {
@@ -16,25 +15,20 @@ const mockContext: Context = {
   }
 } as Context;
 
-const mockJwtPayload = {
-  sub: MOCK_USER_ID,
-  exp: Math.floor(Date.now() / 1000) + 3600 // 1時間後に期限切れ
-};
-
 describe("JwtVerifyUseCase Tests", () => {
-  // サービスのモック
-  const mockJwtService = {
-    refreshAccessToken: vi.fn(),
-    generateTokens: vi.fn(),
-    verify: vi.fn()
-  };
+  const jwtVerifyUseCase = new JwtVerifyUseCase();
 
-  const jwtVerifyUseCase = new JwtVerifyUseCase(
-    mockJwtService as JwtServiceInterface
-  );
+  let validAccessToken: string;
 
-  beforeEach(() => {
-    vi.clearAllMocks();
+  beforeEach(async () => {
+    // テスト用の有効なアクセストークンを生成
+    validAccessToken = await sign(
+      {
+        sub: MOCK_USER_ID,
+        exp: Math.floor(Date.now() / 1000) + 3600 // 1時間後に期限切れ
+      },
+      MOCK_JWT_SECRET
+    );
   });
 
   describe("execute", () => {
@@ -42,143 +36,85 @@ describe("JwtVerifyUseCase Tests", () => {
      * 正常ケース：有効なJWTトークン検証成功のテストケース
      *
      * @description 有効なJWTトークンで正常にペイロードが取得されることを確認
-     *
-     * **Arrange（準備）**
-     * - JwtServiceのモックを成功レスポンスに設定
-     * - 期待するペイロードの定義
-     *
-     * **Act（実行）**
-     * - JwtVerifyUseCaseのexecuteメソッド実行
-     *
-     * **Assert（検証）**
-     * - 正常なJWTペイロードの返却確認
-     * - JwtServiceのメソッド呼び出し確認
-     * - 返却されるペイロードの正確性確認
      */
     it("有効なJWTトークンで正常にペイロードが取得されること", async () => {
-      // Arrange
-      mockJwtService.verify.mockResolvedValue(mockJwtPayload);
-
       // Act
-      const result = await jwtVerifyUseCase.execute(mockContext, MOCK_ACCESS_TOKEN);
+      const result = await jwtVerifyUseCase.execute(mockContext, validAccessToken);
 
       // Assert
-      expect(result).toEqual(mockJwtPayload);
-      expect(mockJwtService.verify).toHaveBeenCalledWith(
-        mockContext,
-        MOCK_ACCESS_TOKEN
-      );
-      expect(mockJwtService.verify).toHaveBeenCalledTimes(1);
+      expect(result).not.toBeNull();
+      expect(result).toHaveProperty("sub", MOCK_USER_ID);
+      expect(result).toHaveProperty("exp");
+      expect(typeof result!.exp).toBe("number");
+      expect(result!.exp).toBeGreaterThan(Math.floor(Date.now() / 1000));
     });
 
     /**
-     * 正常ケース：JWTサービスがnullを返す場合のテストケース
+     * 正常ケース：無効なトークンでnullが返される場合のテストケース
      *
-     * @description JWTサービスがnull（無効なトークン）を返した場合の処理を確認
+     * @description 無効なトークンでnullが返されることを確認
      */
-    it("JWTサービスがnullを返す場合、nullが返却されること", async () => {
-      // Arrange
-      mockJwtService.verify.mockResolvedValue(null);
-
+    it("無効なJWTトークンの場合、nullが返却されること", async () => {
       // Act
-      const result = await jwtVerifyUseCase.execute(mockContext, MOCK_ACCESS_TOKEN);
+      const result = await jwtVerifyUseCase.execute(mockContext, "invalid_token");
 
       // Assert
       expect(result).toBeNull();
-      expect(mockJwtService.verify).toHaveBeenCalledWith(
-        mockContext,
-        MOCK_ACCESS_TOKEN
-      );
-      expect(mockJwtService.verify).toHaveBeenCalledTimes(1);
-    });
-
-    /**
-     * 異常ケース：無効なJWTトークンのテストケース
-     *
-     * @description 無効なJWTトークンでエラーが正しく処理されることを確認
-     *
-     * **Arrange（準備）**
-     * - JwtServiceのモックをエラーレスポンスに設定
-     *
-     * **Act & Assert（実行・検証）**
-     * - JwtVerifyUseCaseのexecuteメソッド実行でエラーが発生することを確認
-     * - エラーメッセージの正確性確認
-     */
-    it("無効なJWTトークンの場合、JwtVerifyUseCaseErrorが発生すること", async () => {
-      // Arrange
-      const mockError = new Error("Invalid token signature");
-      mockError.name = "JwtVerificationError";
-      mockJwtService.verify.mockRejectedValue(mockError);
-
-      // Act & Assert
-      await expect(
-        jwtVerifyUseCase.execute(mockContext, MOCK_ACCESS_TOKEN)
-      ).rejects.toThrowError(
-        "JwtVerifyUseCaseError(cause: JwtVerificationError: Invalid token signature)"
-      );
-
-      expect(mockJwtService.verify).toHaveBeenCalledWith(
-        mockContext,
-        MOCK_ACCESS_TOKEN
-      );
-      expect(mockJwtService.verify).toHaveBeenCalledTimes(1);
     });
 
     /**
      * 異常ケース：期限切れJWTトークンのテストケース
      *
-     * @description 期限切れのJWTトークンでエラーが正しく処理されることを確認
+     * @description 期限切れのJWTトークンでnullが返されることを確認
      */
-    it("期限切れのJWTトークンの場合、JwtVerifyUseCaseErrorが発生すること", async () => {
-      // Arrange
-      const mockError = new Error("Token expired");
-      mockError.name = "TokenExpiredError";
-      mockJwtService.verify.mockRejectedValue(mockError);
-
-      // Act & Assert
-      await expect(
-        jwtVerifyUseCase.execute(mockContext, MOCK_ACCESS_TOKEN)
-      ).rejects.toThrowError(
-        "JwtVerifyUseCaseError(cause: TokenExpiredError: Token expired)"
+    it("期限切れのJWTトークンの場合、nullが返却されること", async () => {
+      // Arrange - 期限切れのトークンを生成
+      const expiredToken = await sign(
+        {
+          sub: MOCK_USER_ID,
+          exp: Math.floor(Date.now() / 1000) - 3600 // 1時間前（期限切れ）
+        },
+        MOCK_JWT_SECRET
       );
+
+      // Act
+      const result = await jwtVerifyUseCase.execute(mockContext, expiredToken);
+
+      // Assert
+      expect(result).toBeNull();
     });
 
     /**
      * 異常ケース：不正な形式のJWTトークンのテストケース
      *
-     * @description 不正な形式のJWTトークンでエラーが正しく処理されることを確認
+     * @description 不正な形式のJWTトークンでnullが返されることを確認
      */
-    it("不正な形式のJWTトークンの場合、JwtVerifyUseCaseErrorが発生すること", async () => {
-      // Arrange
-      const mockError = new Error("Malformed token");
-      mockError.name = "JsonWebTokenError";
-      mockJwtService.verify.mockRejectedValue(mockError);
+    it("不正な形式のJWTトークンの場合、nullが返却されること", async () => {
+      // Act
+      const result = await jwtVerifyUseCase.execute(mockContext, "malformed.token");
 
-      // Act & Assert
-      await expect(
-        jwtVerifyUseCase.execute(mockContext, MOCK_ACCESS_TOKEN)
-      ).rejects.toThrowError(
-        "JwtVerifyUseCaseError(cause: JsonWebTokenError: Malformed token)"
-      );
+      // Assert
+      expect(result).toBeNull();
     });
 
     /**
-     * 異常ケース：JWTサービス内部エラーのテストケース
+     * 異常ケース：JWT_SECRETが設定されていない場合のテストケース
      *
-     * @description JWTサービスで内部エラーが発生した場合のエラー処理を確認
+     * @description JWT_SECRETが環境変数に設定されていない場合のエラー処理を確認
      */
-    it("JWTサービスで内部エラーが発生した場合、JwtVerifyUseCaseErrorが発生すること", async () => {
+    it("JWT_SECRETが設定されていない場合、エラーが発生すること", async () => {
       // Arrange
-      const mockError = new Error("Internal server error");
-      mockError.name = "InternalError";
-      mockJwtService.verify.mockRejectedValue(mockError);
+      const contextWithoutSecret: Context = {
+        env: {
+          BASE_URL: MOCK_BASE_URL
+          // JWT_SECRETを設定しない
+        }
+      } as Context;
 
       // Act & Assert
       await expect(
-        jwtVerifyUseCase.execute(mockContext, MOCK_ACCESS_TOKEN)
-      ).rejects.toThrowError(
-        "JwtVerifyUseCaseError(cause: InternalError: Internal server error)"
-      );
+        jwtVerifyUseCase.execute(contextWithoutSecret, validAccessToken)
+      ).rejects.toThrow("JWT_SECRET is not set in environment variables");
     });
   });
 });
