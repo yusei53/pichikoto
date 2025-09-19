@@ -1,4 +1,3 @@
-import { cn } from "~/lib/utils";
 
 type UnderlinedTextProps = {
   children: React.ReactNode;
@@ -17,12 +16,7 @@ export const UnderlinedText: React.FC<UnderlinedTextProps> = ({
   };
 
   return (
-    <div
-      className={cn(
-        "border-b border-current pb-1 text-sm flex justify-between items-baseline",
-        widthClasses[width]
-      )}
-    >
+    <div>
       {children}
     </div>
   );
