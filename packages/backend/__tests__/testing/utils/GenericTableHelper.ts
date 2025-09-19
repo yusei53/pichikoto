@@ -1,5 +1,6 @@
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import type { PgTable } from "drizzle-orm/pg-core";
-import { TestDbClient } from "../setup/TestDbClient";
+import { getTestDb } from "../../setup/test-database";
 
 /**
  * 汎用的なテーブル挿入ヘルパー
@@ -8,21 +9,19 @@ import { TestDbClient } from "../setup/TestDbClient";
  */
 export const insertToDatabase = async <T extends PgTable>(
   table: T,
-  data: typeof table.$inferInsert
+  data: InferInsertModel<T>
 ): Promise<void> => {
-  const dbClient = new TestDbClient();
-  const db = dbClient.getDb();
-  await db.insert(table).values(data);
+  await getTestDb().insert(table).values(data);
 };
 
 /**
  * 汎用的なテーブル削除ヘルパー
  * @param table 削除対象のテーブル
  */
-export const deleteFromDatabase = async (table: PgTable): Promise<void> => {
-  const dbClient = new TestDbClient();
-  const db = dbClient.getDb();
-  await db.delete(table);
+export const deleteFromDatabase = async <T extends PgTable>(
+  table: T
+): Promise<void> => {
+  await getTestDb().delete(table);
 };
 
 /**
@@ -32,22 +31,23 @@ export const deleteFromDatabase = async (table: PgTable): Promise<void> => {
  */
 export const selectFromDatabase = async <T extends PgTable>(
   table: T
-): Promise<(typeof table.$inferSelect)[]> => {
-  const dbClient = new TestDbClient();
-  const db = dbClient.getDb();
-  return await db.select().from(table);
+): Promise<InferSelectModel<T>[]> => {
+  return (await getTestDb()
+    .select()
+    .from(table as PgTable)) as InferSelectModel<T>[];
 };
 
 /**
  * 汎用的なテーブル検索ヘルパー（単一レコード）
  * @param table 検索対象のテーブル
- * @returns 検索結果の単一レコード
+ * @returns 検索結果の単一レコード(存在しない場合はnull)
  */
 export const selectOneFromDatabase = async <T extends PgTable>(
   table: T
-): Promise<typeof table.$inferSelect> => {
-  const dbClient = new TestDbClient();
-  const db = dbClient.getDb();
-  const results = await db.select().from(table).limit(1);
-  return results[0];
+): Promise<InferSelectModel<T> | null> => {
+  const results = (await getTestDb()
+    .select()
+    .from(table as PgTable)
+    .limit(1)) as InferSelectModel<T>[];
+  return results[0] || null;
 };

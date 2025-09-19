@@ -1,4 +1,4 @@
-import type { user } from "../../../src/infrastructure/database/schema";
+import type { user } from "../../../database/schema";
 import { UUID } from "../../../src/utils/UUID";
 
 /**
@@ -6,7 +6,6 @@ import { UUID } from "../../../src/utils/UUID";
  */
 export const COMMON_DISCORD_INFO = {
   USER_NAME: "TestUserName",
-  DISCRIMINATOR: "1234",
   AVATAR:
     "https://cdn.discordapp.com/sample-avatar/123456789/000000000000000000.png"
 } as const;
@@ -19,7 +18,6 @@ export const createUserTableFixture = () => {
     id: UUID.new().value,
     discordId: "123456789",
     discordUserName: COMMON_DISCORD_INFO.USER_NAME,
-    discordDiscriminator: COMMON_DISCORD_INFO.DISCRIMINATOR,
     discordAvatar: COMMON_DISCORD_INFO.AVATAR,
     faculty: "Test学部",
     department: "Test学科",
@@ -35,7 +33,6 @@ export const createUserTableFixtureWithoutFacultyAndDepartment = () => {
     id: UUID.new().value,
     discordId: "987654321",
     discordUserName: COMMON_DISCORD_INFO.USER_NAME,
-    discordDiscriminator: COMMON_DISCORD_INFO.DISCRIMINATOR,
     discordAvatar: COMMON_DISCORD_INFO.AVATAR,
     faculty: null,
     department: null,

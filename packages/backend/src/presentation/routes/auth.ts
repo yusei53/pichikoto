@@ -5,13 +5,14 @@ export const auth = new Hono<{ Variables: Variables }>();
 
 auth.get("/", async (c) => {
   const controller = c.get("authController");
-  return controller.getAuthUrl(c);
+  return controller.redirectToAuthURL(c);
 });
 
-auth.post("/callback", async (c) => {
-  const { code } = await c.req.json();
+auth.get("/callback", async (c) => {
+  const code = c.req.query("code");
+  const state = c.req.query("state");
   const controller = c.get("authController");
-  return controller.callback(c, code);
+  return controller.callback(c, code, state);
 });
 
 auth.post("/refresh", async (c) => {

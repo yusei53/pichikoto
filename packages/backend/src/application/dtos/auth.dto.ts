@@ -1,4 +1,4 @@
-import type { User } from "../../domain/User";
+import type { User } from "../../domain/user/User";
 
 // 認証後のレスポンス
 export type AuthPayloadDTO = {
@@ -33,7 +33,7 @@ export const toUserDTO = (user: User): UserDTO => {
     id: user.userID.value.value,
     discordUserName: user.discordUserName,
     discordAvatar: user.discordAvatar,
-    faculty: user.faculty?.getValue() ?? "",
-    department: user.department?.getValue() ?? ""
+    faculty: user.faculty?.value ?? "",
+    department: user.department?.value ?? ""
   };
 };

@@ -1,1 +1,0 @@
-ALTER TABLE "user_auth" ADD COLUMN "created_at" timestamp DEFAULT now() NOT NULL;

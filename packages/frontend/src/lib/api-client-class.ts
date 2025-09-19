@@ -32,8 +32,13 @@ class ApiClient {
   }> = [];
 
   constructor(baseURL?: string) {
-    this.baseURL =
-      baseURL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
+    if (baseURL) {
+      this.baseURL = baseURL;
+    } else {
+      const backend =
+        process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "http://localhost:8787";
+      this.baseURL = `${backend.replace(/\/+$/, "")}/api`;
+    }
   }
 
   /**
@@ -64,14 +69,16 @@ class ApiClient {
     const refreshToken = cookieUtils.auth.getRefreshToken();
 
     if (!refreshToken) {
-      throw new Error("リフレッシュトークンが見つかりません");
+      throw new Error("リフレッシュトークンが存在しません");
     }
 
     const response = await fetch(`${this.baseURL}/auth/refresh`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Accept: "application/json"
       },
+      credentials: "include",
       body: JSON.stringify({ refreshToken })
     });
 
@@ -80,8 +87,8 @@ class ApiClient {
     }
 
     const data: RefreshTokenResponse = await response.json();
-    cookieUtils.auth.setTokens(data.accessToken, data.refreshToken);
-
+    cookieUtils.auth.setAccessToken(data.accessToken);
+    cookieUtils.auth.setRefreshToken(data.refreshToken);
     return data.accessToken;
   }
 

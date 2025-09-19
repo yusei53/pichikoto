@@ -1,13 +1,18 @@
 import type { Context } from "hono";
+import { getCookie, setCookie } from "hono/cookie";
 import { inject, injectable } from "inversify";
-import type { DiscordAuthServiceInterface } from "../../application/services/discord-auth";
 import type { JwtServiceInterface } from "../../application/services/jwt";
-import type { AuthUsecaseInterface } from "../../application/usecases/auth";
-import { TYPES } from "../../infrastructure/config/types";
+import type { DiscordAuthCallbackUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
+import type { DiscordAuthInitiateUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
+import { TYPES } from "../../di-container/types";
 
 export interface AuthControllerInterface {
-  getAuthUrl(c: Context): Promise<Response>;
-  callback(c: Context, code: string | undefined): Promise<Response>;
+  redirectToAuthURL(c: Context): Promise<Response>;
+  callback(
+    c: Context,
+    code: string | undefined,
+    state: string | undefined
+  ): Promise<Response>;
   refresh(c: Context): Promise<Response>;
   verify(c: Context): Promise<Response>;
 }
@@ -15,42 +20,156 @@ export interface AuthControllerInterface {
 @injectable()
 export class AuthController implements AuthControllerInterface {
   constructor(
-    @inject(TYPES.DiscordAuthService)
-    private readonly discordAuthService: DiscordAuthServiceInterface,
-    @inject(TYPES.AuthUsecase)
-    private readonly authUsecase: AuthUsecaseInterface,
+    @inject(TYPES.DiscordAuthInitiateUseCase)
+    private readonly discordAuthInitiateUseCase: DiscordAuthInitiateUseCaseInterface,
+    @inject(TYPES.DiscordAuthCallbackUseCase)
+    private readonly discordAuthCallbackUseCase: DiscordAuthCallbackUseCaseInterface,
     @inject(TYPES.JwtService)
     private readonly jwtService: JwtServiceInterface
   ) {}
 
-  async getAuthUrl(c: Context) {
-    const authUrl = await this.discordAuthService.getAuthUrl(c);
-    return c.json({ authUrl });
+  async redirectToAuthURL(c: Context) {
+    const { authURL, sessionID } =
+      await this.discordAuthInitiateUseCase.execute(c);
+
+    // sessionIdをHttpOnlyCookieとして設定
+    setCookie(c, "oauth_session", sessionID, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      path: "/",
+      maxAge: 900 // 15分
+    });
+
+    return c.redirect(authURL);
   }
 
-  async callback(c: Context, code: string | undefined) {
-    if (!code) {
-      return c.json({ error: "No code provided" }, 400);
-    }
-    const authPayload = await this.authUsecase.callback(c, code);
-    if (!authPayload) {
-      return c.json({ error: "Failed to authenticate" }, 500);
-    }
+  async callback(
+    c: Context,
+    code: string | undefined,
+    state: string | undefined
+  ) {
+    const completeUrl = `${c.env.FRONTEND_BASE_URL}/auth/callback/complete`;
+    try {
+      if (!code) {
+        console.error("Auth callback error: No code provided");
+        return c.redirect(`${completeUrl}?error=no_code`);
+      }
 
-    return c.json(authPayload);
+      if (!state) {
+        console.error("Auth callback error: No state provided");
+        return c.redirect(`${completeUrl}?error=no_state`);
+      }
+
+      // Cookieから sessionId を取得
+      const sessionId = getCookie(c, "oauth_session");
+
+      if (!sessionId) {
+        console.error("Auth callback error: No session cookie provided");
+        return c.redirect(`${completeUrl}?error=no_session`);
+      }
+
+      const authPayload = await this.discordAuthCallbackUseCase.execute(
+        c,
+        code,
+        state,
+        sessionId
+      );
+
+      // アクセス/リフレッシュトークンをクライアント参照可能なCookieで付与
+      setCookie(c, "accessToken", authPayload.accessToken, {
+        secure: true,
+        sameSite: "None",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30 // 30日
+      });
+
+      setCookie(c, "refreshToken", authPayload.refreshToken, {
+        secure: true,
+        sameSite: "None",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365 // 1年
+      });
+
+      // 使用済みのセッションCookieを削除
+      setCookie(c, "oauth_session", "", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        path: "/",
+        maxAge: 0
+      });
+
+      c.header("Cache-Control", "no-store");
+      // フロントの完了ページへリダイレクト（アクセストークンは返さない）
+      return c.redirect(completeUrl);
+    } catch (error) {
+      console.error("Auth callback error:", error);
+
+      // エラー時もセッションCookieを削除
+      setCookie(c, "oauth_session", "", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        path: "/",
+        maxAge: 0
+      });
+
+      return c.redirect(`${completeUrl}?error=auth_failed`);
+    }
   }
 
   async refresh(c: Context) {
     try {
-      const body = await c.req.json();
-      const { refreshToken } = body;
+      // CSRF緩和: Origin/Referer が許可ドメイン（FRONTEND_BASE_URL）か検証
+      const headerOrigin = c.req.header("Origin");
+      const headerReferer = c.req.header("Referer");
+      const allowOrigin = (() => {
+        try {
+          const allowed = new URL(c.env.FRONTEND_BASE_URL).origin;
+          const received = headerOrigin ?? headerReferer;
+          if (!received) return false;
+          const receivedOrigin = new URL(received).origin;
+          return receivedOrigin === allowed;
+        } catch {
+          return false;
+        }
+      })();
+
+      if (!allowOrigin) {
+        return c.json({ error: "Forbidden" }, 403);
+      }
+
+      const requestBody = await c.req
+        .json<{ refreshToken?: string }>()
+        .catch(() => ({ refreshToken: undefined }));
+      const refreshToken = requestBody.refreshToken;
 
       if (!refreshToken) {
-        return c.json({ error: "Refresh token is required" }, 400);
+        return c.json({ error: "Refresh token is required" }, 401);
       }
 
       const tokens = await this.jwtService.refreshAccessToken(c, refreshToken);
-      return c.json(tokens);
+
+      // トークンをローテーションし、Cookieを更新
+      setCookie(c, "accessToken", tokens.accessToken, {
+        secure: true,
+        sameSite: "None",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30
+      });
+
+      setCookie(c, "refreshToken", tokens.refreshToken, {
+        secure: true,
+        sameSite: "None",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365
+      });
+
+      return c.json({
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken
+      });
     } catch (error) {
       console.error("Token refresh error:", error);
       return c.json({ error: "Invalid refresh token" }, 401);

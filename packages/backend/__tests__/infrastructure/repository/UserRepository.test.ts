@@ -1,16 +1,13 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import * as schema from "../../../database/schema";
 import {
   Department,
   DiscordID,
   Faculty,
   User,
   UserID
-} from "../../../src/domain/User";
-import * as schema from "../../../src/infrastructure/database/schema";
-import type { UserRepositoryInterface } from "../../../src/infrastructure/repositories/UserRepository";
+} from "../../../src/domain/user/User";
 import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";
-import { CreatedAt } from "../../../src/utils/CreatedAt";
-import { TestDbClient } from "../../testing/setup/TestDbClient";
 import { assertEqualUserTable } from "../../testing/table_assert/AssertEqualUserTable";
 import {
   createUserTableFixture,
@@ -23,11 +20,7 @@ import {
 } from "../../testing/utils/GenericTableHelper";
 
 describe("UserRepository Tests", () => {
-  let userRepository: UserRepositoryInterface;
-
-  beforeEach(() => {
-    userRepository = getUserRepository();
-  });
+  const userRepository = new UserRepository();
 
   describe("findBy", () => {
     const setupUsers = async () => {
@@ -51,11 +44,9 @@ describe("UserRepository Tests", () => {
         UserID.from(user1.id),
         DiscordID.from(user1.discordId),
         user1.discordUserName,
-        user1.discordDiscriminator,
         user1.discordAvatar,
         Faculty.from(user1.faculty),
-        Department.from(user1.department),
-        CreatedAt.from(user1.createdAt)
+        Department.from(user1.department)
       );
 
       // act
@@ -72,11 +63,9 @@ describe("UserRepository Tests", () => {
         UserID.from(user2.id),
         DiscordID.from(user2.discordId),
         user2.discordUserName,
-        user2.discordDiscriminator,
         user2.discordAvatar,
         user2.faculty,
-        user2.department,
-        CreatedAt.from(user2.createdAt)
+        user2.department
       );
 
       // act
@@ -110,11 +99,9 @@ describe("UserRepository Tests", () => {
         UserID.from(userRecord.id),
         DiscordID.from(userRecord.discordId),
         userRecord.discordUserName,
-        userRecord.discordDiscriminator,
         userRecord.discordAvatar,
         userRecord.faculty ? Faculty.from(userRecord.faculty) : null,
-        userRecord.department ? Department.from(userRecord.department) : null,
-        CreatedAt.from(userRecord.createdAt)
+        userRecord.department ? Department.from(userRecord.department) : null
       );
 
       // act
@@ -134,11 +121,9 @@ describe("UserRepository Tests", () => {
         UserID.from(userRecord.id),
         DiscordID.from(userRecord.discordId),
         userRecord.discordUserName,
-        userRecord.discordDiscriminator,
         userRecord.discordAvatar,
         userRecord.faculty ? Faculty.from(userRecord.faculty) : null,
-        userRecord.department ? Department.from(userRecord.department) : null,
-        CreatedAt.from(userRecord.createdAt)
+        userRecord.department ? Department.from(userRecord.department) : null
       );
 
       // act
@@ -152,8 +137,3 @@ describe("UserRepository Tests", () => {
     });
   });
 });
-
-const getUserRepository = (): UserRepositoryInterface => {
-  const dbClient = new TestDbClient();
-  return new UserRepository(dbClient);
-};

@@ -37,14 +37,31 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10.13.1
+          version: 10.16.0
       
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
       
+      - name: Verify migration files consistency
+        run: |
+          # スキーマに基づいてマイグレーションを生成し、差分をチェック
+          pnpm db:generate
+          
+          # 生成されたファイルがコミット済みファイルと一致するかチェック
+          if [ -n "$(git status --porcelain drizzle/)" ]; then
+            echo "❌ Migration files are not up to date with schema changes"
+            echo "Generated files differ from committed files:"
+            git status --porcelain drizzle/
+            echo ""
+            echo "Please run 'pnpm db:generate' and commit the generated files"
+            exit 1
+          fi
+          
+          echo "✅ Migration files are consistent with schema"
+        working-directory: packages/backend
+
       - name: Setup test database
         run: |
-          pnpm db:generate
           pnpm db:migrate
         working-directory: packages/backend
         env:
