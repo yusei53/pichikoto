@@ -57,8 +57,7 @@ export const WithLongDiscordID: Story = {
       ...mockPost,
       sendUser: {
         ...mockPost.sendUser,
-        discordID:
-          "this-is-a-very-long-discord-id-that-might-cause-layout-issues-when-displayed-in-the-ui-component"
+        discordID: "1234567890abcdefghijklmnopqrstuv"
       }
     }
   }
