@@ -15,36 +15,20 @@ const ClientAuthCallbackCompletePage: React.FC<
   const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
-    const handleAfterCallback = async () => {
-      try {
-        if (error) {
-          setAuthError("認証に失敗しました");
-          return;
-        }
+    if (error) {
+      setAuthError("認証に失敗しました");
+      return;
+    }
 
-        const backendBaseUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL;
-        const resp = await fetch(`${backendBaseUrl}/api/auth/refresh`, {
-          method: "POST",
-          headers: { Accept: "application/json" },
-          credentials: "include"
-        });
+    const accessToken = cookieUtils.auth.getAccessToken();
+    const refreshToken = cookieUtils.auth.getRefreshToken();
 
-        if (!resp.ok) {
-          const err = await resp.json().catch(() => ({}) as any);
-          throw new Error(err.error || "アクセストークン取得に失敗しました");
-        }
+    if (!accessToken || !refreshToken) {
+      setAuthError("トークンを取得できませんでした");
+      return;
+    }
 
-        const data = (await resp.json()) as { accessToken: string };
-        cookieUtils.auth.setAccessToken(data.accessToken);
-        router.replace("/");
-      } catch (e) {
-        setAuthError(
-          e instanceof Error ? e.message : "アクセストークン取得に失敗しました"
-        );
-      }
-    };
-
-    handleAfterCallback();
+    router.replace("/");
   }, [error, router]);
 
   if (authError) {
@@ -76,4 +60,3 @@ const ClientAuthCallbackCompletePage: React.FC<
 };
 
 export default ClientAuthCallbackCompletePage;
-

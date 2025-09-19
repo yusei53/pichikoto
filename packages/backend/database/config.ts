@@ -45,7 +45,6 @@ export class DatabaseConfig {
       localDevelopment: {
         host: "db.localtest.me",
         port: 5432,
-        sqlPort: 4444,
         database: "main",
         username: "postgres",
         password: "postgres"
@@ -65,7 +64,6 @@ export interface DatabaseConnectionConfig {
   localDevelopment: {
     host: string;
     port: number;
-    sqlPort: number;
     database: string;
     username: string;
     password: string;

@@ -35,8 +35,8 @@ export class AuthController implements AuthControllerInterface {
     // sessionIdをHttpOnlyCookieとして設定
     setCookie(c, "oauth_session", sessionID, {
       httpOnly: true,
-      secure: c.env.NODE_ENV !== "development",
-      sameSite: c.env.NODE_ENV === "development" ? "Lax" : "None",
+      secure: true,
+      sameSite: "None",
       path: "/",
       maxAge: 900 // 15分
     });
@@ -76,22 +76,26 @@ export class AuthController implements AuthControllerInterface {
         sessionId
       );
 
-      // Refresh TokenはHttpOnly Cookieで付与（クライアントJSから不可視）
-      if (authPayload.refreshToken) {
-        setCookie(c, "refresh_token", authPayload.refreshToken, {
-          httpOnly: true,
-          secure: c.env.NODE_ENV !== "development",
-          sameSite: c.env.NODE_ENV === "development" ? "Lax" : "None",
-          path: "/",
-          maxAge: 60 * 60 * 24 * 365 // 1年
-        });
-      }
+      // アクセス/リフレッシュトークンをクライアント参照可能なCookieで付与
+      setCookie(c, "accessToken", authPayload.accessToken, {
+        secure: true,
+        sameSite: "None",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30 // 30日
+      });
+
+      setCookie(c, "refreshToken", authPayload.refreshToken, {
+        secure: true,
+        sameSite: "None",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365 // 1年
+      });
 
       // 使用済みのセッションCookieを削除
       setCookie(c, "oauth_session", "", {
         httpOnly: true,
-        secure: c.env.NODE_ENV !== "development",
-        sameSite: c.env.NODE_ENV === "development" ? "Lax" : "None",
+        secure: true,
+        sameSite: "None",
         path: "/",
         maxAge: 0
       });
@@ -105,8 +109,8 @@ export class AuthController implements AuthControllerInterface {
       // エラー時もセッションCookieを削除
       setCookie(c, "oauth_session", "", {
         httpOnly: true,
-        secure: c.env.NODE_ENV !== "development",
-        sameSite: c.env.NODE_ENV === "development" ? "Lax" : "None",
+        secure: true,
+        sameSite: "None",
         path: "/",
         maxAge: 0
       });
@@ -136,26 +140,36 @@ export class AuthController implements AuthControllerInterface {
         return c.json({ error: "Forbidden" }, 403);
       }
 
-      // HttpOnly Cookie から refresh_token を取得
-      const refreshToken = getCookie(c, "refresh_token");
+      const requestBody = await c.req
+        .json<{ refreshToken?: string }>()
+        .catch(() => ({ refreshToken: undefined }));
+      const refreshToken = requestBody.refreshToken;
 
       if (!refreshToken) {
-        return c.json({ error: "Refresh token cookie is required" }, 401);
+        return c.json({ error: "Refresh token is required" }, 401);
       }
 
       const tokens = await this.jwtService.refreshAccessToken(c, refreshToken);
 
-      // Refresh Tokenをローテーションし、Cookieを更新
-      setCookie(c, "refresh_token", tokens.refreshToken, {
-        httpOnly: true,
-        secure: c.env.NODE_ENV !== "development",
+      // トークンをローテーションし、Cookieを更新
+      setCookie(c, "accessToken", tokens.accessToken, {
+        secure: true,
+        sameSite: "None",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30
+      });
+
+      setCookie(c, "refreshToken", tokens.refreshToken, {
+        secure: true,
         sameSite: "None",
         path: "/",
         maxAge: 60 * 60 * 24 * 365
       });
 
-      // レスポンスはアクセストークンのみ返す
-      return c.json({ accessToken: tokens.accessToken });
+      return c.json({
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken
+      });
     } catch (error) {
       console.error("Token refresh error:", error);
       return c.json({ error: "Invalid refresh token" }, 401);
