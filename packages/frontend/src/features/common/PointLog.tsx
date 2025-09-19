@@ -1,5 +1,6 @@
-import { UnderlinedText } from "@/components/shared/text";
 import { Gift, SendHorizontal } from "lucide-react";
+import { css } from "styled-system/css";
+import { UnderlinedText } from "~/components/shared/text";
 
 type PointLogProps = {
   sendPoint: number;
@@ -11,7 +12,7 @@ export const PointLog: React.FC<PointLogProps> = ({
   receivedPoint
 }) => {
   return (
-    <div className="flex flex-col gap-4 border border-current rounded-lg w-[330px] items-center p-4">
+    <div className={css({ display: "flex", marginTop: "16px", gap: "24px" })}>
       <UnderlinedText width="md">
         <span className="text-sm text-[#454545]">今週送れる</span>
         <div className="flex items-baseline gap-2">
