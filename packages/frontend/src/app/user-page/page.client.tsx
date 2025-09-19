@@ -3,6 +3,7 @@
 import { PostCard } from "@/features/common/PostCard";
 import { UserPageHeader } from "@/features/routes/user-page";
 import { mockPost } from "@/mock/post";
+import { format } from "date-fns";
 
 type ClientUserPageProps = {
   username: string;
@@ -11,16 +12,8 @@ type ClientUserPageProps = {
 };
 
 export const formatDate = (date: Date) => {
-  const formattedDate = date
-    .toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "numeric",
-      day: "numeric"
-    })
-    .replace(/\//g, ".");
-  const weekday = date
-    .toLocaleDateString("en-US", { weekday: "short" })
-    .toUpperCase();
+  const formattedDate = format(new Date(date), "yyyy.MM.dd");
+  const weekday = format(new Date(date), "eee").toUpperCase();
   return `${formattedDate} ${weekday}`;
 };
 const ClientUserPage: React.FC<ClientUserPageProps> = ({
