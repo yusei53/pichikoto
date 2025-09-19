@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatDate } from "@/lib/date-helper";
 import type { Post } from "@/model/post";
 import { Plus, SendHorizontal } from "lucide-react";
 import Image from "next/image";
@@ -6,10 +7,9 @@ import { useState } from "react";
 
 type PostCardProps = {
   post: Post;
-  formatDate: (date: Date) => string;
 };
 
-export const PostCard: React.FC<PostCardProps> = ({ post, formatDate }) => {
+export const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
   return (
