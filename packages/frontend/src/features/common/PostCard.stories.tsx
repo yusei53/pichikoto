@@ -32,19 +32,16 @@ export const WithVeryLongUsername: Story = {
       ...mockPost,
       sendUser: {
         ...mockPost.sendUser,
-        discordUserName:
-          "これは非常に長いユーザーネームです。Discordでは実際にこんなに長いユーザーネームが設定されることがあります。長いユーザーネームが表示される場合のテスト用です。長いユーザーネームが表示される場合のテスト用です。長いユーザーネームが表示される場合のテスト用です。"
+        discordUserName: "very-very-long-username-32-chars"
       },
       receivedUsers: [
         {
           ...mockPost.sendUser,
-          discordUserName:
-            "受信者1も非常に長いユーザーネームです。長いユーザーネームが表示される場合のテスト用です。長いユーザーネームが表示される場合のテスト用です。長いユーザーネームが表示される場合のテスト用です。"
+          discordUserName: "very-very-long-username-32-chars"
         },
         {
           ...mockPost.sendUser,
-          discordUserName:
-            "受信者2も非常に長いユーザーネームです。長いユーザーネームが表示される場合のテスト用です。長いユーザーネームが表示される場合のテスト用です。長いユーザーネームが表示される場合のテスト用です。"
+          discordUserName: "very-very-long-username-32-chars"
         }
       ]
     }
