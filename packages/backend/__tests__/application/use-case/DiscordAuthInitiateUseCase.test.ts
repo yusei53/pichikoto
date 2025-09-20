@@ -6,12 +6,12 @@ import { StateRepository } from "../../../src/infrastructure/repositories/StateR
 import { deleteFromDatabase } from "../../testing/utils/GenericTableHelper";
 
 const MOCK_CLIENT_ID = "test_client_id";
-const MOCK_BASE_URL = "https://api.test.com";
+const MOCK_FRONTEND_BASE_URL = "https://frontend.test.com";
 
 const mockContext: Context = {
   env: {
     DISCORD_CLIENT_ID: MOCK_CLIENT_ID,
-    BASE_URL: MOCK_BASE_URL
+    FRONTEND_BASE_URL: MOCK_FRONTEND_BASE_URL
   }
 } as Context;
 
@@ -47,9 +47,18 @@ describe("DiscordAuthInitiateUseCase Tests", () => {
       const expectedUrlParameters = {
         client_id: MOCK_CLIENT_ID,
         response_type: "code",
-        redirect_uri: `${MOCK_BASE_URL}/api/auth/callback`,
+        redirect_uri: `${MOCK_FRONTEND_BASE_URL}/auth/callback/discord`,
         scope: "identify openid",
         code_challenge_method: "S256"
+      };
+
+      // stateパラメータはエンコードされているので、デコードして検証
+      const decodeAndValidateState = (encodedState: string) => {
+        const decoded = Buffer.from(encodedState, "base64url").toString(
+          "utf-8"
+        );
+        const [sessionID, state] = decoded.split(":");
+        return { sessionID, state };
       };
 
       const expectedLengths = {
@@ -71,18 +80,26 @@ describe("DiscordAuthInitiateUseCase Tests", () => {
       });
 
       const url = new URL(result.authURL);
-      const state = url.searchParams.get("state");
+      const encodedState = url.searchParams.get("state");
       const nonce = url.searchParams.get("nonce");
       const codeChallenge = url.searchParams.get("code_challenge");
 
+      // state以外のパラメータを検証
       Object.entries(expectedUrlParameters).forEach(
         ([param, expectedValue]) => {
-          expect(url.searchParams.get(param)).toBe(expectedValue);
+          if (param !== "state") {
+            expect(url.searchParams.get(param)).toBe(expectedValue);
+          }
         }
       );
 
+      // stateパラメータの検証
+      expect(encodedState).toBeTruthy();
+      const { sessionID, state } = decodeAndValidateState(encodedState!);
+
       // MEMO: expectedUrlParametersで確認できていないパラメータの存在確認を含めたアサート
       expect(result.sessionID).toHaveLength(expectedLengths.sessionID);
+      expect(sessionID).toBe(result.sessionID);
       expect(state).toHaveLength(expectedLengths.state);
       expect(nonce).toHaveLength(expectedLengths.nonce);
       expect(codeChallenge).toHaveLength(expectedLengths.codeChallenge);
