@@ -9,29 +9,29 @@ export type AppJwtPayload = {
   jwtPayload: Pick<JWTPayload, "sub" | "exp">;
 };
 
-export interface JwtVerifyUseCaseInterface {
+export interface JwtVerifyServiceInterface {
   execute(
     c: Context,
     token: string
-  ): Promise<Result<AppJwtPayload, JwtVerifyUseCaseError>>;
+  ): Promise<Result<AppJwtPayload, JwtVerifyServiceError>>;
 }
 
 @injectable()
-export class JwtVerifyUseCase implements JwtVerifyUseCaseInterface {
+export class JwtVerifyService implements JwtVerifyServiceInterface {
   async execute(
     c: Context,
     token: string
-  ): Promise<Result<AppJwtPayload, JwtVerifyUseCaseError>> {
+  ): Promise<Result<AppJwtPayload, JwtVerifyServiceError>> {
     try {
       const jwtPayload = await verify(token, c.env.JWT_SECRET);
       return ok({ jwtPayload });
     } catch (error) {
-      return err(new JwtVerifyUseCaseError(error as Error));
+      return err(new JwtVerifyServiceError(error as Error));
     }
   }
 }
 
-export class JwtVerifyUseCaseError extends Error {
+export class JwtVerifyServiceError extends Error {
   readonly name = this.constructor.name;
   constructor(cause: Error) {
     super(`JWT verification failed: ${cause.message}`);
