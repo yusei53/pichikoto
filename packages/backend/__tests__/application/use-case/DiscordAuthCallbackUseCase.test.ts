@@ -11,7 +11,7 @@ import type {
   DiscordUserResource,
   DiscordUserServiceInterface
 } from "../../../src/application/services/discord-auth/DiscordUserService";
-import type { JwtServiceInterface } from "../../../src/application/services/jwt";
+import type { JwtServiceInterface } from "../../../src/application/services/jwt/jwt";
 import { DiscordAuthCallbackUseCase } from "../../../src/application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import { DiscordTokensRepository } from "../../../src/infrastructure/repositories/DiscordTokensRepository";
 import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";

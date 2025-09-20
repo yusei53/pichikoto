@@ -1,6 +1,6 @@
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
-import type { JwtServiceInterface } from "../../application/services/jwt";
+import type { JwtServiceInterface } from "../../application/services/jwt/jwt";
 import type { DiscordAuthCallbackUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import type { DiscordAuthInitiateUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
 import type { JwtVerifyUseCaseInterface } from "../../application/use-case/discord-auth/JwtVerifyUseCase";
