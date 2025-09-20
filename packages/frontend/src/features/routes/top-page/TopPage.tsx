@@ -1,5 +1,4 @@
 import { css } from "styled-system/css";
-import { DiscordLoginButton } from "~/components/shared/auth/DiscordLoginButton";
 import { PointLog } from "~/features/common/PointLog";
 
 type TopPageProps = {
@@ -13,9 +12,6 @@ export const TopPage: React.FC<TopPageProps> = ({
 }) => {
   return (
     <div className="pt-48 pl-16">
-      <div className="mb-8">
-        <DiscordLoginButton />
-      </div>
       <div className={css({ paddingTop: "32px" })}>
         <PointLog sendPoint={sendPoint} receivedPoint={receivedPoint} />
       </div>
