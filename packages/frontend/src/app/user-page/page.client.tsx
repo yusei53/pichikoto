@@ -1,6 +1,8 @@
 "use client";
 
+import { PostCard } from "@/features/common/PostCard";
 import { UserPageHeader } from "@/features/routes/user-page";
+import { mockPost } from "@/mock/post";
 
 type ClientUserPageProps = {
   username: string;
@@ -16,6 +18,9 @@ const ClientUserPage: React.FC<ClientUserPageProps> = ({
   return (
     <div className="m-10">
       <UserPageHeader username={username} name={name} image={image} />
+      <div className="flex justify-end mt-4">
+        <PostCard post={mockPost} />
+      </div>
     </div>
   );
 };
