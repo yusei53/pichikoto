@@ -10,7 +10,7 @@ import { toAuthPayloadDTO, type AuthPayloadDTO } from "../../dtos/auth.dto";
 import type { DiscordOAuthFlowServiceInterface } from "../../services/discord-auth/DiscordOAuthFlowService";
 import type { DiscordTokenServiceInterface } from "../../services/discord-auth/DiscordTokenService";
 import type { DiscordUserServiceInterface } from "../../services/discord-auth/DiscordUserService";
-import type { JwtServiceInterface } from "../../services/jwt";
+import type { JwtServiceInterface } from "../../services/jwt/jwt";
 
 export interface DiscordAuthCallbackUseCaseInterface {
   execute(
