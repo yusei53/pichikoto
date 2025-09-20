@@ -89,7 +89,7 @@ export class DiscordTokenService implements DiscordTokenServiceInterface {
       clientID: c.env.DISCORD_CLIENT_ID,
       clientSecret: c.env.DISCORD_CLIENT_SECRET,
       code,
-      redirectURI: `${c.env.BASE_URL}/api/auth/callback`,
+      redirectURI: `${c.env.FRONTEND_BASE_URL}/auth/callback/discord`,
       codeVerifier
     });
 

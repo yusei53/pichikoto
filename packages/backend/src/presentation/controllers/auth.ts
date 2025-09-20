@@ -8,11 +8,7 @@ import { TYPES } from "../../di-container/types";
 
 export interface AuthControllerInterface {
   redirectToAuthURL(c: Context): Promise<Response>;
-  callback(
-    c: Context,
-    code: string | undefined,
-    state: string | undefined
-  ): Promise<Response>;
+  callback(c: Context): Promise<Response>;
   refresh(c: Context): Promise<Response>;
   verify(c: Context): Promise<Response>;
 }
@@ -44,21 +40,23 @@ export class AuthController implements AuthControllerInterface {
     return c.redirect(authURL);
   }
 
-  async callback(
-    c: Context,
-    code: string | undefined,
-    state: string | undefined
-  ) {
-    const completeUrl = `${c.env.FRONTEND_BASE_URL}/auth/callback/complete`;
+  async callback(c: Context) {
     try {
+      const body = await c.req
+        .json<{ code?: string; state?: string }>()
+        .catch(() => ({ code: undefined, state: undefined }));
+
+      const code = body.code;
+      const state = body.state;
+
       if (!code) {
         console.error("Auth callback error: No code provided");
-        return c.redirect(`${completeUrl}?error=no_code`);
+        return c.json({ error: "no_code" }, 400);
       }
 
       if (!state) {
         console.error("Auth callback error: No state provided");
-        return c.redirect(`${completeUrl}?error=no_state`);
+        return c.json({ error: "no_state" }, 400);
       }
 
       // Cookieから sessionId を取得
@@ -66,7 +64,7 @@ export class AuthController implements AuthControllerInterface {
 
       if (!sessionId) {
         console.error("Auth callback error: No session cookie provided");
-        return c.redirect(`${completeUrl}?error=no_session`);
+        return c.json({ error: "no_session" }, 400);
       }
 
       const authPayload = await this.discordAuthCallbackUseCase.execute(
@@ -75,21 +73,6 @@ export class AuthController implements AuthControllerInterface {
         state,
         sessionId
       );
-
-      // アクセス/リフレッシュトークンをクライアント参照可能なCookieで付与
-      setCookie(c, "accessToken", authPayload.accessToken, {
-        secure: true,
-        sameSite: "None",
-        path: "/",
-        maxAge: 60 * 60 * 24 * 30 // 30日
-      });
-
-      setCookie(c, "refreshToken", authPayload.refreshToken, {
-        secure: true,
-        sameSite: "None",
-        path: "/",
-        maxAge: 60 * 60 * 24 * 365 // 1年
-      });
 
       // 使用済みのセッションCookieを削除
       setCookie(c, "oauth_session", "", {
@@ -101,8 +84,12 @@ export class AuthController implements AuthControllerInterface {
       });
 
       c.header("Cache-Control", "no-store");
-      // フロントの完了ページへリダイレクト（アクセストークンは返さない）
-      return c.redirect(completeUrl);
+
+      // フロントエンドにトークンをJSONで返す
+      return c.json({
+        accessToken: authPayload.accessToken,
+        refreshToken: authPayload.refreshToken
+      });
     } catch (error) {
       console.error("Auth callback error:", error);
 
@@ -115,31 +102,12 @@ export class AuthController implements AuthControllerInterface {
         maxAge: 0
       });
 
-      return c.redirect(`${completeUrl}?error=auth_failed`);
+      return c.json({ error: "auth_failed" }, 500);
     }
   }
 
   async refresh(c: Context) {
     try {
-      // CSRF緩和: Origin/Referer が許可ドメイン（FRONTEND_BASE_URL）か検証
-      const headerOrigin = c.req.header("Origin");
-      const headerReferer = c.req.header("Referer");
-      const allowOrigin = (() => {
-        try {
-          const allowed = new URL(c.env.FRONTEND_BASE_URL).origin;
-          const received = headerOrigin ?? headerReferer;
-          if (!received) return false;
-          const receivedOrigin = new URL(received).origin;
-          return receivedOrigin === allowed;
-        } catch {
-          return false;
-        }
-      })();
-
-      if (!allowOrigin) {
-        return c.json({ error: "Forbidden" }, 403);
-      }
-
       const requestBody = await c.req
         .json<{ refreshToken?: string }>()
         .catch(() => ({ refreshToken: undefined }));
@@ -150,21 +118,6 @@ export class AuthController implements AuthControllerInterface {
       }
 
       const tokens = await this.jwtService.refreshAccessToken(c, refreshToken);
-
-      // トークンをローテーションし、Cookieを更新
-      setCookie(c, "accessToken", tokens.accessToken, {
-        secure: true,
-        sameSite: "None",
-        path: "/",
-        maxAge: 60 * 60 * 24 * 30
-      });
-
-      setCookie(c, "refreshToken", tokens.refreshToken, {
-        secure: true,
-        sameSite: "None",
-        path: "/",
-        maxAge: 60 * 60 * 24 * 365
-      });
 
       return c.json({
         accessToken: tokens.accessToken,
@@ -181,24 +134,20 @@ export class AuthController implements AuthControllerInterface {
       const authHeader = c.req.header("Authorization");
 
       if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return c.json({ error: "Authorization token is required" }, 401);
+        return c.json({ error: "Unauthorized" }, 401);
       }
 
       const token = authHeader.substring(7); // "Bearer "を除去
       const payload = await this.jwtService.verify(c, token);
 
       if (!payload) {
-        return c.json({ error: "Invalid or expired token" }, 401);
+        return c.json({ error: "Unauthorized" }, 401);
       }
 
-      return c.json({
-        valid: true,
-        userId: payload.sub,
-        expiresAt: payload.exp
-      });
+      return c.json({ message: "OK" }, 200);
     } catch (error) {
       console.error("Token verification error:", error);
-      return c.json({ error: "Invalid or expired token" }, 401);
+      return c.json({ error: "Unauthorized" }, 401);
     }
   }
 }

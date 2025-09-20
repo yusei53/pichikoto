@@ -6,12 +6,12 @@ import { StateRepository } from "../../../src/infrastructure/repositories/StateR
 import { deleteFromDatabase } from "../../testing/utils/GenericTableHelper";
 
 const MOCK_CLIENT_ID = "test_client_id";
-const MOCK_BASE_URL = "https://api.test.com";
+const MOCK_FRONTEND_BASE_URL = "https://frontend.test.com";
 
 const mockContext: Context = {
   env: {
     DISCORD_CLIENT_ID: MOCK_CLIENT_ID,
-    BASE_URL: MOCK_BASE_URL
+    FRONTEND_BASE_URL: MOCK_FRONTEND_BASE_URL
   }
 } as Context;
 
@@ -47,7 +47,7 @@ describe("DiscordAuthInitiateUseCase Tests", () => {
       const expectedUrlParameters = {
         client_id: MOCK_CLIENT_ID,
         response_type: "code",
-        redirect_uri: `${MOCK_BASE_URL}/api/auth/callback`,
+        redirect_uri: `${MOCK_FRONTEND_BASE_URL}/auth/callback/discord`,
         scope: "identify openid",
         code_challenge_method: "S256"
       };

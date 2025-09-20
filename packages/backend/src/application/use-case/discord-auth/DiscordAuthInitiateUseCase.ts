@@ -56,7 +56,10 @@ export class DiscordAuthInitiateUseCase
     const params = new URLSearchParams();
     params.append("client_id", c.env.DISCORD_CLIENT_ID);
     params.append("response_type", "code");
-    params.append("redirect_uri", `${c.env.BASE_URL}/api/auth/callback`);
+    params.append(
+      "redirect_uri",
+      `${c.env.FRONTEND_BASE_URL}/auth/callback/discord`
+    );
     params.append("scope", "identify openid");
     params.append("state", state);
     params.append("nonce", nonce);
