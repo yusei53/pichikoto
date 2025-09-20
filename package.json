@@ -20,5 +20,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.16.0"
+  "packageManager": "pnpm@10.16.0",
+  "dependencies": {
+    "date-fns": "^4.1.0"
+  }
 }

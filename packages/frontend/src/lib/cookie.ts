@@ -53,7 +53,7 @@ export const cookieUtils = {
       cookieUtils.set("accessToken", accessToken, {
         maxAge: 60 * 60 * 24 * 30,
         secure: true,
-        sameSite: "strict"
+        sameSite: "none"
       });
     },
 
@@ -61,8 +61,21 @@ export const cookieUtils = {
       return cookieUtils.get("accessToken");
     },
 
+    setRefreshToken: (refreshToken: string) => {
+      cookieUtils.set("refreshToken", refreshToken, {
+        maxAge: 60 * 60 * 24 * 365,
+        secure: true,
+        sameSite: "none"
+      });
+    },
+
+    getRefreshToken: (): string | null => {
+      return cookieUtils.get("refreshToken");
+    },
+
     clearAuth: () => {
       cookieUtils.remove("accessToken");
+      cookieUtils.remove("refreshToken");
     }
   }
 };

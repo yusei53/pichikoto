@@ -1,4 +1,4 @@
-import { mockUser } from "@/mock/user";
+import { mockUser } from "~/mock/user";
 import ClientUserPage from "./page.client";
 
 const Page = () => {
