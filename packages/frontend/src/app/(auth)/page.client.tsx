@@ -7,11 +7,8 @@ type ClientTopPageProps = {
   receivedPoint: number;
 };
 
-const ClientTopPage: React.FC<ClientTopPageProps> = ({
-  sendPoint,
-  receivedPoint
-}) => {
-  return <TopPage sendPoint={sendPoint} receivedPoint={receivedPoint} />;
+const ClientTopPage: React.FC<ClientTopPageProps> = () => {
+  return <TopPage sendPoint={0} receivedPoint={0} />;
 };
 
 export default ClientTopPage;
