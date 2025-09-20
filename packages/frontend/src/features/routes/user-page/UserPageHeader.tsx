@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type UserPageHeaderProps = {
   username: string;
@@ -9,15 +8,10 @@ type UserPageHeaderProps = {
 export const UserPageHeader: React.FC<UserPageHeaderProps> = ({
   username,
   name,
-  image
 }) => {
   return (
     <div>
       <div className="flex items-center">
-        <Avatar className="w-15 h-15">
-          <AvatarImage src={image} />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
         <div className="ml-3">
           <p>{name}</p>
           <p>{username}</p>

@@ -1,8 +1,8 @@
 "use client";
 
-import { cookieUtils } from "@/lib/cookie";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { cookieUtils } from "~/lib/cookie";
 
 type ClientAuthCallbackCompletePageProps = {
   error?: string;

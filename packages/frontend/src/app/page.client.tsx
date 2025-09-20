@@ -1,6 +1,6 @@
 "use client";
 
-import { TopPage } from "@/features/routes/top-page";
+import { TopPage } from "~/features/routes/top-page";
 
 type ClientTopPageProps = {
   sendPoint: number;
