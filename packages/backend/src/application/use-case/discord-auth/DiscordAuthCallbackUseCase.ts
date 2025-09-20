@@ -1,8 +1,8 @@
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../../di-container/types";
-import { DiscordTokens } from "../../../domain/discord-tokens/DiscordTokens";
-import { DiscordID, User } from "../../../domain/user/User";
+import { DiscordTokens } from "@pichikoto/core/domain/discord-tokens";
+import { DiscordID, User } from "@pichikoto/core/domain/user";
 import type { DiscordTokensRepositoryInterface } from "../../../infrastructure/repositories/DiscordTokensRepository";
 import type { UserRepositoryInterface } from "../../../infrastructure/repositories/UserRepository";
 import { handleResult } from "../../../utils/ResultHelper";

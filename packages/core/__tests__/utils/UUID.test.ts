@@ -1,6 +1,6 @@
 import { validate as UUIDValidate } from "uuid";
 import { describe, expect, it } from "vitest";
-import { UUID } from "../../src/utils/UUID";
+import { UUID } from "../../src/utils";
 
 describe("UUID", () => {
   describe("UUID.new()", () => {

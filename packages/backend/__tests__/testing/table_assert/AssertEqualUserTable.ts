@@ -1,6 +1,6 @@
 import { expect } from "vitest";
 import type * as schema from "../../../database/schema";
-import type { User } from "../../../src/domain/user/User";
+import type { User } from "@pichikoto/core/domain/user";
 
 /**
  * データベースのuserテーブルと引数で渡されたUserドメインオブジェクトが等しいことをアサート

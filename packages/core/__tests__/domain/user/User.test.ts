@@ -5,24 +5,19 @@ import {
   Faculty,
   User,
   UserID
-} from "../../../src/domain/user/User";
+} from "../../../src/domain/user";
 import {
   DepartmentTooLongError,
   EmptyDepartmentError,
   EmptyFacultyError,
   FacultyTooLongError,
   InvalidDiscordIDError
-} from "../../../src/domain/user/UserError";
-import { UUID } from "../../../src/utils/UUID";
+} from "../../../src/domain/user";
 
-const MOCK_USER_ID = UUID.new().value;
+const MOCK_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 beforeEach(() => {
-  vi.spyOn(UserID, "new").mockReturnValue(
-    new (class {
-      constructor(public readonly value: UUID) {}
-    })(UUID.from(MOCK_USER_ID))
-  );
+  vi.spyOn(UserID, "new").mockReturnValue(UserID.from(MOCK_USER_ID));
 });
 
 afterEach(() => {

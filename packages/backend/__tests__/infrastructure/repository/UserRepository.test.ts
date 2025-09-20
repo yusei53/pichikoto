@@ -6,7 +6,7 @@ import {
   Faculty,
   User,
   UserID
-} from "../../../src/domain/user/User";
+} from "@pichikoto/core/domain/user";
 import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";
 import { assertEqualUserTable } from "../../testing/table_assert/AssertEqualUserTable";
 import {

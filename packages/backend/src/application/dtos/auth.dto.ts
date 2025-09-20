@@ -1,4 +1,4 @@
-import type { User } from "../../domain/user/User";
+import type { User } from "@pichikoto/core/domain/user";
 
 // 認証後のレスポンス
 export type AuthPayloadDTO = {
