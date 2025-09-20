@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { CreatedAt } from "../../src/utils/CreatedAt";
+import { CreatedAt } from "../../src/utils";
 
 describe("CreatedAt", () => {
   const MOCK_DATE = new Date("2025-01-01T00:00:00.000Z").getTime();

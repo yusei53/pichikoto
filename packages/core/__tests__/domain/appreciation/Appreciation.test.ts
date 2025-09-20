@@ -3,9 +3,7 @@ import {
   Appreciation,
   AppreciationID,
   AppreciationMessage,
-  PointPerReceiver
-} from "../../../src/domain/appreciation/Appreciation";
-import {
+  PointPerReceiver,
   DuplicateReceiversError,
   EmptyMessageError,
   NoReceiversError,
@@ -15,12 +13,11 @@ import {
   TooLongMessageError,
   TooManyReceiversError,
   TotalPointExceedsLimitError
-} from "../../../src/domain/appreciation/AppreciationError";
-import { UserID } from "../../../src/domain/user/User";
-import { CreatedAt } from "../../../src/utils/CreatedAt";
-import { UUID } from "../../../src/utils/UUID";
+} from "../../../src/domain/appreciation";
+import { UserID } from "../../../src/domain/user";
+import { CreatedAt } from "../../../src/utils";
 
-const MOCK_APPRECIATION_ID = UUID.new().value;
+const MOCK_APPRECIATION_ID = "00000000-0000-0000-0000-000000000000";
 const MOCK_NOW_DATE = new Date("2025-01-01T00:00:00.000Z");
 
 beforeEach(() => {
@@ -28,9 +25,7 @@ beforeEach(() => {
   vi.setSystemTime(MOCK_NOW_DATE);
 
   vi.spyOn(AppreciationID, "new").mockReturnValue(
-    new (class {
-      constructor(public readonly value: UUID) {}
-    })(UUID.from(MOCK_APPRECIATION_ID))
+    AppreciationID.from(MOCK_APPRECIATION_ID)
   );
 });
 
