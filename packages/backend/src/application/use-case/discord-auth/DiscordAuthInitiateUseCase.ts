@@ -44,6 +44,11 @@ export class DiscordAuthInitiateUseCase
     const codeVerifier = this.generateSecureRandomString(64);
     const codeChallenge = await this.generateCodeChallenge(codeVerifier);
 
+    // stateパラメータにsessionIDをエンコードして含める
+    const encodedState = Buffer.from(`${sessionID}:${state}`).toString(
+      "base64url"
+    );
+
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15分間有効
     await this.stateRepository.save(
       sessionID,
@@ -61,7 +66,7 @@ export class DiscordAuthInitiateUseCase
       `${c.env.FRONTEND_BASE_URL}/auth/callback/discord`
     );
     params.append("scope", "identify openid");
-    params.append("state", state);
+    params.append("state", encodedState); // エンコードされたstateを使用
     params.append("nonce", nonce);
     params.append("code_challenge", codeChallenge);
     params.append("code_challenge_method", "S256");

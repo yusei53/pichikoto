@@ -1,5 +1,4 @@
 import type { Context } from "hono";
-import { getCookie, setCookie } from "hono/cookie";
 import { inject, injectable } from "inversify";
 import type { JwtServiceInterface } from "../../application/services/jwt";
 import type { DiscordAuthCallbackUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
@@ -25,17 +24,7 @@ export class AuthController implements AuthControllerInterface {
   ) {}
 
   async redirectToAuthURL(c: Context) {
-    const { authURL, sessionID } =
-      await this.discordAuthInitiateUseCase.execute(c);
-
-    // sessionIdをHttpOnlyCookieとして設定
-    setCookie(c, "oauth_session", sessionID, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
-      path: "/",
-      maxAge: 900 // 15分
-    });
+    const { authURL } = await this.discordAuthInitiateUseCase.execute(c);
 
     return c.redirect(authURL);
   }
@@ -47,24 +36,27 @@ export class AuthController implements AuthControllerInterface {
         .catch(() => ({ code: undefined, state: undefined }));
 
       const code = body.code;
-      const state = body.state;
+      const encodedState = body.state;
 
       if (!code) {
         console.error("Auth callback error: No code provided");
         return c.json({ error: "no_code" }, 400);
       }
 
-      if (!state) {
+      if (!encodedState) {
         console.error("Auth callback error: No state provided");
         return c.json({ error: "no_state" }, 400);
       }
 
-      // Cookieから sessionId を取得
-      const sessionId = getCookie(c, "oauth_session");
+      // stateからsessionIDをデコード
+      let sessionId: string;
+      let state: string;
+      const decoded = Buffer.from(encodedState, "base64url").toString("utf-8");
+      [sessionId, state] = decoded.split(":");
 
-      if (!sessionId) {
-        console.error("Auth callback error: No session cookie provided");
-        return c.json({ error: "no_session" }, 400);
+      if (!sessionId || !state) {
+        console.error("Auth callback error: Invalid state format");
+        return c.json({ error: "invalid_state" }, 400);
       }
 
       const authPayload = await this.discordAuthCallbackUseCase.execute(
@@ -74,17 +66,9 @@ export class AuthController implements AuthControllerInterface {
         sessionId
       );
 
-      // 使用済みのセッションCookieを削除
-      setCookie(c, "oauth_session", "", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "None",
-        path: "/",
-        maxAge: 0
-      });
-
       c.header("Cache-Control", "no-store");
 
+      // TODO: ドメイン取得時にHTTPOnly Cookieでトークンを保存するようにする
       // フロントエンドにトークンをJSONで返す
       return c.json({
         accessToken: authPayload.accessToken,
@@ -92,15 +76,6 @@ export class AuthController implements AuthControllerInterface {
       });
     } catch (error) {
       console.error("Auth callback error:", error);
-
-      // エラー時もセッションCookieを削除
-      setCookie(c, "oauth_session", "", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "None",
-        path: "/",
-        maxAge: 0
-      });
 
       return c.json({ error: "auth_failed" }, 500);
     }

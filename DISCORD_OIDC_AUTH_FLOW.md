@@ -7,11 +7,13 @@
 ### 認証フロー概要
 
 1. **認証開始**: フロントエンドがバックエンドの`/api/auth`にGETリクエスト
-2. **Discord認証**: バックエンドがDiscordの認証ページへリダイレクト（`redirect_uri`はフロントエンドの`/auth/callback/discord`）
-3. **認可コード取得**: フロントエンドが認可コードを取得し、バックエンドにPOST
-4. **トークン交換**: バックエンドがDiscordからIDトークンを取得して検証
-5. **ユーザー処理**: ユーザー情報を取得してログイン・サインアップ処理
-6. **完了**: 自前のJWTトークンを返却してフロー終了
+2. **セッション生成**: バックエンドが`sessionID`と`state`を生成し、`sessionID:state`をbase64urlエンコード
+3. **Discord認証**: バックエンドがDiscordの認証ページへリダイレクト（`redirect_uri`はフロントエンドの`/auth/callback/discord`、`state`はエンコード済み）
+4. **認可コード取得**: フロントエンドが認可コードとエンコードされた`state`を取得し、バックエンドにPOST
+5. **セッション復元**: バックエンドがエンコードされた`state`から`sessionID`と`state`を復元
+6. **トークン交換**: バックエンドがDiscordからIDトークンを取得して検証
+7. **ユーザー処理**: ユーザー情報を取得してログイン・サインアップ処理
+8. **完了**: 自前のJWTトークンを返却してフロー終了
 
 このドキュメントでは、認証フローの詳細、セキュリティ対策、実装のポイントについて説明します。
 
@@ -107,22 +109,23 @@ sequenceDiagram
 
 - フロントエンドがバックエンドの`/api/auth`にGETリクエスト
 - バックエンドは以下のセキュアなランダム値を生成し、認証状態をデータベースに保存：
-  - **sessionID** (32文字): セッション識別子（HttpOnly Cookieに保存）
+  - **sessionID** (32文字): セッション識別子
   - **state** (32文字): CSRF攻撃対策用のランダム値
   - **nonce** (32文字): リプレイ攻撃対策用のランダム値
   - **codeVerifier** (64文字): PKCE用のコード検証子
   - **codeChallenge** (SHA256ハッシュ): codeVerifierのハッシュ値
-- `oauth_session` Cookieを設定してDiscord認証URLへリダイレクト
+- `sessionID:state`をbase64urlエンコードして`encodedState`を作成
+- `encodedState`をDiscord認証URLのstateパラメータに設定してリダイレクト
 
 #### 2. Discord認証
 
 - バックエンドは`redirect_uri`としてフロントエンドの`/auth/callback/discord`を指定
-- ユーザーがDiscordで認証完了後、フロントエンドに認可コードとstateが送信される
+- ユーザーがDiscordで認証完了後、フロントエンドに認可コードとエンコードされたstateが送信される
 
 #### 3. 認証コールバック処理
 
-- フロントエンドが認可コードとstateを受け取り、バックエンドにPOST
-- バックエンドはセッションCookieからsessionIDを取得し、stateを検証
+- フロントエンドが認可コードとエンコードされたstateを受け取り、バックエンドにPOST
+- バックエンドはエンコードされたstateからsessionIDとstateを復元し、stateを検証
 
 #### 4. トークン交換・検証
 
@@ -195,17 +198,14 @@ const idTokenPayload = await this.discordTokenService.verifyIdToken(
 
 ### 4. セッション管理
 
-**HttpOnly Cookie:**
+**エンコードされたStateパラメータ:**
 
 ```typescript
-// セッションIDをHttpOnly Cookieで管理
-setCookie(c, "oauth_session", sessionID, {
-  httpOnly: true,
-  secure: true,
-  sameSite: "None",
-  path: "/",
-  maxAge: 900 // 15分
-});
+// sessionID:stateをbase64urlエンコード
+const encodedState = Buffer.from(`${sessionID}:${state}`).toString("base64url");
+
+// Discord認証URLのstateパラメータに設定
+params.append("state", encodedState);
 ```
 
 ## API エンドポイント
@@ -218,15 +218,14 @@ GET /api/auth
 
 **レスポンス:**
 
-- Discord認証URLへのリダイレクト
-- `oauth_session` Cookie設定（HttpOnly、15分間有効）
+- Discord認証URLへのリダイレクト（stateパラメータにエンコードされたsessionID:state）
 
 **処理内容:**
 
 1. セキュアなランダム値を生成（sessionID, state, nonce, codeVerifier）
-2. 認証状態をデータベースに保存（15分間有効）
-3. `oauth_session` Cookieを設定
-4. Discord認証URLへリダイレクト
+2. `sessionID:state`をbase64urlエンコード
+3. 認証状態をデータベースに保存（15分間有効）
+4. Discord認証URLへリダイレクト（エンコードされたstateパラメータ付き）
 
 ### 認証コールバック
 
@@ -239,7 +238,7 @@ POST /api/auth/callback
 ```json
 {
   "code": "認可コード",
-  "state": "stateパラメータ"
+  "state": "エンコードされたstateパラメータ（sessionID:state）"
 }
 ```
 
@@ -254,8 +253,8 @@ POST /api/auth/callback
 
 **処理内容:**
 
-1. リクエストボディから認可コードとstateを取得
-2. `oauth_session` CookieからsessionIDを取得
+1. リクエストボディから認可コードとエンコードされたstateを取得
+2. エンコードされたstateからsessionIDとstateを復元
 3. データベースでstateを検証（sessionIDで照合）
 4. Discordにトークン交換リクエスト（PKCEのcode_verifierを使用）
 5. DiscordからアクセストークンとIDトークンを取得
@@ -304,12 +303,35 @@ Authorization: Bearer <accessToken>
 
 ### 認証エラー
 
-| エラー        | 説明                   | HTTPステータス |
-| ------------- | ---------------------- | -------------- |
-| `no_code`     | 認可コードが不足       | 400            |
-| `no_state`    | stateパラメータが不足  | 400            |
-| `no_session`  | セッションCookieが不足 | 400            |
-| `auth_failed` | 認証処理失敗           | 500            |
+| エラー          | 説明                        | HTTPステータス |
+| --------------- | --------------------------- | -------------- |
+| `no_code`       | 認可コードが不足            | 400            |
+| `no_state`      | stateパラメータが不足       | 400            |
+| `invalid_state` | stateパラメータの形式が不正 | 400            |
+| `auth_failed`   | 認証処理失敗                | 500            |
+
+## フロー要約
+
+### 認証フローの流れ
+
+1. **フロントエンド** → バックエンド`/api/auth`にGETリクエスト
+2. **バックエンド** → `sessionID`と`state`を生成し、`sessionID:state`をbase64urlエンコード
+3. **バックエンド** → Discord認証URLへリダイレクト（エンコードされた`state`パラメータ付き）
+4. **ユーザー** → Discordで認証完了
+5. **Discord** → フロントエンド`/auth/callback/discord`に認可コードとエンコードされた`state`を送信
+6. **フロントエンド** → バックエンド`/api/auth/callback`に認可コードとエンコードされた`state`をPOST
+7. **バックエンド** → エンコードされた`state`から`sessionID`と`state`を復元
+8. **バックエンド** → Discordからトークンを取得・検証・ユーザー処理
+9. **バックエンド** → 自前のJWTトークンをフロントエンドに返却
+10. **フロントエンド** → トークンを保存してトップページへリダイレクト
+
+### セキュリティポイント
+
+- **PKCE**: 認可コード傍受攻撃を防止
+- **state**: CSRF攻撃を防止
+- **nonce**: リプレイ攻撃を防止
+- **エンコードされたstate**: サードパーティCookie問題を回避
+- **JWT**: セッション管理をトークンベースで実現
 
 ## 参考資料
 

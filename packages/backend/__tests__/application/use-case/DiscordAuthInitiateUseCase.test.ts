@@ -52,6 +52,15 @@ describe("DiscordAuthInitiateUseCase Tests", () => {
         code_challenge_method: "S256"
       };
 
+      // stateパラメータはエンコードされているので、デコードして検証
+      const decodeAndValidateState = (encodedState: string) => {
+        const decoded = Buffer.from(encodedState, "base64url").toString(
+          "utf-8"
+        );
+        const [sessionID, state] = decoded.split(":");
+        return { sessionID, state };
+      };
+
       const expectedLengths = {
         sessionID: 32,
         state: 32,
@@ -71,18 +80,26 @@ describe("DiscordAuthInitiateUseCase Tests", () => {
       });
 
       const url = new URL(result.authURL);
-      const state = url.searchParams.get("state");
+      const encodedState = url.searchParams.get("state");
       const nonce = url.searchParams.get("nonce");
       const codeChallenge = url.searchParams.get("code_challenge");
 
+      // state以外のパラメータを検証
       Object.entries(expectedUrlParameters).forEach(
         ([param, expectedValue]) => {
-          expect(url.searchParams.get(param)).toBe(expectedValue);
+          if (param !== "state") {
+            expect(url.searchParams.get(param)).toBe(expectedValue);
+          }
         }
       );
 
+      // stateパラメータの検証
+      expect(encodedState).toBeTruthy();
+      const { sessionID, state } = decodeAndValidateState(encodedState!);
+
       // MEMO: expectedUrlParametersで確認できていないパラメータの存在確認を含めたアサート
       expect(result.sessionID).toHaveLength(expectedLengths.sessionID);
+      expect(sessionID).toBe(result.sessionID);
       expect(state).toHaveLength(expectedLengths.state);
       expect(nonce).toHaveLength(expectedLengths.nonce);
       expect(codeChallenge).toHaveLength(expectedLengths.codeChallenge);
