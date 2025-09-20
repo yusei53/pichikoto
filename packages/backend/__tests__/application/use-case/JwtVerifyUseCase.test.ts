@@ -1,8 +1,8 @@
 import type { Context } from "hono";
 import { sign } from "hono/jwt";
 import { describe, expect, it } from "vitest";
-import type { AppJwtPayload } from "../../../src/application/use-case/jwt/JwtVerifyUseCase";
-import { JwtVerifyUseCase } from "../../../src/application/use-case/jwt/JwtVerifyUseCase";
+import type { AppJwtPayload } from "../../../src/application/use-case/discord-auth/JwtVerifyUseCase";
+import { JwtVerifyUseCase } from "../../../src/application/use-case/discord-auth/JwtVerifyUseCase";
 import { expectErr, expectOk } from "../../testing/utils/AssertResult";
 
 const MOCK_JWT_SECRET = "test_jwt_secret";

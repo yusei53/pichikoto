@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import type { JwtServiceInterface } from "../../application/services/jwt";
 import type { DiscordAuthCallbackUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import type { DiscordAuthInitiateUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
-import type { JwtVerifyUseCaseInterface } from "../../application/use-case/jwt/JwtVerifyUseCase";
+import type { JwtVerifyUseCaseInterface } from "../../application/use-case/discord-auth/JwtVerifyUseCase";
 import { TYPES } from "../../di-container/types";
 
 export interface AuthControllerInterface {
