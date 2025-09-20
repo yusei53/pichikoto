@@ -5,8 +5,8 @@ import {
   DiscordTokens,
   ExpiresAt,
   RefreshToken
-} from "../../../src/domain/discord-tokens/DiscordTokens";
-import { UserID } from "../../../src/domain/user/User";
+} from "@pichikoto/core/domain/discord-tokens";
+import { UserID } from "@pichikoto/core/domain/user";
 import { DiscordTokensRepository } from "../../../src/infrastructure/repositories/DiscordTokensRepository";
 import { assertEqualDiscordTokensTable } from "../../testing/table_assert/AssertEqualDiscordTokensTable";
 import {

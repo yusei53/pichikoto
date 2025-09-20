@@ -7,8 +7,8 @@ import {
   DiscordTokens,
   ExpiresAt,
   RefreshToken
-} from "../../domain/discord-tokens/DiscordTokens";
-import { UserID } from "../../domain/user/User";
+} from "@pichikoto/core/domain/discord-tokens";
+import { UserID } from "@pichikoto/core/domain/user";
 
 export interface DiscordTokensRepositoryInterface {
   findBy(userID: UserID): Promise<DiscordTokens | null>;

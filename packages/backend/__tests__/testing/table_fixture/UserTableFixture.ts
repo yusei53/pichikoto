@@ -1,5 +1,5 @@
 import type { user } from "../../../database/schema";
-import { UUID } from "../../../src/utils/UUID";
+import { UUID } from "@pichikoto/core/utils";
 
 /**
  * テスト用のDiscord情報

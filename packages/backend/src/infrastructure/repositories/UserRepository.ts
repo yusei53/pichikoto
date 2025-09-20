@@ -8,7 +8,7 @@ import {
   Faculty,
   User,
   UserID
-} from "../../domain/user/User";
+} from "@pichikoto/core/domain/user";
 
 export interface UserRepositoryInterface {
   findBy(discordID: DiscordID): Promise<User | null>;

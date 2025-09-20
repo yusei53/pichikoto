@@ -1,5 +1,5 @@
 import type { oauthState } from "../../../database/schema";
-import { UUID } from "../../../src/utils/UUID";
+import { UUID } from "@pichikoto/core/utils";
 
 /**
  * 一意性を保証するランダムな文字列を生成するヘルパー関数
