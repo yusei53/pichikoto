@@ -101,7 +101,7 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
     mockDiscordUserService as DiscordUserServiceInterface,
     userRepository,
     discordTokensRepository,
-    mockJwtService as unknown as JwtServiceInterface // TODO: 後で直す
+    mockJwtService as JwtServiceInterface
   );
 
   // 共通のテストデータ

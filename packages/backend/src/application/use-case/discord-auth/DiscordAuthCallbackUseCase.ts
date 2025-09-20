@@ -40,6 +40,7 @@ export class DiscordAuthCallbackUseCase
     private readonly jwtService: JwtServiceInterface
   ) {}
 
+
   async execute(
     c: Context,
     code: string,

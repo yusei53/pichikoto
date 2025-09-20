@@ -1,10 +1,12 @@
 import type { Context } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import { inject, injectable } from "inversify";
-import type { JwtServiceInterface } from "../../application/services/jwt";
 import type { DiscordAuthCallbackUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import type { DiscordAuthInitiateUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
+import type { JwtRefreshUseCaseInterface } from "../../application/use-case/jwt/JwtRefreshUseCase";
+import type { JwtVerifyUseCaseInterface } from "../../application/use-case/jwt/JwtVerifyUseCase";
 import { TYPES } from "../../di-container/types";
+import { handleResult } from "../../utils/ResultHelper";
 
 export interface AuthControllerInterface {
   redirectToAuthURL(c: Context): Promise<Response>;
@@ -24,8 +26,10 @@ export class AuthController implements AuthControllerInterface {
     private readonly discordAuthInitiateUseCase: DiscordAuthInitiateUseCaseInterface,
     @inject(TYPES.DiscordAuthCallbackUseCase)
     private readonly discordAuthCallbackUseCase: DiscordAuthCallbackUseCaseInterface,
-    @inject(TYPES.JwtService)
-    private readonly jwtService: JwtServiceInterface
+    @inject(TYPES.JwtRefreshUseCase)
+    private readonly jwtRefreshUseCase: JwtRefreshUseCaseInterface,
+    @inject(TYPES.JwtVerifyUseCase)
+    private readonly jwtVerifyUseCase: JwtVerifyUseCaseInterface
   ) {}
 
   async redirectToAuthURL(c: Context) {
@@ -149,7 +153,10 @@ export class AuthController implements AuthControllerInterface {
         return c.json({ error: "Refresh token is required" }, 401);
       }
 
-      const tokens = await this.jwtService.refreshAccessToken(c, refreshToken);
+      const tokens = handleResult(
+        await this.jwtRefreshUseCase.execute(c, refreshToken),
+        (error) => error
+      );
 
       // トークンをローテーションし、Cookieを更新
       setCookie(c, "accessToken", tokens.accessToken, {
@@ -185,16 +192,16 @@ export class AuthController implements AuthControllerInterface {
       }
 
       const token = authHeader.substring(7); // "Bearer "を除去
-      const payload = await this.jwtService.verify(c, token);
+      const result = await this.jwtVerifyUseCase.execute(c, token);
 
-      if (!payload) {
+      if (result.isErr()) {
         return c.json({ error: "Invalid or expired token" }, 401);
       }
 
       return c.json({
         valid: true,
-        userId: payload.sub,
-        expiresAt: payload.exp
+        userId: result.value.jwtPayload.sub,
+        expiresAt: result.value.jwtPayload.exp
       });
     } catch (error) {
       console.error("Token verification error:", error);
