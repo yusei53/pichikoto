@@ -1,5 +1,5 @@
-import { mockPointLog } from "@/mock/point-log";
-import type { PointLog } from "@/model/point-log";
+import { mockPointLog } from "~/mock/point-log";
+import type { PointLog } from "~/model/point-log";
 
 export const topPageAPI = {
   async getPointLog(): Promise<PointLog> {

@@ -1,4 +1,4 @@
-import type { Post } from "@/model/post";
+import type { Post } from "~/model/post";
 import { mockUser } from "../user";
 
 export const mockPost: Post = {

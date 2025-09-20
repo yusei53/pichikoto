@@ -1,7 +1,7 @@
 "use client";
 
-import { authLoginPageAPI } from "@/features/routes/auth/login/endpoints/authLoginPageAPI";
 import { LogIn } from "lucide-react";
+import { authLoginPageAPI } from "~/features/routes/auth/login/endpoints/authLoginPageAPI";
 
 type DiscordLoginButtonProps = {
   className?: string;

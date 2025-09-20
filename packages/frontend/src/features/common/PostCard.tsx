@@ -1,9 +1,8 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { formatDate } from "@/lib/date-helper";
-import type { Post } from "@/model/post";
 import { Plus, SendHorizontal } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { formatDate } from "~/lib/date-helper";
+import type { Post } from "~/model/post";
 
 type PostCardProps = {
   post: Post;
@@ -15,10 +14,6 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-gray-300 px-4 py-2 w-1/2 relative">
       <div className="flex items-center gap-4">
-        <Avatar className="w-10 h-10">
-          <AvatarImage src={post.sendUser.discordAvatar} />
-          <AvatarFallback>{post.sendUser.discordUserName}</AvatarFallback>
-        </Avatar>
         <div>
           <div className="text-sm truncate max-w-[60px]">
             {post.sendUser.discordUserName}
@@ -33,10 +28,6 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
           <>
             {post.receivedUsers.slice(0, 3).map((user, index) => (
               <div className="flex items-center flex-col pt-4" key={index}>
-                <Avatar className="w-10 h-10">
-                  <AvatarImage src={user.discordAvatar} />
-                  <AvatarFallback>{user.discordUserName}</AvatarFallback>
-                </Avatar>
                 <div className="text-sm truncate max-w-[40px]">
                   {user.discordUserName}
                 </div>
@@ -71,10 +62,6 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
         ) : (
           post.receivedUsers.map((user, index) => (
             <div className="flex items-center flex-col pt-4" key={index}>
-              <Avatar className="w-10 h-10">
-                <AvatarImage src={user.discordAvatar} />
-                <AvatarFallback>{user.discordUserName}</AvatarFallback>
-              </Avatar>
               <div className="text-sm truncate max-w-[40px]">
                 {user.discordUserName}
               </div>
