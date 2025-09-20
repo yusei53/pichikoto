@@ -1,6 +1,6 @@
-import { mockPost } from "@/mock/post";
-import { mockUser } from "@/mock/user";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { mockPost } from "~/mock/post";
+import { mockUser } from "~/mock/user";
 import { PostCard } from "./PostCard";
 
 const meta: Meta<typeof PostCard> = {
