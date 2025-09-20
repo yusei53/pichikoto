@@ -1,0 +1,13 @@
+.wrangler
+dist
+node_modules
+coverage
+.next
+worker-configuration.d.ts
+drizzle
+.github
+.vscode
+.serena
+.claude
+.storybook
+pnpm-lock.yaml
