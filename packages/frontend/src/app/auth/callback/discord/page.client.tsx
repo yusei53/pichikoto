@@ -1,9 +1,9 @@
 "use client";
 
-import { authLoginPageAPI } from "@/features/routes/auth/login/endpoints/authLoginPageAPI";
-import { cookieUtils } from "@/lib/cookie";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { authLoginPageAPI } from "~/features/routes/auth/login/endpoints/authLoginPageAPI";
+import { cookieUtils } from "~/lib/cookie";
 
 type ClientAuthCallbackDiscordPageProps = {
   error?: string;
