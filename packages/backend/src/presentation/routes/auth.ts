@@ -8,11 +8,9 @@ auth.get("/", async (c) => {
   return controller.redirectToAuthURL(c);
 });
 
-auth.get("/callback", async (c) => {
-  const code = c.req.query("code");
-  const state = c.req.query("state");
+auth.post("/callback", async (c) => {
   const controller = c.get("authController");
-  return controller.callback(c, code, state);
+  return controller.callback(c);
 });
 
 auth.post("/refresh", async (c) => {
@@ -20,7 +18,7 @@ auth.post("/refresh", async (c) => {
   return controller.refresh(c);
 });
 
-auth.get("/verify", async (c) => {
+auth.get("/is-authorized", async (c) => {
   const controller = c.get("authController");
   return controller.verify(c);
 });
