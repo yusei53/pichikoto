@@ -1,8 +1,10 @@
 import type { Context } from "hono";
 import { sign } from "hono/jwt";
 import { describe, expect, it } from "vitest";
-import type { AppJwtPayload } from "../../../src/application/use-case/discord-auth/JwtVerifyUseCase";
-import { JwtVerifyUseCase } from "../../../src/application/use-case/discord-auth/JwtVerifyUseCase";
+import {
+  JwtVerifyService,
+  type AppJwtPayload
+} from "../../../src/application/services/jwt/JWTVerifyService";
 import { expectErr, expectOk } from "../../testing/utils/AssertResult";
 
 const MOCK_JWT_SECRET = "test_jwt_secret";
@@ -14,7 +16,7 @@ const mockContext: Context = {
 } as Context;
 
 describe("JwtVerifyUseCase Tests", () => {
-  const jwtVerifyUseCase = new JwtVerifyUseCase();
+  const jwtVerifyService = new JwtVerifyService();
 
   describe("execute", () => {
     /**
@@ -40,7 +42,7 @@ describe("JwtVerifyUseCase Tests", () => {
       } as AppJwtPayload;
 
       // Act
-      const result = await jwtVerifyUseCase.execute(mockContext, mockToken);
+      const result = await jwtVerifyService.execute(mockContext, mockToken);
 
       // Assert
       const actualPayload = expectOk(result);
@@ -55,7 +57,7 @@ describe("JwtVerifyUseCase Tests", () => {
    */
   it("無効なJWTトークンの場合、JwtVerifyUseCaseErrorが返されること", async () => {
     // Act
-    const result = await jwtVerifyUseCase.execute(mockContext, "invalid_token");
+    const result = await jwtVerifyService.execute(mockContext, "invalid_token");
 
     // Assert
     const error = expectErr(result);
@@ -80,7 +82,7 @@ describe("JwtVerifyUseCase Tests", () => {
     );
 
     // Act
-    const result = await jwtVerifyUseCase.execute(mockContext, expiredToken);
+    const result = await jwtVerifyService.execute(mockContext, expiredToken);
 
     // Assert
     const error = expectErr(result);
