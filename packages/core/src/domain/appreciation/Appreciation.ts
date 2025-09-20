@@ -1,6 +1,5 @@
-import type { UserID } from "../../domain/user/User";
-import { CreatedAt } from "../../utils/CreatedAt";
-import { UUID } from "../../utils/UUID";
+import type { UserID } from "../user/User";
+import { CreatedAt, UUID } from "../../utils";
 import {
   DuplicateReceiversError,
   EmptyMessageError,
