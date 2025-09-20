@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import type { JwtServiceInterface } from "../../application/services/jwt/jwt";
 import type { DiscordAuthCallbackUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import type { DiscordAuthInitiateUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
-import type { JwtVerifyUseCaseInterface } from "../../application/use-case/discord-auth/JwtVerifyUseCase";
+import type { DiscordAuthVerifyUsecaseInterface } from "../../application/use-case/discord-auth/DiscordAuthVerifyUsecase";
 import { TYPES } from "../../di-container/types";
 
 export interface AuthControllerInterface {
@@ -22,8 +22,8 @@ export class AuthController implements AuthControllerInterface {
     private readonly discordAuthCallbackUseCase: DiscordAuthCallbackUseCaseInterface,
     @inject(TYPES.JwtService)
     private readonly jwtService: JwtServiceInterface,
-    @inject(TYPES.JwtVerifyUseCase)
-    private readonly jwtVerifyUseCase: JwtVerifyUseCaseInterface
+    @inject(TYPES.DiscordAuthVerifyUsecase)
+    private readonly discordAuthVerifyUsecase: DiscordAuthVerifyUsecaseInterface
   ) {}
 
   async redirectToAuthURL(c: Context) {
@@ -116,11 +116,7 @@ export class AuthController implements AuthControllerInterface {
       }
 
       const token = authHeader.substring(7); // "Bearer "を除去
-      const payload = await this.jwtVerifyUseCase.execute(c, token);
-
-      if (!payload.isOk()) {
-        return c.json({ error: "Invalid or expired token" }, 401);
-      }
+      await this.discordAuthVerifyUsecase.execute(c, token);
 
       return c.json({ message: "OK" }, 200);
     } catch (error) {
