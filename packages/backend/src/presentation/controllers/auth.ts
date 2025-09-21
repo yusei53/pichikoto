@@ -38,64 +38,46 @@ export class AuthController implements AuthControllerInterface {
   }
 
   async callback(c: Context) {
-    try {
-      const req = toCallbackRequest(c.req.raw);
+    const req = toCallbackRequest(c.req.raw);
 
-      const decoded = Buffer.from(req.body.state, "base64url").toString(
-        "utf-8"
-      );
-      const [sessionId, state] = decoded.split(":");
+    const decoded = Buffer.from(req.body.state, "base64url").toString("utf-8");
+    const [sessionId, state] = decoded.split(":");
 
-      if (!sessionId || !state) {
-        console.error("Auth callback error: Invalid state format");
-        return c.json({ error: "invalid_state" }, 400);
-      }
-
-      const resp = await this.discordAuthCallbackUseCase.execute(
-        c,
-        req.body.code,
-        state,
-        sessionId
-      );
-
-      c.header("Cache-Control", "no-store");
-
-      // TODO: ドメイン取得時にHTTPOnly Cookieでトークンを保存するようにする
-      // フロントエンドにトークンをJSONで返す
-      return c.json(resp);
-    } catch (error) {
-      console.error("Auth callback error:", error);
-
-      return c.json({ error: "auth_failed" }, 500);
+    if (!sessionId || !state) {
+      console.error("Auth callback error: Invalid state format");
+      return c.json({ error: "invalid_state" }, 400);
     }
+
+    const resp = await this.discordAuthCallbackUseCase.execute(
+      c,
+      req.body.code,
+      state,
+      sessionId
+    );
+
+    c.header("Cache-Control", "no-store");
+
+    // TODO: ドメイン取得時にHTTPOnly Cookieでトークンを保存するようにする
+    // フロントエンドにトークンをJSONで返す
+    return c.json(resp);
   }
 
   async refresh(c: Context) {
-    try {
-      const req = toRefreshTokenRequest(c.req.raw);
+    const req = toRefreshTokenRequest(c.req.raw);
 
-      const resp = await this.jwtService.refreshAccessToken(
-        c,
-        req.body.refreshToken
-      );
+    const resp = await this.jwtService.refreshAccessToken(
+      c,
+      req.body.refreshToken
+    );
 
-      return c.json(resp);
-    } catch (error) {
-      console.error("Token refresh error:", error);
-      return c.json({ error: "Invalid refresh token" }, 401);
-    }
+    return c.json(resp);
   }
 
   async verify(c: Context) {
-    try {
-      const req = toVerifyTokenRequest(c.req.raw);
+    const req = toVerifyTokenRequest(c.req.raw);
 
-      await this.discordAuthVerifyUsecase.execute(c, req.headers.authorization);
+    await this.discordAuthVerifyUsecase.execute(c, req.headers.authorization);
 
-      return c.json({ message: "OK" }, 200);
-    } catch (error) {
-      console.error("Token verification error:", error);
-      return c.json({ error: "Unauthorized" }, 401);
-    }
+    return c.json({ message: "OK" }, 200);
   }
 }
