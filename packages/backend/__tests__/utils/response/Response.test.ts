@@ -1,6 +1,6 @@
 import { UnauthorizedError } from "@pichikoto/http-contracts";
 import { describe, expect, it, vi } from "vitest";
-import { BytesMessage, Response } from "../../../src/utils/response/Response";
+import { Response } from "../../../src/utils/response/Response";
 
 // Honoのコンテキストをモック
 const mockContext = {
@@ -17,17 +17,6 @@ describe("Response", () => {
     expect(mockContext.text).toHaveBeenCalledWith("", 200);
   });
 
-  it("messageがBytesMessageの場合はバイナリレスポンスを返す", () => {
-    const body = new ArrayBuffer(8);
-    const bytesMessage = new BytesMessage(body, "application/pdf");
-    const response = new Response(200, bytesMessage);
-
-    const result = response.respond(mockContext as any);
-
-    expect(result).toBeInstanceOf(Response);
-    expect(result.status).toBe(200);
-  });
-
   it("messageが通常のオブジェクトの場合はJSONレスポンスを返す", () => {
     const message = { success: true };
     const response = new Response(200, message);
@@ -35,18 +24,6 @@ describe("Response", () => {
     response.respond(mockContext as any);
 
     expect(mockContext.json).toHaveBeenCalledWith(message, 200);
-  });
-});
-
-describe("BytesMessage", () => {
-  it("バイナリデータとコンテンツタイプを正しく保持する", () => {
-    const body = new ArrayBuffer(8);
-    const contentType = "image/png";
-
-    const bytesMessage = new BytesMessage(body, contentType);
-
-    expect(bytesMessage.body).toBe(body);
-    expect(bytesMessage.contentType).toBe(contentType);
   });
 });
 
