@@ -11,31 +11,21 @@ export const COMMON_DISCORD_INFO = {
 } as const;
 
 /**
- * 学部・学科を持つユーザーのfixture
+ * テスト用のDiscordID
+ */
+const createDiscordID = () => {
+  return Math.floor(100000000 + Math.random() * 900000000).toString();
+};
+
+/**
+ * ユーザーのfixture
  */
 export const createUserTableFixture = () => {
   return {
     id: UUID.new().value,
-    discordId: "123456789",
+    discordId: createDiscordID(),
     discordUserName: COMMON_DISCORD_INFO.USER_NAME,
     discordAvatar: COMMON_DISCORD_INFO.AVATAR,
-    faculty: "Test学部",
-    department: "Test学科",
-    createdAt: new Date()
-  } satisfies typeof user.$inferInsert;
-};
-
-/**
- * 学部・学科を持たないユーザーのfixture
- */
-export const createUserTableFixtureWithoutFacultyAndDepartment = () => {
-  return {
-    id: UUID.new().value,
-    discordId: "987654321",
-    discordUserName: COMMON_DISCORD_INFO.USER_NAME,
-    discordAvatar: COMMON_DISCORD_INFO.AVATAR,
-    faculty: null,
-    department: null,
     createdAt: new Date()
   } satisfies typeof user.$inferInsert;
 };

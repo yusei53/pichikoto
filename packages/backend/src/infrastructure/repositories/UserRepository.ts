@@ -2,13 +2,7 @@ import { eq } from "drizzle-orm";
 import { injectable } from "inversify";
 import { db } from "../../../database/client";
 import { user as userSchema } from "../../../database/schema";
-import {
-  Department,
-  DiscordID,
-  Faculty,
-  User,
-  UserID
-} from "../../domain/user/User";
+import { DiscordID, User, UserID } from "../../domain/user/User";
 
 export interface UserRepositoryInterface {
   findBy(discordID: DiscordID): Promise<User | null>;
@@ -35,9 +29,7 @@ export class UserRepository implements UserRepositoryInterface {
       id: user.id,
       discordId: user.discordId,
       discordUserName: user.discordUserName,
-      discordAvatar: user.discordAvatar,
-      faculty: user.faculty,
-      department: user.department
+      discordAvatar: user.discordAvatar
     };
   }
 
@@ -46,23 +38,17 @@ export class UserRepository implements UserRepositoryInterface {
       UserID.from(userRecord.id),
       DiscordID.from(userRecord.discordId),
       userRecord.discordUserName,
-      userRecord.discordAvatar,
-      userRecord.faculty ? Faculty.from(userRecord.faculty) : null,
-      userRecord.department ? Department.from(userRecord.department) : null
+      userRecord.discordAvatar
     );
   }
 
   async save(user: User): Promise<void> {
-    await db()
-      .insert(userSchema)
-      .values({
-        id: user.userID.value.value,
-        discordId: user.discordID.value,
-        discordUserName: user.discordUserName,
-        discordAvatar: user.discordAvatar,
-        faculty: user.faculty?.value ?? null,
-        department: user.department?.value ?? null
-      });
+    await db().insert(userSchema).values({
+      id: user.userID.value.value,
+      discordId: user.discordID.value,
+      discordUserName: user.discordUserName,
+      discordAvatar: user.discordAvatar
+    });
   }
 }
 
@@ -71,6 +57,4 @@ type UserRecord = {
   discordId: string;
   discordUserName: string;
   discordAvatar: string;
-  faculty: string | null;
-  department: string | null;
 };
