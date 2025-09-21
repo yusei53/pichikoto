@@ -16,8 +16,11 @@ export const callbackRequestSchema = requestSchema.extend({
 
 export type CallbackRequest = z.infer<typeof callbackRequestSchema>;
 
-export const toCallbackRequest = (req: Request): CallbackRequest => {
-  const parsed = callbackRequestSchema.safeParse(toRequest(req));
+export const toCallbackRequest = async (
+  req: Request
+): Promise<CallbackRequest> => {
+  const baseRequest = await toRequest(req);
+  const parsed = callbackRequestSchema.safeParse(baseRequest);
   const data = checkValidation(parsed);
   return data;
 };
@@ -30,8 +33,11 @@ export const refreshTokenRequestSchema = requestSchema.extend({
 
 export type RefreshTokenRequest = z.infer<typeof refreshTokenRequestSchema>;
 
-export const toRefreshTokenRequest = (req: Request): RefreshTokenRequest => {
-  const parsed = refreshTokenRequestSchema.safeParse(toRequest(req));
+export const toRefreshTokenRequest = async (
+  req: Request
+): Promise<RefreshTokenRequest> => {
+  const baseRequest = await toRequest(req);
+  const parsed = refreshTokenRequestSchema.safeParse(baseRequest);
   const data = checkValidation(parsed);
   return data;
 };
@@ -40,8 +46,11 @@ export const verifyTokenRequestSchema = requestSchemaWithAuth;
 
 export type VerifyTokenRequest = z.infer<typeof verifyTokenRequestSchema>;
 
-export const toVerifyTokenRequest = (req: Request): VerifyTokenRequest => {
-  const parsed = verifyTokenRequestSchema.safeParse(toRequestWithAuth(req));
+export const toVerifyTokenRequest = async (
+  req: Request
+): Promise<VerifyTokenRequest> => {
+  const baseRequest = await toRequestWithAuth(req);
+  const parsed = verifyTokenRequestSchema.safeParse(baseRequest);
   const data = checkValidation(parsed);
   return data;
 };

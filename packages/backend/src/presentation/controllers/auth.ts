@@ -38,7 +38,7 @@ export class AuthController implements AuthControllerInterface {
   }
 
   async callback(c: Context) {
-    const req = toCallbackRequest(c.req.raw);
+    const req = await toCallbackRequest(c.req.raw);
 
     const decoded = Buffer.from(req.body.state, "base64url").toString("utf-8");
     const [sessionId, state] = decoded.split(":");
@@ -63,7 +63,7 @@ export class AuthController implements AuthControllerInterface {
   }
 
   async refresh(c: Context) {
-    const req = toRefreshTokenRequest(c.req.raw);
+    const req = await toRefreshTokenRequest(c.req.raw);
 
     const resp = await this.jwtService.refreshAccessToken(
       c,
@@ -74,7 +74,7 @@ export class AuthController implements AuthControllerInterface {
   }
 
   async verify(c: Context) {
-    const req = toVerifyTokenRequest(c.req.raw);
+    const req = await toVerifyTokenRequest(c.req.raw);
 
     await this.discordAuthVerifyUsecase.execute(c, req.headers.authorization);
 
