@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
+    "@pichikoto/http-contracts": "workspace:*",
     "@types/pg": "^8.15.5",
     "drizzle-orm": "^0.44.2",
     "hono": "^4.7.11",
@@ -30,7 +31,7 @@
     "reflect-metadata": "^0.2.2",
     "uuid": "^11.1.0",
     "ws": "^8.18.3",
-    "@pichikoto/http-contracts": "workspace:*"
+    "zod": "^3.24.0"
   },
   "devDependencies": {
     "@types/uuid": "^10.0.0",
