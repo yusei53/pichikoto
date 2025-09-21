@@ -1,5 +1,6 @@
 import { validate as UUIDValidate } from "uuid";
 import { describe, expect, it } from "vitest";
+import { ZodError } from "zod";
 import { UUID } from "../../src/utils/UUID";
 
 describe("UUID", () => {
@@ -34,24 +35,33 @@ describe("UUID", () => {
     describe("異常系", () => {
       it("無効な形式の文字列の場合はエラーを投げること", () => {
         const invalidUUID = "invalid-uuid-string";
+        const fn = () => UUID.from(invalidUUID);
 
-        expect(() => UUID.from(invalidUUID)).toThrow("Invalid UUID format");
+        expect(fn).toThrow(ZodError);
+        expect(fn).toThrow("Invalid UUID format");
       });
 
       it("ハイフンが不足している文字列の場合はエラーを投げること", () => {
         const noHyphensUUID = "550e8400e29b41d4a716446655440000";
+        const fn = () => UUID.from(noHyphensUUID);
 
-        expect(() => UUID.from(noHyphensUUID)).toThrow("Invalid UUID format");
+        expect(fn).toThrow(ZodError);
+        expect(fn).toThrow("Invalid UUID format");
       });
 
       it("長さが不正な文字列の場合はエラーを投げること", () => {
         const shortUUID = "550e8400-e29b-41d4-a716";
+        const fn = () => UUID.from(shortUUID);
 
-        expect(() => UUID.from(shortUUID)).toThrow("Invalid UUID format");
+        expect(fn).toThrow(ZodError);
+        expect(fn).toThrow("Invalid UUID format");
       });
 
       it("空文字の場合はエラーを投げること", () => {
-        expect(() => UUID.from("")).toThrow("Invalid UUID format");
+        const fn = () => UUID.from("");
+
+        expect(fn).toThrow(ZodError);
+        expect(fn).toThrow("Invalid UUID format");
       });
     });
   });
