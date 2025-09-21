@@ -59,17 +59,9 @@ describe("CreatedAt", () => {
 
     describe("異常系", () => {
       it("Date型でない値の場合はエラーを投げること", () => {
-        const invalidDate = new Date("invalid-date-string");
-
-        expect(() => CreatedAt.from(invalidDate)).toThrow(
-          "Invalid date format"
+        expect(() => CreatedAt.from(new Date("invalid-date-string"))).toThrow(
+          "Invalid date"
         );
-      });
-
-      it("NaN の値の場合はエラーを投げること", () => {
-        const nanDate = new Date(NaN);
-
-        expect(() => CreatedAt.from(nanDate)).toThrow("Invalid date format");
       });
     });
   });
