@@ -17,6 +17,8 @@ import type { DiscordAuthCallbackUseCaseInterface } from "../application/use-cas
 import { DiscordAuthCallbackUseCase } from "../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import type { DiscordAuthInitiateUseCaseInterface } from "../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
 import { DiscordAuthInitiateUseCase } from "../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
+import type { DiscordAuthVerifyUsecaseInterface } from "../application/use-case/discord-auth/DiscordAuthVerifyUsecase";
+import { DiscordAuthVerifyUsecase } from "../application/use-case/discord-auth/DiscordAuthVerifyUsecase";
 import type { DiscordTokensRepositoryInterface } from "../infrastructure/repositories/DiscordTokensRepository";
 import { DiscordTokensRepository } from "../infrastructure/repositories/DiscordTokensRepository";
 import type { StateRepositoryInterface } from "../infrastructure/repositories/StateRepository";
@@ -70,6 +72,10 @@ container
   .bind<DiscordJWKServiceInterface>(TYPES.DiscordJWKService)
   .to(DiscordJWKService)
   .inSingletonScope();
+container
+  .bind<JwtVerifyServiceInterface>(TYPES.JwtVerifyService)
+  .to(JwtVerifyService)
+  .inRequestScope();
 
 // Usecases
 container
@@ -81,8 +87,8 @@ container
   .to(DiscordAuthInitiateUseCase)
   .inRequestScope();
 container
-  .bind<JwtVerifyServiceInterface>(TYPES.JwtVerifyService)
-  .to(JwtVerifyService)
+  .bind<DiscordAuthVerifyUsecaseInterface>(TYPES.DiscordAuthVerifyUsecase)
+  .to(DiscordAuthVerifyUsecase)
   .inRequestScope();
 
 // Controllers
