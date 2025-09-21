@@ -10,6 +10,7 @@ import type { DiscordAuthCallbackUseCaseInterface } from "../../application/use-
 import type { DiscordAuthInitiateUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
 import type { DiscordAuthVerifyUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthVerifyUseCase";
 import { TYPES } from "../../di-container/types";
+import { DiscordAuthVerifyErrorResponseCreator } from "../response-creators/DiscordAuthErrorResponseCreator";
 
 export interface AuthControllerInterface {
   redirectToAuthURL(c: Context): Promise<Response>;
@@ -74,10 +75,14 @@ export class AuthController implements AuthControllerInterface {
   }
 
   async verify(c: Context) {
+    const responseCreator = new DiscordAuthVerifyErrorResponseCreator();
     const req = await toVerifyTokenRequest(c.req.raw);
 
-    await this.discordAuthVerifyUseCase.execute(c, req.headers.authorization);
+    const result = await this.discordAuthVerifyUseCase.execute(
+      c,
+      req.headers.authorization
+    );
 
-    return c.json({ message: "OK" }, 200);
+    return responseCreator.fromResult(result).respond(c);
   }
 }

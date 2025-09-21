@@ -19,7 +19,9 @@ export const TYPES = {
   DiscordAuthCallbackUseCase: Symbol.for("DiscordAuthCallbackUseCase"),
   DiscordAuthInitiateUseCase: Symbol.for("DiscordAuthInitiateUseCase"),
   DiscordAuthVerifyUseCase: Symbol.for("DiscordAuthVerifyUseCase"),
+  DiscordAuthVerifyUseCaseV2: Symbol.for("DiscordAuthVerifyUseCaseV2"),
 
   // Controllers
-  AuthController: Symbol.for("AuthController")
+  AuthController: Symbol.for("AuthController"),
+  AuthV2Controller: Symbol.for("AuthV2Controller")
 };
