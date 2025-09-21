@@ -35,8 +35,19 @@ export const toRequest = async (req: Request): Promise<RequestType> => {
   const url = req.url;
   const body = await parseRequestBody(req);
   const headers = toHeadersRecord(req.headers);
-  const parsed = requestSchema.parse({ method, url, body, headers });
-  return parsed;
+  const parsed = requestSchema.safeParse({ method, url, body, headers });
+  return checkValidation(parsed);
+};
+
+export const createRequestParser = <Schema extends z.ZodTypeAny>(
+  schema: Schema,
+  baseParser: (req: Request) => Promise<unknown>
+) => {
+  return async (req: Request): Promise<z.infer<Schema>> => {
+    const base = await baseParser(req);
+    const parsed = schema.safeParse(base);
+    return checkValidation(parsed);
+  };
 };
 
 export const requestSchemaWithAuth = requestSchema.extend({
@@ -49,10 +60,7 @@ export const requestSchemaWithAuth = requestSchema.extend({
 
 export type RequestTypeWithAuth = z.infer<typeof requestSchemaWithAuth>;
 
-export const toRequestWithAuth = async (
-  req: Request
-): Promise<RequestTypeWithAuth> => {
-  const parsed = requestSchemaWithAuth.safeParse(await toRequest(req));
-  const data = checkValidation(parsed);
-  return data;
-};
+export const toRequestWithAuth = createRequestParser(
+  requestSchemaWithAuth,
+  toRequest
+);
