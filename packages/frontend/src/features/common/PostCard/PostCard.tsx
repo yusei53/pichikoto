@@ -8,7 +8,7 @@ import { Icon } from "~/components/ui/icon";
 import { Popover } from "~/components/ui/popover";
 import { usePopover } from "~/components/ui/usePopover";
 import { formatDate } from "~/lib/date-helper";
-import { Post } from "~/model/post";
+import type { Post } from "~/model/post";
 import useDisplayReceivedUsers from "./useDisplayReceivedUsers";
 
 type PostCardProps = {

@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { PostForm } from "./PostForm";
 
 const meta: Meta<typeof PostForm> = {

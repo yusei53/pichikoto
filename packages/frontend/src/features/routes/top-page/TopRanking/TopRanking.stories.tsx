@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { SendHorizontal } from "lucide-react";
 import { Icon } from "~/components/ui/icon";
 import { TopRanking } from "./TopRanking";

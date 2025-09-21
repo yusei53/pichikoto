@@ -1,4 +1,4 @@
-import { User } from "~/model/user";
+import type { User } from "~/model/user";
 
 const useDisplayReceivedUsers = (receivedUsers: User[]) => {
     const displayReceivedUsers = receivedUsers.slice(0, 3);
