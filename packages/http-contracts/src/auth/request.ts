@@ -9,8 +9,8 @@ import { checkValidation } from "../utils/validate";
 
 export const callbackRequestSchema = requestSchema.extend({
   body: z.object({
-    code: z.string().min(1),
-    state: z.string().min(1)
+    code: z.string(),
+    state: z.string()
   })
 });
 
