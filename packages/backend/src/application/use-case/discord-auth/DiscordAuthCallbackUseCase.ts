@@ -1,3 +1,5 @@
+import type { CallbackResponse } from "@pichikoto/http-contracts";
+import { toCallbackResponse } from "@pichikoto/http-contracts";
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../../di-container/types";
@@ -6,7 +8,6 @@ import { DiscordID, User } from "../../../domain/user/User";
 import type { DiscordTokensRepositoryInterface } from "../../../infrastructure/repositories/DiscordTokensRepository";
 import type { UserRepositoryInterface } from "../../../infrastructure/repositories/UserRepository";
 import { handleResult } from "../../../utils/ResultHelper";
-import { toAuthPayloadDTO, type AuthPayloadDTO } from "../../dtos/auth.dto";
 import type { DiscordOAuthFlowServiceInterface } from "../../services/discord-auth/DiscordOAuthFlowService";
 import type { DiscordTokenServiceInterface } from "../../services/discord-auth/DiscordTokenService";
 import type { DiscordUserServiceInterface } from "../../services/discord-auth/DiscordUserService";
@@ -18,7 +19,7 @@ export interface DiscordAuthCallbackUseCaseInterface {
     code: string,
     state: string,
     sessionId: string
-  ): Promise<AuthPayloadDTO>;
+  ): Promise<CallbackResponse>;
 }
 
 @injectable()
@@ -45,7 +46,7 @@ export class DiscordAuthCallbackUseCase
     code: string,
     state: string,
     sessionId: string
-  ): Promise<AuthPayloadDTO> {
+  ): Promise<CallbackResponse> {
     const { nonce, codeVerifier } = handleResult(
       await this.oauthFlowService.verifyStateBySessionID(sessionId, state),
       (error) => new DiscordAuthCallbackUseCaseError(error)
@@ -96,7 +97,7 @@ export class DiscordAuthCallbackUseCase
 
       const { accessToken, refreshToken } =
         await this.jwtService.generateTokens(c, existsUser.userID.value.value);
-      return toAuthPayloadDTO(existsUser, accessToken, refreshToken);
+      return toCallbackResponse(accessToken, refreshToken);
     }
 
     const user = User.create(
@@ -123,7 +124,7 @@ export class DiscordAuthCallbackUseCase
       user.userID.value.value
     );
 
-    return toAuthPayloadDTO(user, accessToken, refreshToken);
+    return toCallbackResponse(accessToken, refreshToken);
   }
 }
 

@@ -1,3 +1,7 @@
+import {
+  toRefreshTokenResponse,
+  type RefreshTokenResponse
+} from "@pichikoto/http-contracts";
 import type { Context } from "hono";
 import { sign, verify } from "hono/jwt";
 import { injectable } from "inversify";
@@ -10,7 +14,7 @@ export interface JwtServiceInterface {
   refreshAccessToken(
     c: Context,
     refreshToken: string
-  ): Promise<{ accessToken: string; refreshToken: string }>;
+  ): Promise<RefreshTokenResponse>;
 }
 
 @injectable()
@@ -50,7 +54,7 @@ export class JwtService implements JwtServiceInterface {
   async refreshAccessToken(
     c: Context,
     refreshToken: string
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<RefreshTokenResponse> {
     const secret = this.getSecret(c);
 
     // リフレッシュトークンの検証
@@ -74,9 +78,6 @@ export class JwtService implements JwtServiceInterface {
       secret
     );
 
-    return {
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken
-    };
+    return toRefreshTokenResponse(newAccessToken, newRefreshToken);
   }
 }
