@@ -8,7 +8,7 @@ import { inject, injectable } from "inversify";
 import type { JwtServiceInterface } from "../../application/services/jwt/jwt";
 import type { DiscordAuthCallbackUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import type { DiscordAuthInitiateUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
-import type { DiscordAuthVerifyUsecaseInterface } from "../../application/use-case/discord-auth/DiscordAuthVerifyUsecase";
+import type { DiscordAuthVerifyUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthVerifyUseCase";
 import { TYPES } from "../../di-container/types";
 
 export interface AuthControllerInterface {
@@ -27,8 +27,8 @@ export class AuthController implements AuthControllerInterface {
     private readonly discordAuthCallbackUseCase: DiscordAuthCallbackUseCaseInterface,
     @inject(TYPES.JwtService)
     private readonly jwtService: JwtServiceInterface,
-    @inject(TYPES.DiscordAuthVerifyUsecase)
-    private readonly discordAuthVerifyUsecase: DiscordAuthVerifyUsecaseInterface
+    @inject(TYPES.DiscordAuthVerifyUseCase)
+    private readonly discordAuthVerifyUseCase: DiscordAuthVerifyUseCaseInterface
   ) {}
 
   async redirectToAuthURL(c: Context) {
@@ -76,7 +76,7 @@ export class AuthController implements AuthControllerInterface {
   async verify(c: Context) {
     const req = await toVerifyTokenRequest(c.req.raw);
 
-    await this.discordAuthVerifyUsecase.execute(c, req.headers.authorization);
+    await this.discordAuthVerifyUseCase.execute(c, req.headers.authorization);
 
     return c.json({ message: "OK" }, 200);
   }

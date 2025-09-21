@@ -3,13 +3,13 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../../di-container/types";
 import type { JwtVerifyServiceInterface } from "../../services/jwt/JWTVerifyService";
 
-export interface DiscordAuthVerifyUsecaseInterface {
+export interface DiscordAuthVerifyUseCaseInterface {
   execute(c: Context, token: string): Promise<void>;
 }
 
 @injectable()
-export class DiscordAuthVerifyUsecase
-  implements DiscordAuthVerifyUsecaseInterface
+export class DiscordAuthVerifyUseCase
+  implements DiscordAuthVerifyUseCaseInterface
 {
   constructor(
     @inject(TYPES.JwtVerifyService)

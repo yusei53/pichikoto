@@ -17,8 +17,8 @@ import type { DiscordAuthCallbackUseCaseInterface } from "../application/use-cas
 import { DiscordAuthCallbackUseCase } from "../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import type { DiscordAuthInitiateUseCaseInterface } from "../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
 import { DiscordAuthInitiateUseCase } from "../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
-import type { DiscordAuthVerifyUsecaseInterface } from "../application/use-case/discord-auth/DiscordAuthVerifyUsecase";
-import { DiscordAuthVerifyUsecase } from "../application/use-case/discord-auth/DiscordAuthVerifyUsecase";
+import type { DiscordAuthVerifyUseCaseInterface } from "../application/use-case/discord-auth/DiscordAuthVerifyUseCase";
+import { DiscordAuthVerifyUseCase } from "../application/use-case/discord-auth/DiscordAuthVerifyUseCase";
 import type { DiscordTokensRepositoryInterface } from "../infrastructure/repositories/DiscordTokensRepository";
 import { DiscordTokensRepository } from "../infrastructure/repositories/DiscordTokensRepository";
 import type { StateRepositoryInterface } from "../infrastructure/repositories/StateRepository";
@@ -87,8 +87,8 @@ container
   .to(DiscordAuthInitiateUseCase)
   .inRequestScope();
 container
-  .bind<DiscordAuthVerifyUsecaseInterface>(TYPES.DiscordAuthVerifyUsecase)
-  .to(DiscordAuthVerifyUsecase)
+  .bind<DiscordAuthVerifyUseCaseInterface>(TYPES.DiscordAuthVerifyUseCase)
+  .to(DiscordAuthVerifyUseCase)
   .inRequestScope();
 
 // Controllers
