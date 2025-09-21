@@ -5,8 +5,6 @@ export const user = pgTable("user", {
   discordId: text("discord_id").notNull().unique(),
   discordUserName: text("discord_user_name").notNull(),
   discordAvatar: text("discord_avatar").notNull(),
-  faculty: text("faculty"),
-  department: text("department"),
   createdAt: timestamp("created_at").notNull().defaultNow()
 });
 

@@ -1,18 +1,9 @@
 import { afterEach, describe, expect, it } from "vitest";
 import * as schema from "../../../database/schema";
-import {
-  Department,
-  DiscordID,
-  Faculty,
-  User,
-  UserID
-} from "../../../src/domain/user/User";
+import { DiscordID, User, UserID } from "../../../src/domain/user/User";
 import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";
 import { assertEqualUserTable } from "../../testing/table_assert/AssertEqualUserTable";
-import {
-  createUserTableFixture,
-  createUserTableFixtureWithoutFacultyAndDepartment
-} from "../../testing/table_fixture/UserTableFixture";
+import { createUserTableFixture } from "../../testing/table_fixture/UserTableFixture";
 import {
   deleteFromDatabase,
   insertToDatabase,
@@ -24,13 +15,10 @@ describe("UserRepository Tests", () => {
 
   describe("findBy", () => {
     const setupUsers = async () => {
-      const user1 = createUserTableFixture();
-      await insertToDatabase(schema.user, user1);
-
-      const user2 = createUserTableFixtureWithoutFacultyAndDepartment();
+      const user2 = createUserTableFixture();
       await insertToDatabase(schema.user, user2);
 
-      return { user1, user2 };
+      return { user2 };
     };
 
     afterEach(async () => {
@@ -39,33 +27,12 @@ describe("UserRepository Tests", () => {
 
     it("存在するユーザーを取得できること", async () => {
       // arrange
-      const { user1 } = await setupUsers();
-      const user = User.reconstruct(
-        UserID.from(user1.id),
-        DiscordID.from(user1.discordId),
-        user1.discordUserName,
-        user1.discordAvatar,
-        Faculty.from(user1.faculty),
-        Department.from(user1.department)
-      );
-
-      // act
-      const actual = await userRepository.findBy(user.discordID);
-
-      // assert
-      expect(actual).toEqual(user);
-    });
-
-    it("学部・学科がnullのユーザーを取得できること", async () => {
-      // arrange
       const { user2 } = await setupUsers();
       const user = User.reconstruct(
         UserID.from(user2.id),
         DiscordID.from(user2.discordId),
         user2.discordUserName,
-        user2.discordAvatar,
-        user2.faculty,
-        user2.department
+        user2.discordAvatar
       );
 
       // act
@@ -99,31 +66,7 @@ describe("UserRepository Tests", () => {
         UserID.from(userRecord.id),
         DiscordID.from(userRecord.discordId),
         userRecord.discordUserName,
-        userRecord.discordAvatar,
-        userRecord.faculty ? Faculty.from(userRecord.faculty) : null,
-        userRecord.department ? Department.from(userRecord.department) : null
-      );
-
-      // act
-      await userRepository.save(user);
-
-      // assert
-      const actualRecord = (await selectOneFromDatabase(
-        schema.user
-      )) as typeof schema.user.$inferSelect;
-      assertEqualUserTable(user, actualRecord);
-    });
-
-    it("学部・学科がnullのユーザーを保存できること", async () => {
-      // arrange
-      const userRecord = createUserTableFixtureWithoutFacultyAndDepartment();
-      const user = User.reconstruct(
-        UserID.from(userRecord.id),
-        DiscordID.from(userRecord.discordId),
-        userRecord.discordUserName,
-        userRecord.discordAvatar,
-        userRecord.faculty ? Faculty.from(userRecord.faculty) : null,
-        userRecord.department ? Department.from(userRecord.department) : null
+        userRecord.discordAvatar
       );
 
       // act

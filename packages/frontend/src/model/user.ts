@@ -3,6 +3,4 @@ export type User = {
   discordID: string;
   discordUserName: string;
   discordAvatar: string;
-  faculty: string;
-  department: string;
 };

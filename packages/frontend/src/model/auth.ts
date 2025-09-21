@@ -4,8 +4,6 @@ export type UserDTO = {
   id: string;
   discordUserName: string;
   discordAvatar: string;
-  faculty: string;
-  department: string;
 };
 
 export type AuthPayload = {
