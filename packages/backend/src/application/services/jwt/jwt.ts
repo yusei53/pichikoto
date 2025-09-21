@@ -1,7 +1,4 @@
-import {
-  toRefreshTokenResponse,
-  type RefreshTokenResponse
-} from "@pichikoto/http-contracts";
+import { type RefreshTokenResponse } from "@pichikoto/http-contracts";
 import type { Context } from "hono";
 import { sign, verify } from "hono/jwt";
 import { injectable } from "inversify";
@@ -78,6 +75,9 @@ export class JwtService implements JwtServiceInterface {
       secret
     );
 
-    return toRefreshTokenResponse(newAccessToken, newRefreshToken);
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken
+    };
   }
 }

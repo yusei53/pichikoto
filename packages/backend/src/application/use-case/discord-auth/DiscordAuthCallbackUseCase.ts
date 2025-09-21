@@ -1,5 +1,4 @@
 import type { CallbackResponse } from "@pichikoto/http-contracts";
-import { toCallbackResponse } from "@pichikoto/http-contracts";
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../../di-container/types";
@@ -97,7 +96,7 @@ export class DiscordAuthCallbackUseCase
 
       const { accessToken, refreshToken } =
         await this.jwtService.generateTokens(c, existsUser.userID.value.value);
-      return toCallbackResponse(accessToken, refreshToken);
+      return { accessToken, refreshToken };
     }
 
     const user = User.create(
@@ -122,7 +121,7 @@ export class DiscordAuthCallbackUseCase
       user.userID.value.value
     );
 
-    return toCallbackResponse(accessToken, refreshToken);
+    return { accessToken, refreshToken };
   }
 }
 
