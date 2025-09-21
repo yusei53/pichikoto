@@ -27,7 +27,7 @@ export const toCallbackRequest = async (
 
 export const refreshTokenRequestSchema = requestSchema.extend({
   body: z.object({
-    refreshToken: z.string().min(1)
+    refreshToken: z.string()
   })
 });
 
