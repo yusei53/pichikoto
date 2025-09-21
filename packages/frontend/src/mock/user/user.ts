@@ -8,3 +8,9 @@ export const mockUser: User = {
     faculty: "理工学部",
     department: "CS",
 };
+
+export const mockUsers: User[] = [
+    mockUser,
+    { ...mockUser, userID: "2" },
+    { ...mockUser, userID: "3" },
+];

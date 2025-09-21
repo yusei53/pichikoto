@@ -47,7 +47,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
                         >
                             <Stack direction={"row"} alignItems={"center"} gap={"8px"}>
                                 {displayReceivedUsers.map((user) => (
-                                    <Stack direction={"column"} alignItems={"center"} gap={"4px"}>
+                                    <Stack direction={"column"} alignItems={"center"} gap={"4px"} key={user.userID}>
                                         <Avatar size={"xl"} src={user.discordAvatar} />
                                         <Box>{user.discordUserName}</Box>
                                     </Stack>
@@ -79,7 +79,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
                             <Popover.Content>
                                 <Stack direction={"column"} gap={"16px"} p={"8px"}>
                                     {post.receivedUsers.map((user) => (
-                                        <Stack direction={"row"} alignItems={"center"} gap={"16px"}>
+                                        <Stack direction={"row"} alignItems={"center"} gap={"16px"} key={user.userID}>
                                             <Avatar size={"xl"} src={user.discordAvatar} />
                                             <Stack direction={"column"} gap={"8px"}>
                                                 <Box>{user.discordUserName}</Box>

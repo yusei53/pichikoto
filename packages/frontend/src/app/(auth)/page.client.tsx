@@ -27,7 +27,7 @@ export const ClientTopPage: React.FC<ClientTopPageProps> = ({
     isNotificationEnabled,
 }) => {
     return (
-        <Stack direction={"row"} gap={"16px"}>
+        <Stack direction={"row"} gap={"16px"} p={"24px"}>
             <Stack direction={"column"} gap={"24px"} width={"750px"}>
                 <UserProfile
                     userID={user.userID}

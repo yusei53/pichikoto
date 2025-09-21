@@ -4,8 +4,8 @@ import { ClientTopPage } from "./page.client";
 
 const TopPage = async () => {
     const posts = await topPageAPI.getPosts();
-    const receivedPointRanking = await topPageAPI.getReceivedPointRanking();
-    const sendPointRanking = await topPageAPI.getSendPointRanking();
+    const receivedPointRanking = await topPageAPI.getReceivedPointRankings();
+    const sendPointRanking = await topPageAPI.getSendPointRankings();
     return (
         <ClientTopPage
             user={mockUser}
