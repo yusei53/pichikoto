@@ -5,10 +5,10 @@ import {
 } from "@pichikoto/http-contracts";
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
-import type { DiscordAuthVerifyUseCaseInterface } from "../../application/services/jwt/DiscordAuthVerifyUseCase.js";
 import type { JwtServiceInterface } from "../../application/services/jwt/jwt";
 import type { DiscordAuthCallbackUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import type { DiscordAuthInitiateUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
+import type { DiscordAuthVerifyUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthVerifyUseCase.js";
 import { TYPES } from "../../di-container/types";
 
 export interface AuthControllerInterface {
