@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ZodError } from "zod";
 import { DiscordID, User, UserID } from "../../../src/domain/user/User";
-import { InvalidDiscordIDError } from "../../../src/domain/user/UserError";
 import { UUID } from "../../../src/utils/UUID";
 
 const MOCK_USER_ID = UUID.new().value;
@@ -38,10 +38,11 @@ describe("UserDomainTest", () => {
     });
 
     describe("DiscordIDのバリデーション", () => {
-      it("数字でないDiscordIDの場合はエラーになること", () => {
-        expect(() => {
-          DiscordID.from("InvalidStringID");
-        }).toThrow(InvalidDiscordIDError);
+      it("数字でないDiscordIDの場合はZodErrorがスローされること", () => {
+        const fn = () => DiscordID.from("InvalidStringID");
+
+        expect(fn).toThrow(ZodError);
+        expect(fn).toThrow("Discord ID must contain only digits");
       });
     });
   });

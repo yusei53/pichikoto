@@ -1,5 +1,5 @@
+import { z } from "zod";
 import { UUID } from "../../utils/UUID";
-import { InvalidDiscordIDError } from "./UserError";
 
 export class User {
   private constructor(
@@ -39,13 +39,15 @@ export class UserID {
   }
 }
 
+const DiscordIDSchema = z
+  .string()
+  .regex(/^\d+$/, "Discord ID must contain only digits");
+
 export class DiscordID {
   private constructor(readonly value: string) {}
 
   static from(value: string): DiscordID {
-    if (!/^\d+$/.test(value)) {
-      throw new InvalidDiscordIDError();
-    }
-    return new DiscordID(value);
+    const validatedValue = DiscordIDSchema.parse(value);
+    return new DiscordID(validatedValue);
   }
 }
