@@ -35,9 +35,8 @@ export const toRequest = async (req: Request): Promise<RequestType> => {
   const url = req.url;
   const body = await parseRequestBody(req);
   const headers = toHeadersRecord(req.headers);
-  const parsed = requestSchema.safeParse({ method, url, body, headers });
-  const data = checkValidation(parsed);
-  return data;
+  const parsed = requestSchema.parse({ method, url, body, headers });
+  return parsed;
 };
 
 export const requestSchemaWithAuth = requestSchema.extend({
