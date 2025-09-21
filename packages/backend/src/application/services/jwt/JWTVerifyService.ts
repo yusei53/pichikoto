@@ -34,7 +34,6 @@ export class JwtVerifyService implements JwtVerifyServiceInterface {
 export class JwtVerifyServiceError extends Error {
   readonly name = this.constructor.name;
   constructor(cause: Error) {
-    super(`JWT verification failed: ${cause.message}`);
-    this.cause = cause;
+    super(cause.message);
   }
 }
