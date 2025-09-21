@@ -1,0 +1,11 @@
+.storybook
+.next
+.turbo
+.vscode
+.devcontainer
+.git
+.gitignore
+.prettierignore
+.prettierrc
+.turbo
+src/components/ui/**

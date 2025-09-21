@@ -10,5 +10,5 @@ export const ClientLoginPage: React.FC = () => {
         <Stack justifyContent={"center"} alignItems={"center"} height={"100vh"}>
             <LoginCard onLogin={onLogin} />
         </Stack>
-    )
+    );
 };
