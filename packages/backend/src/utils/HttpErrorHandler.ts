@@ -24,14 +24,14 @@ export const withHttpErrorHandling = async (
   } catch (error) {
     if (error instanceof HttpError) {
       if (c.env.NODE_ENV === "development") {
-        console.error(`${error.name}: ${error.message}, ${error.cause}`);
+        console.error(`${error.name}: ${String(error.cause)}`);
       }
       return createJsonResponse(error.status, error.message);
     }
 
     const err = new InternalServerError(error);
     if (c.env.NODE_ENV === "development") {
-      console.error(`${err.name}: ${err.message}, ${err.cause}`);
+      console.error(`${err.name}: ${String(err.cause)}`);
     }
     return createJsonResponse(err.status, err.message);
   }
