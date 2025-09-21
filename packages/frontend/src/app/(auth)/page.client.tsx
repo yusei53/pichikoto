@@ -4,6 +4,7 @@ import { Gift, SendHorizontal } from "lucide-react";
 import { Stack } from "styled-system/jsx";
 import { Icon } from "~/components/ui/icon";
 import { PostCard } from "~/features/common/PostCard/PostCard";
+import { PostForm } from "~/features/common/PostForm/PostForm";
 import { UserProfile } from "~/features/common/UserProfile/UserProfile";
 import { PostListHeader } from "~/features/routes/top-page/PostListHeader/PostListHeader";
 import { TopRanking } from "~/features/routes/top-page/TopRanking/TopRanking";
@@ -13,6 +14,8 @@ import type { User } from "~/model/user";
 
 type ClientTopPageProps = {
     user: User;
+    remainingPoints: number;
+    allUsers: User[];
     posts: Post[];
     receivedPointRanking: PointRanking[];
     sendPointRanking: PointRanking[];
@@ -22,6 +25,8 @@ type ClientTopPageProps = {
 export const ClientTopPage: React.FC<ClientTopPageProps> = ({
     user,
     posts,
+    remainingPoints,
+    allUsers,
     receivedPointRanking,
     sendPointRanking,
     isNotificationEnabled,
@@ -35,7 +40,7 @@ export const ClientTopPage: React.FC<ClientTopPageProps> = ({
                     avatarUrl={user.discordAvatar}
                     isNotificationEnabled={isNotificationEnabled}
                 />
-                <Stack direction={"row"} gap={"16px"}>
+                <Stack direction={"row"} gap={"24px"}>
                     <TopRanking
                         titleIcon={
                             <Icon color={"blush"}>
@@ -55,8 +60,14 @@ export const ClientTopPage: React.FC<ClientTopPageProps> = ({
                         rankingUsers={receivedPointRanking}
                     />
                 </Stack>
+                <PostForm users={allUsers} remainingPoints={remainingPoints} />
             </Stack>
-            <Stack direction={"column"} width={"100%"}>
+            <Stack
+                direction={"column"}
+                width={"100%"}
+                height={"calc(100vh - 48px)"}
+                overflowY={"auto"}
+            >
                 <PostListHeader onSearchChange={() => {}} />
                 <Stack direction={"column"} gap={"16px"}>
                     {posts.map((post) => (

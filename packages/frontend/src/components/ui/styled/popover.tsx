@@ -1,7 +1,7 @@
 "use client";
 import type { Assign } from "@ark-ui/react";
 import { Popover } from "@ark-ui/react/popover";
-import { type PopoverVariantProps, popover } from "styled-system/recipes";
+import { popover, type PopoverVariantProps } from "styled-system/recipes";
 import type { ComponentProps, HTMLStyledProps } from "styled-system/types";
 import { createStyleContext } from "./utils/create-style-context";
 

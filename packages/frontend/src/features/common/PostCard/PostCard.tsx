@@ -40,14 +40,24 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
                     <Icon size={"lg"}>
                         <SendHorizontal />
                     </Icon>
-                    <Popover.Root open={isOpen}>
+                    <Popover.Root
+                        open={isOpen}
+                        positioning={{
+                            placement: "right",
+                        }}
+                    >
                         <Popover.Trigger
                             onMouseEnter={onTriggerEnter}
                             onMouseLeave={onTriggerLeave}
                         >
                             <Stack direction={"row"} alignItems={"center"} gap={"8px"}>
                                 {displayReceivedUsers.map((user) => (
-                                    <Stack direction={"column"} alignItems={"center"} gap={"4px"} key={user.userID}>
+                                    <Stack
+                                        direction={"column"}
+                                        alignItems={"center"}
+                                        gap={"4px"}
+                                        key={user.userID}
+                                    >
                                         <Avatar size={"xl"} src={user.discordAvatar} />
                                         <Box>{user.discordUserName}</Box>
                                     </Stack>
@@ -66,7 +76,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
                             </Stack>
                         </Popover.Trigger>
                         <Popover.Positioner
-                            maxH={"150px"}
+                            maxH={"200px"}
                             overflowY={"auto"}
                             boxShadow={"md"}
                             bgColor={"white"}
@@ -79,7 +89,12 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
                             <Popover.Content>
                                 <Stack direction={"column"} gap={"16px"} p={"8px"}>
                                     {post.receivedUsers.map((user) => (
-                                        <Stack direction={"row"} alignItems={"center"} gap={"16px"} key={user.userID}>
+                                        <Stack
+                                            direction={"row"}
+                                            alignItems={"center"}
+                                            gap={"16px"}
+                                            key={user.userID}
+                                        >
                                             <Avatar size={"xl"} src={user.discordAvatar} />
                                             <Stack direction={"column"} gap={"8px"}>
                                                 <Box>{user.discordUserName}</Box>

@@ -1,6 +1,7 @@
 import { topPageAPI } from "~/features/routes/top-page/endpoints/topPageAPI";
 import { mockUser } from "~/mock/user";
 import { ClientTopPage } from "./page.client";
+import { mockUsers } from "~/mock/user/user";
 
 const TopPage = async () => {
     const posts = await topPageAPI.getPosts();
@@ -9,7 +10,10 @@ const TopPage = async () => {
     return (
         <ClientTopPage
             user={mockUser}
-            isNotificationEnabled
+            // 1stでは落とす
+            isNotificationEnabled={false}
+            remainingPoints={100}
+            allUsers={mockUsers}
             sendPointRanking={sendPointRanking}
             receivedPointRanking={receivedPointRanking}
             posts={posts}
