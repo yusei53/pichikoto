@@ -1,25 +1,24 @@
 import { Hono } from "hono";
 import type { Variables } from "../..";
-import { withHttpErrorHandling } from "../../utils/HttpErrorHandler";
 
 export const auth = new Hono<{ Variables: Variables }>();
 
 auth.get("/", async (c) => {
   const controller = c.get("authController");
-  return withHttpErrorHandling(c, (ctx) => controller.redirectToAuthURL(ctx));
+  return controller.redirectToAuthURL(c);
 });
 
 auth.post("/callback", async (c) => {
   const controller = c.get("authController");
-  return withHttpErrorHandling(c, (ctx) => controller.callback(ctx));
+  return controller.callback(c);
 });
 
 auth.post("/refresh", async (c) => {
   const controller = c.get("authController");
-  return withHttpErrorHandling(c, (ctx) => controller.refresh(ctx));
+  return controller.refresh(c);
 });
 
 auth.get("/is-authorized", async (c) => {
   const controller = c.get("authController");
-  return withHttpErrorHandling(c, (ctx) => controller.verify(ctx));
+  return controller.verify(c);
 });
