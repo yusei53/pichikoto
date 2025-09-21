@@ -29,7 +29,8 @@
     "postgres": "^3.4.7",
     "reflect-metadata": "^0.2.2",
     "uuid": "^11.1.0",
-    "ws": "^8.18.3"
+    "ws": "^8.18.3",
+    "@pichikoto/http-contracts": "workspace:*"
   },
   "devDependencies": {
     "@types/uuid": "^10.0.0",
