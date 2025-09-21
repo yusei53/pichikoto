@@ -1,5 +1,5 @@
 export type VerifyTokenResponse = {
-  
+  message: string;
 }
 
 export type CallbackResponse = {
