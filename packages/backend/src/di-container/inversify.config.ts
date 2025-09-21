@@ -9,6 +9,8 @@ import type { DiscordTokenServiceInterface } from "../application/services/disco
 import { DiscordTokenService } from "../application/services/discord-auth/DiscordTokenService";
 import type { DiscordUserServiceInterface } from "../application/services/discord-auth/DiscordUserService";
 import { DiscordUserService } from "../application/services/discord-auth/DiscordUserService";
+import type { DiscordAuthVerifyUseCaseInterface } from "../application/services/jwt/DiscordAuthVerifyUseCase.js";
+import { DiscordAuthVerifyUseCase } from "../application/services/jwt/DiscordAuthVerifyUseCase.js";
 import type { JwtServiceInterface } from "../application/services/jwt/jwt";
 import { JwtService } from "../application/services/jwt/jwt";
 import type { JwtVerifyServiceInterface } from "../application/services/jwt/JWTVerifyService";
@@ -17,8 +19,6 @@ import type { DiscordAuthCallbackUseCaseInterface } from "../application/use-cas
 import { DiscordAuthCallbackUseCase } from "../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import type { DiscordAuthInitiateUseCaseInterface } from "../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
 import { DiscordAuthInitiateUseCase } from "../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
-import type { DiscordAuthVerifyUseCaseInterface } from "../application/use-case/discord-auth/DiscordAuthVerifyUseCase";
-import { DiscordAuthVerifyUseCase } from "../application/use-case/discord-auth/DiscordAuthVerifyUseCase";
 import type { DiscordTokensRepositoryInterface } from "../infrastructure/repositories/DiscordTokensRepository";
 import { DiscordTokensRepository } from "../infrastructure/repositories/DiscordTokensRepository";
 import type { StateRepositoryInterface } from "../infrastructure/repositories/StateRepository";

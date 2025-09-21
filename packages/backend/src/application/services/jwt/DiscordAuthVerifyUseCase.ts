@@ -1,7 +1,7 @@
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../../di-container/types";
-import type { JwtVerifyServiceInterface } from "../../services/jwt/JWTVerifyService";
+import type { JwtVerifyServiceInterface } from "./JWTVerifyService";
 
 export interface DiscordAuthVerifyUseCaseInterface {
   execute(c: Context, token: string): Promise<void>;
