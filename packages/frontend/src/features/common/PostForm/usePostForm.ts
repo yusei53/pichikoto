@@ -60,6 +60,7 @@ export const usePostForm = ({ users, remainingPoints }: UsePostFormProps) => {
                 description: "ポストを送信しました",
                 type: "success",
             });
+            console.log(data);
         }),
         [handleSubmit]
     );
