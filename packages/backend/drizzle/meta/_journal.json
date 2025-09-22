@@ -57,6 +57,13 @@
       "when": 1758455437295,
       "tag": "0007_worthless_reaper",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1758534788664,
+      "tag": "0008_greedy_miss_america",
+      "breakpoints": true
     }
   ]
 }
