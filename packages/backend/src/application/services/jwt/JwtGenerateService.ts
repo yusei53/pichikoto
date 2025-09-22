@@ -1,6 +1,5 @@
 import type { Context } from "hono";
 import { sign } from "hono/jwt";
-import { injectable } from "inversify";
 import type { Result } from "neverthrow";
 import { err, ok } from "neverthrow";
 
@@ -16,7 +15,6 @@ export interface JwtGenerateServiceInterface {
   ): Promise<Result<JwtGenerateResult, JwtGenerateServiceError>>;
 }
 
-@injectable()
 export class JwtGenerateService implements JwtGenerateServiceInterface {
   async execute(
     c: Context,

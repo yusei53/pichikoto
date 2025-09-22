@@ -1,5 +1,4 @@
 import { eq } from "drizzle-orm";
-import { injectable } from "inversify";
 import { db } from "../../../database/client";
 import {
   appreciationReceivers as appreciationReceiversSchema,
@@ -21,7 +20,6 @@ export interface AppreciationRepositoryInterface {
   findBy(appreciationId: AppreciationID): Promise<Appreciation | null>;
 }
 
-@injectable()
 export class AppreciationRepository implements AppreciationRepositoryInterface {
   async store(appreciation: Appreciation): Promise<void> {
     // appreciationsテーブルにインサート

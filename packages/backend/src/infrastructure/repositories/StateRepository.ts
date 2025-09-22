@@ -1,5 +1,4 @@
 import { eq } from "drizzle-orm";
-import { injectable } from "inversify";
 import { db } from "../../../database/client";
 import { oauthState as oauthStateSchema } from "../../../database/schema";
 
@@ -21,7 +20,6 @@ export interface StateRepositoryInterface {
   delete(sessionId: string): Promise<void>;
 }
 
-@injectable()
 export class StateRepository implements StateRepositoryInterface {
   async save(
     sessionId: string,

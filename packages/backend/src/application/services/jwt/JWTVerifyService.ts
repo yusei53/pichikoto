@@ -1,6 +1,5 @@
 import type { Context } from "hono";
 import { verify } from "hono/jwt";
-import { injectable } from "inversify";
 import type { JWTPayload } from "jose";
 import type { Result } from "neverthrow";
 import { err, ok } from "neverthrow";
@@ -16,7 +15,6 @@ export interface JwtVerifyServiceInterface {
   ): Promise<Result<AppJwtPayload, JwtVerifyServiceError>>;
 }
 
-@injectable()
 export class JwtVerifyService implements JwtVerifyServiceInterface {
   async execute(
     c: Context,

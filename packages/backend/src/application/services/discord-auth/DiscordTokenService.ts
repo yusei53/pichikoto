@@ -1,9 +1,7 @@
 import type { Context } from "hono";
-import { inject, injectable } from "inversify";
 import type { JWTPayload } from "jose";
 import type { Result } from "neverthrow";
 import { err, ok } from "neverthrow";
-import { TYPES } from "../../../di-container/types";
 import { handleResult } from "../../../utils/ResultHelper";
 import type { DiscordJWKServiceInterface } from "./DiscordJWKService";
 
@@ -60,12 +58,8 @@ export interface DiscordTokenServiceInterface {
  * - OAuth2 トークン交換
  * - ID Token検証
  */
-@injectable()
 export class DiscordTokenService implements DiscordTokenServiceInterface {
-  constructor(
-    @inject(TYPES.DiscordJWKService)
-    private readonly jwkService: DiscordJWKServiceInterface
-  ) {}
+  constructor(private readonly jwkService: DiscordJWKServiceInterface) {}
   /**
    * Discord認証コードをアクセストークンに交換する
    *

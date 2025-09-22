@@ -1,12 +1,10 @@
 import type { Context } from "hono";
-import { injectable } from "inversify";
 import { DatabaseConnectionFactory } from "./factory";
 
 export interface DbClientInterface {
   init(c: Context): void;
 }
 
-@injectable()
 export class DbClient implements DbClientInterface {
   private db: ReturnType<
     typeof DatabaseConnectionFactory.createConnection

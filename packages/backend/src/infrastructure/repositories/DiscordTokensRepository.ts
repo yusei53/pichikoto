@@ -1,5 +1,4 @@
 import { eq } from "drizzle-orm";
-import { injectable } from "inversify";
 import { db } from "../../../database/client";
 import { discordTokens as discordTokensSchema } from "../../../database/schema";
 import {
@@ -15,7 +14,6 @@ export interface DiscordTokensRepositoryInterface {
   save(discordTokens: DiscordTokens): Promise<void>;
 }
 
-@injectable()
 export class DiscordTokensRepository
   implements DiscordTokensRepositoryInterface
 {
