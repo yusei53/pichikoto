@@ -11,7 +11,7 @@ import type {
   DiscordUserResource,
   DiscordUserServiceInterface
 } from "../../../src/application/services/discord-auth/DiscordUserService";
-import type { JwtServiceInterface } from "../../../src/application/services/jwt/jwt";
+import type { JwtGenerateServiceInterface } from "../../../src/application/services/jwt/JwtGenerateService";
 import { DiscordAuthCallbackUseCase } from "../../../src/application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import { DiscordID } from "../../../src/domain/user/User";
 import { DiscordTokensRepository } from "../../../src/infrastructure/repositories/DiscordTokensRepository";
@@ -92,8 +92,8 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
     getUserResource: vi.fn()
   };
 
-  const mockJwtService = {
-    generateTokens: vi.fn()
+  const mockJwtGenerateService = {
+    execute: vi.fn()
   };
 
   const discordAuthCallbackUseCase = new DiscordAuthCallbackUseCase(
@@ -102,7 +102,7 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
     mockDiscordUserService as DiscordUserServiceInterface,
     userRepository,
     discordTokensRepository,
-    mockJwtService as unknown as JwtServiceInterface // TODO: 後で直す
+    mockJwtGenerateService as unknown as JwtGenerateServiceInterface
   );
 
   // 共通のテストデータ
@@ -123,10 +123,12 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
     mockDiscordUserService.getUserResource.mockResolvedValue(
       ok(mockDiscordUserResource)
     );
-    mockJwtService.generateTokens.mockResolvedValue({
-      accessToken: "jwt_access_token",
-      refreshToken: "jwt_refresh_token"
-    });
+    mockJwtGenerateService.execute.mockResolvedValue(
+      ok({
+        accessToken: "jwt_access_token",
+        refreshToken: "jwt_refresh_token"
+      })
+    );
 
     // 共通のテストデータ準備
     stateFixture = createOauthStateTableFixture();

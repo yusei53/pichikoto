@@ -10,7 +10,7 @@ import { handleResult } from "../../../utils/ResultHelper";
 import type { DiscordOAuthFlowServiceInterface } from "../../services/discord-auth/DiscordOAuthFlowService";
 import type { DiscordTokenServiceInterface } from "../../services/discord-auth/DiscordTokenService";
 import type { DiscordUserServiceInterface } from "../../services/discord-auth/DiscordUserService";
-import type { JwtServiceInterface } from "../../services/jwt/jwt";
+import type { JwtGenerateServiceInterface } from "../../services/jwt/JwtGenerateService";
 
 export interface DiscordAuthCallbackUseCaseInterface {
   execute(
@@ -36,8 +36,8 @@ export class DiscordAuthCallbackUseCase
     private readonly userRepository: UserRepositoryInterface,
     @inject(TYPES.DiscordTokensRepository)
     private readonly discordTokensRepository: DiscordTokensRepositoryInterface,
-    @inject(TYPES.JwtService)
-    private readonly jwtService: JwtServiceInterface
+    @inject(TYPES.JwtGenerateService)
+    private readonly jwtGenerateService: JwtGenerateServiceInterface
   ) {}
 
   async execute(
@@ -94,8 +94,14 @@ export class DiscordAuthCallbackUseCase
         );
       }
 
-      const { accessToken, refreshToken } =
-        await this.jwtService.generateTokens(c, existsUser.userID.value.value);
+      const jwtResult = await this.jwtGenerateService.execute(
+        c,
+        existsUser.userID.value.value
+      );
+      if (jwtResult.isErr()) {
+        throw new DiscordAuthCallbackUseCaseError(jwtResult.error);
+      }
+      const { accessToken, refreshToken } = jwtResult.value;
       return { accessToken, refreshToken };
     }
 
@@ -116,10 +122,14 @@ export class DiscordAuthCallbackUseCase
     );
     await this.discordTokensRepository.save(discordTokens);
 
-    const { accessToken, refreshToken } = await this.jwtService.generateTokens(
+    const jwtResult = await this.jwtGenerateService.execute(
       c,
       user.userID.value.value
     );
+    if (jwtResult.isErr()) {
+      throw new DiscordAuthCallbackUseCaseError(jwtResult.error);
+    }
+    const { accessToken, refreshToken } = jwtResult.value;
 
     return { accessToken, refreshToken };
   }

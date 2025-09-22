@@ -9,8 +9,8 @@ import type { DiscordTokenServiceInterface } from "../application/services/disco
 import { DiscordTokenService } from "../application/services/discord-auth/DiscordTokenService";
 import type { DiscordUserServiceInterface } from "../application/services/discord-auth/DiscordUserService";
 import { DiscordUserService } from "../application/services/discord-auth/DiscordUserService";
-import type { JwtServiceInterface } from "../application/services/jwt/jwt";
-import { JwtService } from "../application/services/jwt/jwt";
+import type { JwtGenerateServiceInterface } from "../application/services/jwt/JwtGenerateService";
+import { JwtGenerateService } from "../application/services/jwt/JwtGenerateService";
 import type { JwtVerifyServiceInterface } from "../application/services/jwt/JWTVerifyService";
 import { JwtVerifyService } from "../application/services/jwt/JWTVerifyService";
 import type { DiscordAuthCallbackUseCaseInterface } from "../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
@@ -55,8 +55,8 @@ container
 
 // Services
 container
-  .bind<JwtServiceInterface>(TYPES.JwtService)
-  .to(JwtService)
+  .bind<JwtGenerateServiceInterface>(TYPES.JwtGenerateService)
+  .to(JwtGenerateService)
   .inSingletonScope();
 container
   .bind<DiscordOAuthFlowServiceInterface>(TYPES.DiscordOAuthFlowService)
