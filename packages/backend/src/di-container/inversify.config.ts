@@ -19,6 +19,8 @@ import type { DiscordAuthInitiateUseCaseInterface } from "../application/use-cas
 import { DiscordAuthInitiateUseCase } from "../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
 import type { DiscordAuthVerifyUseCaseInterface } from "../application/use-case/discord-auth/DiscordAuthVerifyUseCase.js";
 import { DiscordAuthVerifyUseCase } from "../application/use-case/discord-auth/DiscordAuthVerifyUseCase.js";
+import type { JwtRefreshTokenUseCaseInterface } from "../application/use-case/jwt-auth/JwtRefreshTokenUseCase";
+import { JwtRefreshTokenUseCase } from "../application/use-case/jwt-auth/JwtRefreshTokenUseCase";
 import type { DiscordTokensRepositoryInterface } from "../infrastructure/repositories/DiscordTokensRepository";
 import { DiscordTokensRepository } from "../infrastructure/repositories/DiscordTokensRepository";
 import type { StateRepositoryInterface } from "../infrastructure/repositories/StateRepository";
@@ -89,6 +91,10 @@ container
 container
   .bind<DiscordAuthVerifyUseCaseInterface>(TYPES.DiscordAuthVerifyUseCase)
   .to(DiscordAuthVerifyUseCase)
+  .inRequestScope();
+container
+  .bind<JwtRefreshTokenUseCaseInterface>(TYPES.JwtRefreshTokenUseCase)
+  .to(JwtRefreshTokenUseCase)
   .inRequestScope();
 
 // Controllers

@@ -5,10 +5,10 @@ import {
 } from "@pichikoto/http-contracts";
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
-import type { JwtServiceInterface } from "../../application/services/jwt/jwt";
 import type { DiscordAuthCallbackUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import type { DiscordAuthInitiateUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
 import type { DiscordAuthVerifyUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthVerifyUseCase.js";
+import type { JwtRefreshTokenUseCaseInterface } from "../../application/use-case/jwt-auth/JwtRefreshTokenUseCase";
 import { TYPES } from "../../di-container/types";
 
 export interface AuthControllerInterface {
@@ -25,8 +25,8 @@ export class AuthController implements AuthControllerInterface {
     private readonly discordAuthInitiateUseCase: DiscordAuthInitiateUseCaseInterface,
     @inject(TYPES.DiscordAuthCallbackUseCase)
     private readonly discordAuthCallbackUseCase: DiscordAuthCallbackUseCaseInterface,
-    @inject(TYPES.JwtService)
-    private readonly jwtService: JwtServiceInterface,
+    @inject(TYPES.JwtRefreshTokenUseCase)
+    private readonly jwtRefreshTokenUseCase: JwtRefreshTokenUseCaseInterface,
     @inject(TYPES.DiscordAuthVerifyUseCase)
     private readonly discordAuthVerifyUseCase: DiscordAuthVerifyUseCaseInterface
   ) {}
@@ -65,12 +65,12 @@ export class AuthController implements AuthControllerInterface {
   async refresh(c: Context) {
     const req = await toRefreshTokenRequest(c.req.raw);
 
-    const resp = await this.jwtService.refreshAccessToken(
+    const res = await this.jwtRefreshTokenUseCase.execute(
       c,
       req.body.refreshToken
     );
 
-    return c.json(resp);
+    return c.json(res);
   }
 
   async verify(c: Context) {
