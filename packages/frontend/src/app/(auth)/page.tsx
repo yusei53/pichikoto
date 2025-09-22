@@ -1,7 +1,7 @@
 import { topPageAPI } from "~/features/routes/top-page/endpoints/topPageAPI";
 import { mockUser } from "~/mock/user";
-import { ClientTopPage } from "./page.client";
 import { mockUsers } from "~/mock/user/user";
+import { ClientTopPage } from "./page.client";
 
 const TopPage = async () => {
     const posts = await topPageAPI.getPosts();

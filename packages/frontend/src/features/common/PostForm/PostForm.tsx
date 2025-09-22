@@ -9,7 +9,6 @@ import { Field } from "~/components/ui/field";
 import { Icon } from "~/components/ui/icon";
 import { IconButton } from "~/components/ui/icon-button";
 import { Input } from "~/components/ui/input";
-import { ValueChangeDetails } from "~/components/ui/styled/combobox";
 import { Textarea } from "~/components/ui/textarea";
 import type { User } from "~/model/user";
 import { usePostForm } from "./usePostForm";
@@ -22,30 +21,15 @@ type PostFormProps = {
 export const PostForm: React.FC<PostFormProps> = ({ users, remainingPoints }) => {
     const {
         register,
-        setValue,
         onSubmit,
+        onSendUserChange,
+        onPointsChange,
         errors,
         usersCollection,
         pointsCollection,
         currentSendUsers,
         currentPoints,
-        isValid,
     } = usePostForm({ users, remainingPoints });
-
-    const handleSendUserIDChange = (
-        value: ValueChangeDetails<{ value: string; label: string }>
-    ) => {
-        setValue(
-            "sendUserID",
-            value.items.map((item) => item.value)
-        );
-    };
-
-    const handlePointsChange = (
-        value: ValueChangeDetails<{ value: number; label: string; disabled: boolean }>
-    ) => {
-        setValue("points", value.items[0].value);
-    };
 
     return (
         <form onSubmit={onSubmit}>
@@ -62,7 +46,7 @@ export const PostForm: React.FC<PostFormProps> = ({ users, remainingPoints }) =>
                         <Combobox.Root
                             multiple
                             collection={usersCollection}
-                            onValueChange={handleSendUserIDChange}
+                            onValueChange={onSendUserChange}
                         >
                             <Field.Root invalid={!!errors.sendUserID}>
                                 <Combobox.Control>
@@ -137,7 +121,7 @@ export const PostForm: React.FC<PostFormProps> = ({ users, remainingPoints }) =>
                                 <Divider mb={"16px"} />
                                 <Combobox.Root
                                     collection={pointsCollection}
-                                    onValueChange={handlePointsChange}
+                                    onValueChange={onPointsChange}
                                 >
                                     <Field.Root invalid={!!errors.points}>
                                         <Combobox.Control>

@@ -2,6 +2,8 @@ import { createListCollection } from "@ark-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
+import { toaster } from "~/components/shared/AppToaster/AppToaster";
+import { ValueChangeDetails } from "~/components/ui/styled/combobox";
 import { User } from "~/model/user";
 import { PostFormValues, createPostSchema } from "./endpoints/postSchema";
 
@@ -17,10 +19,12 @@ export const usePostForm = ({ users, remainingPoints }: UsePostFormProps) => {
         setValue,
         register,
         handleSubmit,
-        formState: { isValid, errors },
         watch,
+        trigger,
+        formState: { isValid, errors },
     } = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
+        mode: "onChange",
         defaultValues: {
             sendUserID: [],
             message: "",
@@ -50,7 +54,13 @@ export const usePostForm = ({ users, remainingPoints }: UsePostFormProps) => {
     }, [currentPoints, currentSendUsers]);
 
     const onSubmit = useCallback(
-        handleSubmit((data) => {}),
+        handleSubmit((data) => {
+            toaster.create({
+                title: "成功",
+                description: "ポストを送信しました",
+                type: "success",
+            });
+        }),
         [handleSubmit]
     );
 
@@ -71,12 +81,21 @@ export const usePostForm = ({ users, remainingPoints }: UsePostFormProps) => {
         });
     }, [calculatePoints, currentSendUsers.length, remainingPoints]);
 
-    console.log(errors);
+    const onSendUserChange = useCallback((value: ValueChangeDetails<{ value: string; label: string }>) => {
+        setValue("sendUserID", value.items.map((item) => item.value));
+        trigger("sendUserID");
+    }, [setValue, trigger]);
+
+    const onPointsChange = useCallback((value: ValueChangeDetails<{ value: number; label: string; disabled: boolean }>) => {
+        setValue("points", value.items[0].value);
+        trigger("points");
+    }, [setValue, trigger]);
 
     return {
-        setValue,
         register,
         onSubmit,
+        onSendUserChange,
+        onPointsChange,
         errors,
         usersCollection,
         pointsCollection,
