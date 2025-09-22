@@ -2,7 +2,7 @@ import type { Context } from "hono";
 import { sign, verify } from "hono/jwt";
 import { describe, expect, it } from "vitest";
 import { JwtVerifyService } from "../../../src/application/services/jwt/JWTVerifyService";
-import { JwtRefreshTokenUseCase } from "../../../src/application/use-case/jwt-auth/JwtRefreshTokenUseCase";
+import { JwtRefreshTokenUseCase } from "../../../src/application/use-case/discord-auth/JwtRefreshTokenUseCase";
 
 // モック定数
 const MOCK_JWT_SECRET = "test_jwt_secret";

@@ -8,7 +8,7 @@ import { inject, injectable } from "inversify";
 import type { DiscordAuthCallbackUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import type { DiscordAuthInitiateUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
 import type { DiscordAuthVerifyUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthVerifyUseCase.js";
-import type { JwtRefreshTokenUseCaseInterface } from "../../application/use-case/jwt-auth/JwtRefreshTokenUseCase";
+import type { JwtRefreshTokenUseCaseInterface } from "../../application/use-case/discord-auth/JwtRefreshTokenUseCase";
 import { TYPES } from "../../di-container/types";
 
 export interface AuthControllerInterface {
