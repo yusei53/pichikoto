@@ -7,6 +7,9 @@ import { ClientTopPage } from "./page.client";
 
 const meta: Meta<typeof ClientTopPage> = {
     component: ClientTopPage,
+    parameters: {
+        layout: "fullscreen",
+    },
 };
 
 export default meta;

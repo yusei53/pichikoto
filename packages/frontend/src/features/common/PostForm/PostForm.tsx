@@ -139,16 +139,21 @@ export const PostForm: React.FC<PostFormProps> = ({ users, remainingPoints }) =>
                                     collection={pointsCollection}
                                     onValueChange={handlePointsChange}
                                 >
-                                    <Combobox.Control>
-                                        <Combobox.Input placeholder="ポイントを選択" asChild>
-                                            <Input />
-                                        </Combobox.Input>
-                                        <Combobox.Trigger asChild>
-                                            <IconButton variant="link" aria-label="open" size="xs">
-                                                <ChevronsUpDownIcon />
-                                            </IconButton>
-                                        </Combobox.Trigger>
-                                    </Combobox.Control>
+                                    <Field.Root invalid={!!errors.points}>
+                                        <Combobox.Control>
+                                            <Field.Input asChild>
+                                                <Combobox.Input placeholder="ポイントを選択" asChild>
+                                                    <Input />
+                                                </Combobox.Input>
+                                            </Field.Input>
+                                            <Combobox.Trigger asChild>
+                                                <IconButton variant="link" aria-label="open" size="xs">
+                                                    <ChevronsUpDownIcon />
+                                                </IconButton>
+                                            </Combobox.Trigger>
+                                        </Combobox.Control>
+                                        <Field.ErrorText>{errors.points?.message}</Field.ErrorText>
+                                    </Field.Root>
                                     <Combobox.Positioner>
                                         <Combobox.Content>
                                             <Combobox.ItemGroup>

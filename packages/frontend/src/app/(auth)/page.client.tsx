@@ -32,7 +32,7 @@ export const ClientTopPage: React.FC<ClientTopPageProps> = ({
     isNotificationEnabled,
 }) => {
     return (
-        <Stack direction={"row"} gap={"16px"} p={"24px"}>
+        <Stack direction={"row"} gap={"16px"} p={"24px"} overflowY={"hidden"}>
             <Stack direction={"column"} gap={"24px"} width={"750px"}>
                 <UserProfile
                     userID={user.userID}
@@ -68,7 +68,7 @@ export const ClientTopPage: React.FC<ClientTopPageProps> = ({
                 height={"calc(100vh - 48px)"}
                 overflowY={"auto"}
             >
-                <PostListHeader onSearchChange={() => {}} />
+                <PostListHeader onSearchChange={() => { }} />
                 <Stack direction={"column"} gap={"16px"}>
                     {posts.map((post) => (
                         <PostCard key={post.id} post={post} />
