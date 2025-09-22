@@ -35,7 +35,7 @@ export const ClientTopPage: React.FC<ClientTopPageProps> = ({
 	return (
 		<>
 			<Stack direction={"row"} gap={"16px"} p={"24px"} overflowY={"hidden"}>
-				<Stack direction={"column"} gap={"24px"} width={"750px"}>
+				<Stack direction={"column"} gap={"24px"} width={"800px"}>
 					<UserProfile
 						userID={user.userID}
 						userName={user.discordUserName}

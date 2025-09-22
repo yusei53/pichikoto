@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { toaster } from "~/components/shared/AppToaster/AppToaster";
 import type { ValueChangeDetails } from "~/components/ui/styled/combobox";
 import type { User } from "~/model/user";
-import type { PostFormValues} from "./endpoints/postSchema";
+import type { PostFormValues } from "./endpoints/postSchema";
 import { createPostSchema } from "./endpoints/postSchema";
 
 type UsePostFormProps = {
