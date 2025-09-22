@@ -1,4 +1,14 @@
-import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import {
+  check,
+  date,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  unique,
+  uuid
+} from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: uuid("id").primaryKey(),
@@ -28,3 +38,68 @@ export const oauthState = pgTable("oauth_state", {
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow()
 });
+
+export const appreciations = pgTable(
+  "appreciations",
+  {
+    id: uuid("id").primaryKey(),
+    senderId: uuid("sender_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    message: text("message").notNull(),
+    pointPerReceiver: integer("point_per_receiver").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow()
+  },
+  (table) => [
+    check(
+      "chk_point_per_receiver_range",
+      sql`${table.pointPerReceiver} >= 1 AND ${table.pointPerReceiver} <= 120`
+    ),
+    check(
+      "chk_message_length",
+      sql`char_length(${table.message}) >= 1 AND char_length(${table.message}) <= 200`
+    )
+  ]
+);
+
+export const appreciationReceivers = pgTable(
+  "appreciation_receivers",
+  {
+    id: uuid("id").primaryKey(),
+    appreciationId: uuid("appreciation_id")
+      .notNull()
+      .references(() => appreciations.id, { onDelete: "cascade" }),
+    receiverId: uuid("receiver_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow()
+  },
+  (table) => [
+    unique("uk_appreciation_receiver").on(
+      table.appreciationId,
+      table.receiverId
+    )
+  ]
+);
+
+export const consumedPointLog = pgTable(
+  "consumed_point_log",
+  {
+    id: uuid("id").primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    appreciationId: uuid("appreciation_id")
+      .notNull()
+      .references(() => appreciations.id, { onDelete: "cascade" }),
+    weekStartDate: date("week_start_date").notNull(),
+    consumedPoints: integer("consumed_points").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow()
+  },
+  (table) => [
+    check(
+      "chk_consumed_points_range",
+      sql`${table.consumedPoints} >= 1 AND ${table.consumedPoints} <= 120`
+    )
+  ]
+);
