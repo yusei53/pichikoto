@@ -8,15 +8,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import "reflect-metadata";
 import z from "zod";
-import type { container } from "./di-container/inversify.config";
-import type { AuthControllerInterface } from "./presentation/controllers/auth";
-import { injectDependencies } from "./presentation/middleware/injectDependencies";
 import { auth } from "./presentation/routes/auth";
-
-export type Variables = {
-  diContainer: typeof container;
-  authController: AuthControllerInterface;
-};
 
 export type Env = {
   NODE_ENV: string;
@@ -29,9 +21,7 @@ export type Env = {
   FRONTEND_BASE_URL: string;
 };
 
-const app = new Hono<{ Variables: Variables; Bindings: Env }>().basePath(
-  "/api"
-);
+const app = new Hono<{ Bindings: Env }>().basePath("/api");
 
 app.use("*", async (c, next) => {
   const origin = c.env.FRONTEND_BASE_URL;
@@ -43,7 +33,6 @@ app.use("*", async (c, next) => {
   });
   return corsMiddlewareHandler(c, next);
 });
-app.use("*", injectDependencies);
 app.use("*", logger());
 
 app.onError((err, c) => {
