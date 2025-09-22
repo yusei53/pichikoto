@@ -5,6 +5,8 @@
     "source.fixAll.eslint": "explicit",
     "source.organizeImports": "explicit"
   },
+  // tab size
+  "editor.tabSize": 2,
   "eslint.validate": [
     "javascript",
     "javascriptreact",

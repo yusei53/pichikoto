@@ -1,4 +1,4 @@
 export type PointLog = {
-    sendPoint: number;
-    receivedPoint: number;
+	sendPoint: number;
+	receivedPoint: number;
 };

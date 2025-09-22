@@ -5,10 +5,10 @@ import { LoginCard } from "~/features/routes/auth/login/LoginCard";
 import { useLogin } from "~/features/routes/auth/login/useLogin";
 
 export const ClientLoginPage: React.FC = () => {
-    const { onLogin } = useLogin();
-    return (
-        <Stack justifyContent={"center"} alignItems={"center"} height={"100vh"}>
-            <LoginCard onLogin={onLogin} />
-        </Stack>
-    );
+	const { onLogin } = useLogin();
+	return (
+		<Stack justifyContent={"center"} alignItems={"center"} height={"100vh"}>
+			<LoginCard onLogin={onLogin} />
+		</Stack>
+	);
 };

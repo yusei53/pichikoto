@@ -1,5 +1,5 @@
 "use client";
 
 export default function UserPageClient() {
-    return <div>UserPageClient</div>;
+	return <div>UserPageClient</div>;
 }

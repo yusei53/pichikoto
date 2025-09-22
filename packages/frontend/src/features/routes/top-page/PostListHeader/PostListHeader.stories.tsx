@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { PostListHeader } from "./PostListHeader";
 
 const meta: Meta<typeof PostListHeader> = {
-    component: PostListHeader,
+	component: PostListHeader,
 };
 
 export default meta;

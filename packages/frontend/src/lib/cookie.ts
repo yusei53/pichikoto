@@ -1,81 +1,81 @@
 export const cookieUtils = {
-    set: (
-        name: string,
-        value: string,
-        options: {
-            maxAge?: number;
-            secure?: boolean;
-            httpOnly?: boolean;
-            sameSite?: "strict" | "lax" | "none";
-        } = {}
-    ) => {
-        if (typeof document === "undefined") return;
+	set: (
+		name: string,
+		value: string,
+		options: {
+			maxAge?: number;
+			secure?: boolean;
+			httpOnly?: boolean;
+			sameSite?: "strict" | "lax" | "none";
+		} = {}
+	) => {
+		if (typeof document === "undefined") return;
 
-        const {
-            maxAge = 60 * 60 * 24 * 7, // デフォルト7日間
-            secure = true,
-            sameSite = "strict",
-        } = options;
+		const {
+			maxAge = 60 * 60 * 24 * 7, // デフォルト7日間
+			secure = true,
+			sameSite = "strict",
+		} = options;
 
-        let cookieString = `${name}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; SameSite=${sameSite}`;
+		let cookieString = `${name}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; SameSite=${sameSite}`;
 
-        if (secure) {
-            cookieString += "; Secure";
-        }
+		if (secure) {
+			cookieString += "; Secure";
+		}
 
-        document.cookie = cookieString;
-    },
+		document.cookie = cookieString;
+	},
 
-    get: (name: string): string | null => {
-        if (typeof document === "undefined") return null;
+	get: (name: string): string | null => {
+		if (typeof document === "undefined") return null;
 
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
+		const value = `; ${document.cookie}`;
+		const parts = value.split(`; ${name}=`);
 
-        if (parts.length === 2) {
-            const cookieValue = parts.pop()?.split(";").shift();
-            return cookieValue ? decodeURIComponent(cookieValue) : null;
-        }
+		if (parts.length === 2) {
+			const cookieValue = parts.pop()?.split(";").shift();
+			return cookieValue ? decodeURIComponent(cookieValue) : null;
+		}
 
-        return null;
-    },
+		return null;
+	},
 
-    remove: (name: string) => {
-        if (typeof document === "undefined") return;
+	remove: (name: string) => {
+		if (typeof document === "undefined") return;
 
-        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    },
+		document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+	},
 
-    // 認証関連のトークン管理用のヘルパー関数
-    auth: {
-        // アクセストークンのみクライアント側で保持する
-        setAccessToken: (accessToken: string) => {
-            cookieUtils.set("accessToken", accessToken, {
-                maxAge: 60 * 60 * 24 * 30,
-                secure: true,
-                sameSite: "none",
-            });
-        },
+	// 認証関連のトークン管理用のヘルパー関数
+	auth: {
+		// アクセストークンのみクライアント側で保持する
+		setAccessToken: (accessToken: string) => {
+			cookieUtils.set("accessToken", accessToken, {
+				maxAge: 60 * 60 * 24 * 30,
+				secure: true,
+				sameSite: "none",
+			});
+		},
 
-        getAccessToken: (): string | null => {
-            return cookieUtils.get("accessToken");
-        },
+		getAccessToken: (): string | null => {
+			return cookieUtils.get("accessToken");
+		},
 
-        setRefreshToken: (refreshToken: string) => {
-            cookieUtils.set("refreshToken", refreshToken, {
-                maxAge: 60 * 60 * 24 * 365,
-                secure: true,
-                sameSite: "none",
-            });
-        },
+		setRefreshToken: (refreshToken: string) => {
+			cookieUtils.set("refreshToken", refreshToken, {
+				maxAge: 60 * 60 * 24 * 365,
+				secure: true,
+				sameSite: "none",
+			});
+		},
 
-        getRefreshToken: (): string | null => {
-            return cookieUtils.get("refreshToken");
-        },
+		getRefreshToken: (): string | null => {
+			return cookieUtils.get("refreshToken");
+		},
 
-        clearAuth: () => {
-            cookieUtils.remove("accessToken");
-            cookieUtils.remove("refreshToken");
-        },
-    },
+		clearAuth: () => {
+			cookieUtils.remove("accessToken");
+			cookieUtils.remove("refreshToken");
+		},
+	},
 };
