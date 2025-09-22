@@ -3,16 +3,20 @@ import { z } from "zod";
 import type { UserID } from "../../domain/user/User";
 import { CreatedAt } from "../../utils/CreatedAt";
 import { UUID } from "../../utils/UUID";
-import type { AppreciationError } from "./AppreciationError";
 import {
-  SenderInReceiversError,
-  TotalPointExceedsLimitError
+  CreateAppreciationError,
+  WeeklyPointLimitExceededError
 } from "./AppreciationError";
 
 /**
- * 総ポイントの最大値
+ * 総ポイントの最大値（1回の投稿）
  */
-const MAX_TOTAL_POINTS = 120;
+const MAX_POINTS_PER_APPRECIATION = 120;
+
+/**
+ * 週次ポイント制限の定数
+ */
+const WEEKLY_POINT_LIMIT = 400;
 
 export class Appreciation {
   private constructor(
@@ -29,19 +33,19 @@ export class Appreciation {
     receiverIDs: ReceiverIDs,
     message: AppreciationMessage,
     pointPerReceiver: PointPerReceiver
-  ): Result<Appreciation, AppreciationError> {
+  ): Result<Appreciation, CreateAppreciationError> {
     // 送信者が受信者に含まれていないかチェック
     const uniqueReceiverIDs = new Set(
       receiverIDs.value.map((id) => id.value.value)
     );
     if (uniqueReceiverIDs.has(senderID.value.value)) {
-      return err(new SenderInReceiversError());
+      return err(CreateAppreciationError.senderInReceivers(senderID));
     }
 
     // 総ポイント（ポイント×受信者数）が最大値を超えないかチェック
     const totalPoints = pointPerReceiver.value * receiverIDs.value.length;
-    if (totalPoints > MAX_TOTAL_POINTS) {
-      return err(new TotalPointExceedsLimitError(totalPoints));
+    if (totalPoints > MAX_POINTS_PER_APPRECIATION) {
+      return err(CreateAppreciationError.totalPointExceedsLimit(totalPoints));
     }
 
     return ok(
@@ -72,6 +76,33 @@ export class Appreciation {
       pointPerReceiver,
       createdAt
     );
+  }
+
+  /**
+   * この感謝で消費される総ポイント数を取得
+   */
+  getTotalConsumedPoints(): NewTotalConsumptionPoints {
+    const totalPoints =
+      this.pointPerReceiver.value * this.receiverIDs.value.length;
+    return NewTotalConsumptionPoints.from(totalPoints);
+  }
+
+  /**
+   * 週次制限の検証
+   */
+  static validateWeeklyLimit(
+    alreadyConsumed: AlreadyConsumedPoints,
+    newConsumption: NewTotalConsumptionPoints
+  ): Result<void, WeeklyPointLimitExceededError> {
+    if (alreadyConsumed.value + newConsumption.value > WEEKLY_POINT_LIMIT) {
+      return err(
+        new WeeklyPointLimitExceededError(
+          alreadyConsumed.value + newConsumption.value,
+          WEEKLY_POINT_LIMIT
+        )
+      );
+    }
+    return ok();
   }
 }
 
@@ -144,7 +175,7 @@ export class AppreciationMessage {
 }
 
 /**
- * 感謝ポイントの最小値・最大値
+ * 1人あたりの感謝ポイントの最小値・最大値
  */
 const MIN_POINT_PER_RECEIVER = 1;
 const MAX_POINT_PER_RECEIVER = 120;
@@ -155,14 +186,54 @@ const PointPerReceiverSchema = z
   .max(MAX_POINT_PER_RECEIVER, "ポイントは120以下である必要があります")
   .int("ポイントは整数である必要があります");
 
-/**
- * 感謝ポイントを表す値オブジェクト
- */
 export class PointPerReceiver {
   private constructor(readonly value: number) {}
 
   static from(value: number): PointPerReceiver {
     const validatedValue = PointPerReceiverSchema.parse(value);
     return new PointPerReceiver(validatedValue);
+  }
+}
+
+/**
+ * その週に既に消費されたポイント数（0〜400）
+ */
+export class AlreadyConsumedPoints {
+  private constructor(readonly value: number) {}
+
+  static from(value: number): AlreadyConsumedPoints {
+    const schema = z
+      .number()
+      .min(0, "消費済みポイントは0以上である必要があります")
+      .max(
+        WEEKLY_POINT_LIMIT,
+        `消費済みポイントは${WEEKLY_POINT_LIMIT}以下である必要があります`
+      )
+      .int("消費済みポイントは整数である必要があります");
+
+    const validatedValue = schema.parse(value);
+    return new AlreadyConsumedPoints(validatedValue);
+  }
+
+  static zero(): AlreadyConsumedPoints {
+    return new AlreadyConsumedPoints(0);
+  }
+}
+
+/**
+ * 新しく消費予定のポイント数（1〜120）
+ */
+export class NewTotalConsumptionPoints {
+  private constructor(readonly value: number) {}
+
+  static from(value: number): NewTotalConsumptionPoints {
+    const schema = z
+      .number()
+      .min(1, "新規消費ポイントは1以上である必要があります")
+      .max(120, "新規消費ポイントは120以下である必要があります")
+      .int("新規消費ポイントは整数である必要があります");
+
+    const validatedValue = schema.parse(value);
+    return new NewTotalConsumptionPoints(validatedValue);
   }
 }
