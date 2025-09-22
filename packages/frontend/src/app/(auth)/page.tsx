@@ -1,14 +1,24 @@
 import { topPageAPI } from "~/features/routes/top-page/endpoints/topPageAPI";
-import ClientTopPage from "./page.client";
+import { mockUser } from "~/mock/user";
+import { mockUsers } from "~/mock/user/user";
+import { ClientTopPage } from "./page.client";
 
 const TopPage = async () => {
-  const pointLog = await topPageAPI.getPointLog();
-  return (
-    <ClientTopPage
-      sendPoint={pointLog.sendPoint}
-      receivedPoint={pointLog.receivedPoint}
-    />
-  );
+	const posts = await topPageAPI.getPosts();
+	const receivedPointRanking = await topPageAPI.getReceivedPointRankings();
+	const sendPointRanking = await topPageAPI.getSendPointRankings();
+	return (
+		<ClientTopPage
+			user={mockUser}
+			// 1stでは落とす
+			isNotificationEnabled={false}
+			remainingPoints={100}
+			allUsers={mockUsers}
+			sendPointRanking={sendPointRanking}
+			receivedPointRanking={receivedPointRanking}
+			posts={posts}
+		/>
+	);
 };
 
 export default TopPage;
