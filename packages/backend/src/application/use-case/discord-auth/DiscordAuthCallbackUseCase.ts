@@ -1,3 +1,4 @@
+import type { CallbackResponse } from "@pichikoto/http-contracts";
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../../di-container/types";
@@ -6,11 +7,10 @@ import { DiscordID, User } from "../../../domain/user/User";
 import type { DiscordTokensRepositoryInterface } from "../../../infrastructure/repositories/DiscordTokensRepository";
 import type { UserRepositoryInterface } from "../../../infrastructure/repositories/UserRepository";
 import { handleResult } from "../../../utils/ResultHelper";
-import { toAuthPayloadDTO, type AuthPayloadDTO } from "../../dtos/auth.dto";
 import type { DiscordOAuthFlowServiceInterface } from "../../services/discord-auth/DiscordOAuthFlowService";
 import type { DiscordTokenServiceInterface } from "../../services/discord-auth/DiscordTokenService";
 import type { DiscordUserServiceInterface } from "../../services/discord-auth/DiscordUserService";
-import type { JwtServiceInterface } from "../../services/jwt";
+import type { JwtGenerateServiceInterface } from "../../services/jwt/JwtGenerateService";
 
 export interface DiscordAuthCallbackUseCaseInterface {
   execute(
@@ -18,7 +18,7 @@ export interface DiscordAuthCallbackUseCaseInterface {
     code: string,
     state: string,
     sessionId: string
-  ): Promise<AuthPayloadDTO>;
+  ): Promise<CallbackResponse>;
 }
 
 @injectable()
@@ -36,8 +36,8 @@ export class DiscordAuthCallbackUseCase
     private readonly userRepository: UserRepositoryInterface,
     @inject(TYPES.DiscordTokensRepository)
     private readonly discordTokensRepository: DiscordTokensRepositoryInterface,
-    @inject(TYPES.JwtService)
-    private readonly jwtService: JwtServiceInterface
+    @inject(TYPES.JwtGenerateService)
+    private readonly jwtGenerateService: JwtGenerateServiceInterface
   ) {}
 
   async execute(
@@ -45,7 +45,7 @@ export class DiscordAuthCallbackUseCase
     code: string,
     state: string,
     sessionId: string
-  ): Promise<AuthPayloadDTO> {
+  ): Promise<CallbackResponse> {
     const { nonce, codeVerifier } = handleResult(
       await this.oauthFlowService.verifyStateBySessionID(sessionId, state),
       (error) => new DiscordAuthCallbackUseCaseError(error)
@@ -94,17 +94,21 @@ export class DiscordAuthCallbackUseCase
         );
       }
 
-      const { accessToken, refreshToken } =
-        await this.jwtService.generateTokens(c, existsUser.userID.value.value);
-      return toAuthPayloadDTO(existsUser, accessToken, refreshToken);
+      const jwtResult = await this.jwtGenerateService.execute(
+        c,
+        existsUser.userID.value.value
+      );
+      if (jwtResult.isErr()) {
+        throw new DiscordAuthCallbackUseCaseError(jwtResult.error);
+      }
+      const { accessToken, refreshToken } = jwtResult.value;
+      return { accessToken, refreshToken };
     }
 
     const user = User.create(
       DiscordID.from(discordUserResource.id),
       discordUserResource.username,
-      discordUserResource.avatar,
-      null,
-      null
+      discordUserResource.avatar
     );
     await this.userRepository.save(user);
 
@@ -118,12 +122,16 @@ export class DiscordAuthCallbackUseCase
     );
     await this.discordTokensRepository.save(discordTokens);
 
-    const { accessToken, refreshToken } = await this.jwtService.generateTokens(
+    const jwtResult = await this.jwtGenerateService.execute(
       c,
       user.userID.value.value
     );
+    if (jwtResult.isErr()) {
+      throw new DiscordAuthCallbackUseCaseError(jwtResult.error);
+    }
+    const { accessToken, refreshToken } = jwtResult.value;
 
-    return toAuthPayloadDTO(user, accessToken, refreshToken);
+    return { accessToken, refreshToken };
   }
 }
 

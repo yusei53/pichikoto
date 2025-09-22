@@ -8,4 +8,5 @@
 .prettierignore
 .prettierrc
 .turbo
+package.json
 src/components/ui/**

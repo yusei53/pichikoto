@@ -12,11 +12,14 @@ export const TYPES = {
   DiscordTokenService: Symbol.for("DiscordTokenService"),
   DiscordUserService: Symbol.for("DiscordUserService"),
   DiscordJWKService: Symbol.for("DiscordJWKService"),
-  JwtService: Symbol.for("JwtService"),
+  JwtGenerateService: Symbol.for("JwtGenerateService"),
+  JwtVerifyService: Symbol.for("JwtVerifyService"),
 
   // Usecases
   DiscordAuthCallbackUseCase: Symbol.for("DiscordAuthCallbackUseCase"),
   DiscordAuthInitiateUseCase: Symbol.for("DiscordAuthInitiateUseCase"),
+  DiscordAuthVerifyUseCase: Symbol.for("DiscordAuthVerifyUseCase"),
+  JwtRefreshTokenUseCase: Symbol.for("JwtRefreshTokenUseCase"),
 
   // Controllers
   AuthController: Symbol.for("AuthController")

@@ -1,45 +1,24 @@
+import { err, ok, type Result } from "neverthrow";
+import { z } from "zod";
 import type { UserID } from "../../domain/user/User";
 import { CreatedAt } from "../../utils/CreatedAt";
 import { UUID } from "../../utils/UUID";
+import type { AppreciationError } from "./AppreciationError";
 import {
-  DuplicateReceiversError,
-  EmptyMessageError,
-  NoReceiversError,
-  PointPerReceiverTooHighError,
-  PointPerReceiverTooLowError,
   SenderInReceiversError,
-  TooLongMessageError,
-  TooManyReceiversError,
   TotalPointExceedsLimitError
 } from "./AppreciationError";
 
 /**
- * 受信者の最大数
- */
-export const MAX_RECEIVERS = 6;
-
-/**
- * 感謝ポイントの最小値・最大値
- */
-export const MIN_POINT_PER_RECEIVER = 1;
-export const MAX_POINT_PER_RECEIVER = 120;
-
-/**
  * 総ポイントの最大値
  */
-export const MAX_TOTAL_POINTS = 120;
-
-/**
- * メッセージの最小値・最大値
- */
-export const MIN_MESSAGE_LENGTH = 1;
-export const MAX_MESSAGE_LENGTH = 200;
+const MAX_TOTAL_POINTS = 120;
 
 export class Appreciation {
   private constructor(
     readonly appreciationID: AppreciationID,
     readonly senderID: UserID,
-    readonly receiverIDs: readonly UserID[],
+    readonly receiverIDs: ReceiverIDs,
     readonly message: AppreciationMessage,
     readonly pointPerReceiver: PointPerReceiver,
     readonly createdAt: CreatedAt
@@ -47,44 +26,40 @@ export class Appreciation {
 
   static create(
     senderID: UserID,
-    receiverIDs: UserID[],
+    receiverIDs: ReceiverIDs,
     message: AppreciationMessage,
     pointPerReceiver: PointPerReceiver
-  ): Appreciation {
-    if (receiverIDs.length === 0) throw new NoReceiversError();
-    if (receiverIDs.length > MAX_RECEIVERS) throw new TooManyReceiversError();
-
-    // 重複する受信者をチェック
-    const uniqueReceiverIDs = new Set(receiverIDs.map((id) => id.value.value));
-    if (uniqueReceiverIDs.size !== receiverIDs.length) {
-      throw new DuplicateReceiversError();
-    }
-
+  ): Result<Appreciation, AppreciationError> {
     // 送信者が受信者に含まれていないかチェック
+    const uniqueReceiverIDs = new Set(
+      receiverIDs.value.map((id) => id.value.value)
+    );
     if (uniqueReceiverIDs.has(senderID.value.value)) {
-      throw new SenderInReceiversError();
+      return err(new SenderInReceiversError());
     }
 
     // 総ポイント（ポイント×受信者数）が最大値を超えないかチェック
-    const totalPoints = pointPerReceiver.value * receiverIDs.length;
+    const totalPoints = pointPerReceiver.value * receiverIDs.value.length;
     if (totalPoints > MAX_TOTAL_POINTS) {
-      throw new TotalPointExceedsLimitError(totalPoints);
+      return err(new TotalPointExceedsLimitError(totalPoints));
     }
 
-    return new Appreciation(
-      AppreciationID.new(),
-      senderID,
-      Object.freeze([...receiverIDs]), // イミュータブルな配列として扱う
-      message,
-      pointPerReceiver,
-      CreatedAt.new()
+    return ok(
+      new Appreciation(
+        AppreciationID.new(),
+        senderID,
+        receiverIDs,
+        message,
+        pointPerReceiver,
+        CreatedAt.new()
+      )
     );
   }
 
   static reconstruct(
     appreciationID: AppreciationID,
     senderID: UserID,
-    receiverIDs: UserID[],
+    receiverIDs: ReceiverIDs,
     message: AppreciationMessage,
     pointPerReceiver: PointPerReceiver,
     createdAt: CreatedAt
@@ -92,7 +67,7 @@ export class Appreciation {
     return new Appreciation(
       appreciationID,
       senderID,
-      Object.freeze([...receiverIDs]),
+      receiverIDs,
       message,
       pointPerReceiver,
       createdAt
@@ -112,37 +87,82 @@ export class AppreciationID {
   }
 }
 
-export class AppreciationMessage {
-  private constructor(readonly value: string) {}
+/**
+ * 受信者の最大数
+ */
+const MAX_RECEIVERS = 6;
 
-  static from(value: string): AppreciationMessage {
-    /**
-     * 空文字の場合はエラーになる
-     * 1文字未満の場合はエラーになる
-     * 200文字超えの場合はエラーになる
-     */
-    if (value.trim().length === 0) throw new EmptyMessageError();
-    if (value.length > MAX_MESSAGE_LENGTH) throw new TooLongMessageError();
+const ReceiversSchema = z
+  .array(z.any())
+  .min(1, "受信者は1人以上である必要があります")
+  .max(MAX_RECEIVERS, `受信者は${MAX_RECEIVERS}人以下である必要があります`)
+  .refine(
+    (receiverIDs) => {
+      const uniqueReceiverIDs = new Set(
+        receiverIDs.map((id) => id.value.value)
+      );
+      return uniqueReceiverIDs.size === receiverIDs.length;
+    },
+    {
+      message: "受信者リストに重複があります"
+    }
+  );
 
-    return new AppreciationMessage(value);
+/**
+ * 受信者リストを表す値オブジェクト
+ */
+export class ReceiverIDs {
+  private constructor(readonly value: readonly UserID[]) {}
+
+  static from(receiverIDs: UserID[]): ReceiverIDs {
+    const validatedValue = ReceiversSchema.parse(receiverIDs);
+    return new ReceiverIDs(Object.freeze([...validatedValue]));
   }
 }
 
 /**
+ * メッセージの最小値・最大値
+ */
+const MIN_MESSAGE_LENGTH = 1;
+const MAX_MESSAGE_LENGTH = 200;
+
+const AppreciationMessageSchema = z
+  .string()
+  .min(MIN_MESSAGE_LENGTH, "メッセージは1文字以上である必要があります")
+  .max(MAX_MESSAGE_LENGTH, "メッセージは200文字以下である必要があります")
+  .refine((value) => value.trim().length > 0, {
+    message: "メッセージは空文字であってはいけません"
+  });
+
+export class AppreciationMessage {
+  private constructor(readonly value: string) {}
+
+  static from(value: string): AppreciationMessage {
+    const validatedValue = AppreciationMessageSchema.parse(value);
+    return new AppreciationMessage(validatedValue);
+  }
+}
+
+/**
+ * 感謝ポイントの最小値・最大値
+ */
+const MIN_POINT_PER_RECEIVER = 1;
+const MAX_POINT_PER_RECEIVER = 120;
+
+const PointPerReceiverSchema = z
+  .number()
+  .min(MIN_POINT_PER_RECEIVER, "ポイントは1以上である必要があります")
+  .max(MAX_POINT_PER_RECEIVER, "ポイントは120以下である必要があります")
+  .int("ポイントは整数である必要があります");
+
+/**
  * 感謝ポイントを表す値オブジェクト
- * 複数の集約で共有される共通概念
  */
 export class PointPerReceiver {
   private constructor(readonly value: number) {}
-  /**
-   * 1未満の場合はエラーになる
-   * 120超えの場合はエラーになる
-   */
-  static from(value: number): PointPerReceiver {
-    if (value < MIN_POINT_PER_RECEIVER) throw new PointPerReceiverTooLowError();
-    if (value > MAX_POINT_PER_RECEIVER)
-      throw new PointPerReceiverTooHighError();
 
-    return new PointPerReceiver(value);
+  static from(value: number): PointPerReceiver {
+    const validatedValue = PointPerReceiverSchema.parse(value);
+    return new PointPerReceiver(validatedValue);
   }
 }

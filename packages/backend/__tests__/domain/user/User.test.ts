@@ -1,18 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  Department,
-  DiscordID,
-  Faculty,
-  User,
-  UserID
-} from "../../../src/domain/user/User";
-import {
-  DepartmentTooLongError,
-  EmptyDepartmentError,
-  EmptyFacultyError,
-  FacultyTooLongError,
-  InvalidDiscordIDError
-} from "../../../src/domain/user/UserError";
+import { ZodError } from "zod";
+import { DiscordID, User, UserID } from "../../../src/domain/user/User";
 import { UUID } from "../../../src/utils/UUID";
 
 const MOCK_USER_ID = UUID.new().value;
@@ -34,8 +22,6 @@ describe("UserDomainTest", () => {
   const discordUserName = "TestUserName";
   const discordAvatar =
     "https://cdn.discordapp.com/sample-avatar/123456789/000000000000000000.png";
-  const faculty = Faculty.from("Test学部");
-  const department = Department.from("Tes学科");
 
   describe("ユーザードメインの作成", () => {
     it("ユーザーを作成できること", () => {
@@ -43,55 +29,20 @@ describe("UserDomainTest", () => {
         UserID.new(),
         discordID,
         discordUserName,
-        discordAvatar,
-        faculty,
-        department
+        discordAvatar
       );
 
-      const actual = User.create(
-        discordID,
-        discordUserName,
-        discordAvatar,
-        faculty,
-        department
-      );
+      const actual = User.create(discordID, discordUserName, discordAvatar);
 
       expect(actual).toStrictEqual(expected);
     });
 
     describe("DiscordIDのバリデーション", () => {
-      it("数字でないDiscordIDの場合はエラーになること", () => {
-        expect(() => {
-          DiscordID.from("InvalidStringID");
-        }).toThrow(InvalidDiscordIDError);
-      });
-    });
+      it("数字でないDiscordIDの場合はZodErrorがスローされること", () => {
+        const fn = () => DiscordID.from("InvalidStringID");
 
-    describe("学部名のバリデーション", () => {
-      it("学部名が空文字の場合はエラーになること", () => {
-        expect(() => {
-          Faculty.from("");
-        }).toThrow(EmptyFacultyError);
-      });
-
-      it("学部名が30文字を超える場合はエラーになること", () => {
-        expect(() => {
-          Faculty.from("A".repeat(31));
-        }).toThrow(FacultyTooLongError);
-      });
-    });
-
-    describe("学科名のバリデーション", () => {
-      it("学科名が空文字の場合はエラーになること", () => {
-        expect(() => {
-          Department.from("");
-        }).toThrow(EmptyDepartmentError);
-      });
-
-      it("学科名が30文字を超える場合はエラーになること", () => {
-        expect(() => {
-          Department.from("A".repeat(31));
-        }).toThrow(DepartmentTooLongError);
+        expect(fn).toThrow(ZodError);
+        expect(fn).toThrow("Discord ID must contain only digits");
       });
     });
   });

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ZodError } from "zod";
 import { CreatedAt } from "../../src/utils/CreatedAt";
 
 describe("CreatedAt", () => {
@@ -59,17 +60,10 @@ describe("CreatedAt", () => {
 
     describe("異常系", () => {
       it("Date型でない値の場合はエラーを投げること", () => {
-        const invalidDate = new Date("invalid-date-string");
+        const fn = () => CreatedAt.from(new Date("invalid-date-string"));
 
-        expect(() => CreatedAt.from(invalidDate)).toThrow(
-          "Invalid date format"
-        );
-      });
-
-      it("NaN の値の場合はエラーを投げること", () => {
-        const nanDate = new Date(NaN);
-
-        expect(() => CreatedAt.from(nanDate)).toThrow("Invalid date format");
+        expect(fn).toThrow(ZodError);
+        expect(fn).toThrow("Invalid date");
       });
     });
   });

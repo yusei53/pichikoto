@@ -1,8 +1,14 @@
+import {
+  toCallbackRequest,
+  toRefreshTokenRequest,
+  toVerifyTokenRequest
+} from "@pichikoto/http-contracts";
 import type { Context } from "hono";
 import { inject, injectable } from "inversify";
-import type { JwtServiceInterface } from "../../application/services/jwt";
 import type { DiscordAuthCallbackUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthCallbackUseCase";
 import type { DiscordAuthInitiateUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthInitiateUseCase";
+import type { DiscordAuthVerifyUseCaseInterface } from "../../application/use-case/discord-auth/DiscordAuthVerifyUseCase.js";
+import type { JwtRefreshTokenUseCaseInterface } from "../../application/use-case/discord-auth/JwtRefreshTokenUseCase";
 import { TYPES } from "../../di-container/types";
 
 export interface AuthControllerInterface {
@@ -19,8 +25,10 @@ export class AuthController implements AuthControllerInterface {
     private readonly discordAuthInitiateUseCase: DiscordAuthInitiateUseCaseInterface,
     @inject(TYPES.DiscordAuthCallbackUseCase)
     private readonly discordAuthCallbackUseCase: DiscordAuthCallbackUseCaseInterface,
-    @inject(TYPES.JwtService)
-    private readonly jwtService: JwtServiceInterface
+    @inject(TYPES.JwtRefreshTokenUseCase)
+    private readonly jwtRefreshTokenUseCase: JwtRefreshTokenUseCaseInterface,
+    @inject(TYPES.DiscordAuthVerifyUseCase)
+    private readonly discordAuthVerifyUseCase: DiscordAuthVerifyUseCaseInterface
   ) {}
 
   async redirectToAuthURL(c: Context) {
@@ -30,99 +38,46 @@ export class AuthController implements AuthControllerInterface {
   }
 
   async callback(c: Context) {
-    try {
-      const body = await c.req
-        .json<{ code?: string; state?: string }>()
-        .catch(() => ({ code: undefined, state: undefined }));
+    const req = await toCallbackRequest(c.req.raw);
 
-      const code = body.code;
-      const encodedState = body.state;
+    const decoded = Buffer.from(req.body.state, "base64url").toString("utf-8");
+    const [sessionId, state] = decoded.split(":");
 
-      if (!code) {
-        console.error("Auth callback error: No code provided");
-        return c.json({ error: "no_code" }, 400);
-      }
-
-      if (!encodedState) {
-        console.error("Auth callback error: No state provided");
-        return c.json({ error: "no_state" }, 400);
-      }
-
-      // stateからsessionIDをデコード
-      let sessionId: string;
-      let state: string;
-      const decoded = Buffer.from(encodedState, "base64url").toString("utf-8");
-      [sessionId, state] = decoded.split(":");
-
-      if (!sessionId || !state) {
-        console.error("Auth callback error: Invalid state format");
-        return c.json({ error: "invalid_state" }, 400);
-      }
-
-      const authPayload = await this.discordAuthCallbackUseCase.execute(
-        c,
-        code,
-        state,
-        sessionId
-      );
-
-      c.header("Cache-Control", "no-store");
-
-      // TODO: ドメイン取得時にHTTPOnly Cookieでトークンを保存するようにする
-      // フロントエンドにトークンをJSONで返す
-      return c.json({
-        accessToken: authPayload.accessToken,
-        refreshToken: authPayload.refreshToken
-      });
-    } catch (error) {
-      console.error("Auth callback error:", error);
-
-      return c.json({ error: "auth_failed" }, 500);
+    if (!sessionId || !state) {
+      console.error("Auth callback error: Invalid state format");
+      return c.json({ error: "invalid_state" }, 400);
     }
+
+    const resp = await this.discordAuthCallbackUseCase.execute(
+      c,
+      req.body.code,
+      state,
+      sessionId
+    );
+
+    c.header("Cache-Control", "no-store");
+
+    // TODO: ドメイン取得時にHTTPOnly Cookieでトークンを保存するようにする
+    // フロントエンドにトークンをJSONで返す
+    return c.json(resp);
   }
 
   async refresh(c: Context) {
-    try {
-      const requestBody = await c.req
-        .json<{ refreshToken?: string }>()
-        .catch(() => ({ refreshToken: undefined }));
-      const refreshToken = requestBody.refreshToken;
+    const req = await toRefreshTokenRequest(c.req.raw);
 
-      if (!refreshToken) {
-        return c.json({ error: "Refresh token is required" }, 401);
-      }
+    const res = await this.jwtRefreshTokenUseCase.execute(
+      c,
+      req.body.refreshToken
+    );
 
-      const tokens = await this.jwtService.refreshAccessToken(c, refreshToken);
-
-      return c.json({
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken
-      });
-    } catch (error) {
-      console.error("Token refresh error:", error);
-      return c.json({ error: "Invalid refresh token" }, 401);
-    }
+    return c.json(res);
   }
 
   async verify(c: Context) {
-    try {
-      const authHeader = c.req.header("Authorization");
+    const req = await toVerifyTokenRequest(c.req.raw);
 
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return c.json({ error: "Unauthorized" }, 401);
-      }
+    await this.discordAuthVerifyUseCase.execute(c, req.headers.authorization);
 
-      const token = authHeader.substring(7); // "Bearer "を除去
-      const payload = await this.jwtService.verify(c, token);
-
-      if (!payload) {
-        return c.json({ error: "Unauthorized" }, 401);
-      }
-
-      return c.json({ message: "OK" }, 200);
-    } catch (error) {
-      console.error("Token verification error:", error);
-      return c.json({ error: "Unauthorized" }, 401);
-    }
+    return c.json({ message: "OK" }, 200);
   }
 }

@@ -11,8 +11,9 @@ import type {
   DiscordUserResource,
   DiscordUserServiceInterface
 } from "../../../src/application/services/discord-auth/DiscordUserService";
-import type { JwtServiceInterface } from "../../../src/application/services/jwt";
+import type { JwtGenerateServiceInterface } from "../../../src/application/services/jwt/JwtGenerateService";
 import { DiscordAuthCallbackUseCase } from "../../../src/application/use-case/discord-auth/DiscordAuthCallbackUseCase";
+import { DiscordID } from "../../../src/domain/user/User";
 import { DiscordTokensRepository } from "../../../src/infrastructure/repositories/DiscordTokensRepository";
 import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";
 import { createDiscordTokensTableFixture } from "../../testing/table_fixture/DiscordTokensTableFixture";
@@ -91,8 +92,8 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
     getUserResource: vi.fn()
   };
 
-  const mockJwtService = {
-    generateTokens: vi.fn()
+  const mockJwtGenerateService = {
+    execute: vi.fn()
   };
 
   const discordAuthCallbackUseCase = new DiscordAuthCallbackUseCase(
@@ -101,7 +102,7 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
     mockDiscordUserService as DiscordUserServiceInterface,
     userRepository,
     discordTokensRepository,
-    mockJwtService as unknown as JwtServiceInterface // TODO: 後で直す
+    mockJwtGenerateService as unknown as JwtGenerateServiceInterface
   );
 
   // 共通のテストデータ
@@ -122,10 +123,12 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
     mockDiscordUserService.getUserResource.mockResolvedValue(
       ok(mockDiscordUserResource)
     );
-    mockJwtService.generateTokens.mockResolvedValue({
-      accessToken: "jwt_access_token",
-      refreshToken: "jwt_refresh_token"
-    });
+    mockJwtGenerateService.execute.mockResolvedValue(
+      ok({
+        accessToken: "jwt_access_token",
+        refreshToken: "jwt_refresh_token"
+      })
+    );
 
     // 共通のテストデータ準備
     stateFixture = createOauthStateTableFixture();
@@ -171,13 +174,6 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
       await insertToDatabase(schema.discordTokens, discordTokensFixture);
 
       const expected = {
-        user: {
-          id: userFixture.id,
-          discordUserName: userFixture.discordUserName,
-          discordAvatar: userFixture.discordAvatar,
-          faculty: userFixture.faculty,
-          department: userFixture.department
-        },
         accessToken: "jwt_access_token",
         refreshToken: "jwt_refresh_token"
       };
@@ -192,6 +188,12 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
 
       // Assert
       expect(result).toMatchObject(expected);
+
+      const persistedUser = await userRepository.findBy(
+        DiscordID.from(MOCK_DISCORD_USER_ID)
+      );
+      expect(persistedUser).not.toBeNull();
+      expect(persistedUser?.discordUserName).toBe(userFixture.discordUserName);
     });
 
     /**
@@ -214,12 +216,6 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
     it("新規ユーザーの場合、ユーザー作成とJWTトークン発行が正常に行われること", async () => {
       // Arrange
       const expected = {
-        user: {
-          discordUserName: MOCK_USERNAME,
-          discordAvatar: MOCK_AVATAR,
-          faculty: "",
-          department: ""
-        },
         accessToken: "jwt_access_token",
         refreshToken: "jwt_refresh_token"
       };
@@ -234,6 +230,18 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
 
       // Assert
       expect(result).toMatchObject(expected);
+
+      const savedUser = await userRepository.findBy(
+        DiscordID.from(MOCK_DISCORD_USER_ID)
+      );
+      expect(savedUser).not.toBeNull();
+      expect(savedUser?.discordUserName).toBe(MOCK_USERNAME);
+      expect(savedUser?.discordAvatar).toBe(MOCK_AVATAR);
+
+      const savedTokens = savedUser
+        ? await discordTokensRepository.findBy(savedUser.userID)
+        : null;
+      expect(savedTokens).not.toBeNull();
     });
 
     /**

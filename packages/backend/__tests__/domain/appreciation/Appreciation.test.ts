@@ -1,24 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ZodError } from "zod";
 import {
   Appreciation,
   AppreciationID,
   AppreciationMessage,
-  PointPerReceiver
+  PointPerReceiver,
+  ReceiverIDs
 } from "../../../src/domain/appreciation/Appreciation";
 import {
-  DuplicateReceiversError,
-  EmptyMessageError,
-  NoReceiversError,
-  PointPerReceiverTooHighError,
-  PointPerReceiverTooLowError,
   SenderInReceiversError,
-  TooLongMessageError,
-  TooManyReceiversError,
   TotalPointExceedsLimitError
 } from "../../../src/domain/appreciation/AppreciationError";
 import { UserID } from "../../../src/domain/user/User";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { UUID } from "../../../src/utils/UUID";
+import { expectErr, expectOk } from "../../testing/utils/AssertResult";
 
 const MOCK_APPRECIATION_ID = UUID.new().value;
 const MOCK_NOW_DATE = new Date("2025-01-01T00:00:00.000Z");
@@ -49,152 +45,137 @@ describe("AppreciationDomainTest", () => {
 
   describe("Appreciationドメインモデルの作成", () => {
     it("Appreciationドメインモデルを作成できること", () => {
+      const receiverIDs = ReceiverIDs.from([receiverID1]);
       const expected = Appreciation.reconstruct(
         AppreciationID.new(),
         senderID,
-        [receiverID1],
+        receiverIDs,
         message,
         pointPerReceiver,
         CreatedAt.new()
       );
 
-      const actual = Appreciation.create(
+      const result = Appreciation.create(
         senderID,
-        [receiverID1],
+        receiverIDs,
         message,
         pointPerReceiver
       );
 
+      const actual = expectOk(result);
       expect(actual).toStrictEqual(expected);
     });
 
     it("複数の受信者でAppreciationドメインモデルを作成できること", () => {
       const receivers = [receiverID1, receiverID2, receiverID3];
+      const receiverIDs = ReceiverIDs.from(receivers);
       const expected = Appreciation.reconstruct(
         AppreciationID.new(),
         senderID,
-        receivers,
+        receiverIDs,
         message,
         pointPerReceiver,
         CreatedAt.new()
       );
 
-      const actual = Appreciation.create(
+      const result = Appreciation.create(
         senderID,
-        receivers,
+        receiverIDs,
         message,
         pointPerReceiver
       );
 
+      const actual = expectOk(result);
       expect(actual).toStrictEqual(expected);
     });
   });
 
   describe("Appreciationエンティティのバリデーション", () => {
-    it("受信者が0人の場合はエラーになること", () => {
-      expect(() => {
-        Appreciation.create(senderID, [], message, pointPerReceiver);
-      }).toThrow(NoReceiversError);
+    it("受信者が0人の場合はZodErrorがスローされること", () => {
+      const fn = () => ReceiverIDs.from([]);
+
+      expect(fn).toThrow(ZodError);
+      expect(fn).toThrow("受信者は1人以上である必要があります");
     });
 
-    it("受信者が6人を超える場合はエラーになること", () => {
+    it("受信者が6人を超える場合はZodErrorがスローされること", () => {
       const tooManyReceivers = [...Array(7)].map(() => UserID.new());
+      const fn = () => ReceiverIDs.from(tooManyReceivers);
 
-      expect(() => {
-        Appreciation.create(
-          senderID,
-          tooManyReceivers,
-          message,
-          pointPerReceiver
-        );
-      }).toThrow(TooManyReceiversError);
+      expect(fn).toThrow(ZodError);
+      expect(fn).toThrow(`受信者は${6}人以下である必要があります`);
     });
 
-    it("メッセージが200文字を超える場合はエラーになること", () => {
+    it("メッセージが200文字を超える場合はZodErrorがスローされること", () => {
       const tooLongMessage = "a".repeat(201);
-      expect(() => {
-        Appreciation.create(
-          senderID,
-          [receiverID1],
-          AppreciationMessage.from(tooLongMessage),
-          pointPerReceiver
-        );
-      }).toThrow(TooLongMessageError);
+      const fn = () => AppreciationMessage.from(tooLongMessage);
+
+      expect(fn).toThrow(ZodError);
+      expect(fn).toThrow("メッセージは200文字以下である必要があります");
     });
 
-    it("受信者に重複がある場合はエラーになること", () => {
-      expect(() => {
-        Appreciation.create(
-          senderID,
-          [receiverID1, receiverID1],
-          message,
-          pointPerReceiver
-        );
-      }).toThrow(DuplicateReceiversError);
+    it("受信者に重複がある場合はZodErrorがスローされること", () => {
+      const fn = () => ReceiverIDs.from([receiverID1, receiverID1]);
+
+      expect(fn).toThrow(ZodError);
+      expect(fn).toThrow("受信者リストに重複があります");
     });
 
     it("送信者が受信者に含まれている場合はエラーになること", () => {
-      expect(() => {
-        Appreciation.create(
-          senderID,
-          [senderID, receiverID1],
-          message,
-          pointPerReceiver
-        );
-      }).toThrow(SenderInReceiversError);
+      const receiverIDs = ReceiverIDs.from([senderID, receiverID1]);
+      const result = Appreciation.create(
+        senderID,
+        receiverIDs,
+        message,
+        pointPerReceiver
+      );
+
+      const actual = expectErr(result);
+      expect(actual).toBeInstanceOf(SenderInReceiversError);
     });
 
-    it("メッセージが空文字の場合はエラーになること", () => {
-      expect(() => {
-        Appreciation.create(
-          senderID,
-          [receiverID1],
-          AppreciationMessage.from(""),
-          pointPerReceiver
-        );
-      }).toThrow(EmptyMessageError);
+    it("メッセージが空文字の場合はZodErrorがスローされること", () => {
+      const fn = () => AppreciationMessage.from("");
+
+      expect(fn).toThrow(ZodError);
+      expect(fn).toThrow("メッセージは1文字以上である必要があります");
     });
 
-    it("メッセージが空白のみの場合はエラーになること", () => {
-      expect(() => {
-        Appreciation.create(
-          senderID,
-          [receiverID1],
-          AppreciationMessage.from("   "),
-          pointPerReceiver
-        );
-      }).toThrow(EmptyMessageError);
+    it("メッセージが空白のみの場合はZodErrorがスローされること", () => {
+      const fn = () => AppreciationMessage.from("   ");
+
+      expect(fn).toThrow(ZodError);
+      expect(fn).toThrow("メッセージは空文字であってはいけません");
     });
 
-    it("1未満のポイントの場合はエラーになること", () => {
-      expect(() => {
-        Appreciation.create(
-          senderID,
-          [receiverID1],
-          message,
-          PointPerReceiver.from(0)
-        );
-      }).toThrow(PointPerReceiverTooLowError);
+    it("1未満のポイントの場合はZodErrorがスローされること", () => {
+      const fn = () => PointPerReceiver.from(0);
+
+      expect(fn).toThrow(ZodError);
+      expect(fn).toThrow("ポイントは1以上である必要があります");
     });
 
-    it("120を超えるポイントの場合はエラーになること", () => {
-      expect(() => {
-        Appreciation.create(
-          senderID,
-          [receiverID1],
-          message,
-          PointPerReceiver.from(121)
-        );
-      }).toThrow(PointPerReceiverTooHighError);
+    it("120を超えるポイントの場合はZodErrorがスローされること", () => {
+      const fn = () => PointPerReceiver.from(121);
+
+      expect(fn).toThrow(ZodError);
+      expect(fn).toThrow("ポイントは120以下である必要があります");
     });
 
     it("総ポイント（ポイント×受信者数）が120を超える場合はエラーになること", () => {
       const receivers = [receiverID1, receiverID2, receiverID3]; // 3人の受信者
+      const receiverIDs = ReceiverIDs.from(receivers);
       const pointPerReceiver = PointPerReceiver.from(50); // 50ポイント × 3人 = 150ポイント > 120
 
-      expect(() => {
-        Appreciation.create(senderID, receivers, message, pointPerReceiver);
-      }).toThrow(TotalPointExceedsLimitError);
+      const result = Appreciation.create(
+        senderID,
+        receiverIDs,
+        message,
+        pointPerReceiver
+      );
+
+      const actual = expectErr(result);
+      expect(actual).toBeInstanceOf(TotalPointExceedsLimitError);
     });
   });
 });

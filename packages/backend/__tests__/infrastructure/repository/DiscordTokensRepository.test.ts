@@ -13,10 +13,7 @@ import {
   createDiscordTokensTableFixture,
   createExpiredDiscordTokensTableFixture
 } from "../../testing/table_fixture/DiscordTokensTableFixture";
-import {
-  createUserTableFixture,
-  createUserTableFixtureWithoutFacultyAndDepartment
-} from "../../testing/table_fixture/UserTableFixture";
+import { createUserTableFixture } from "../../testing/table_fixture/UserTableFixture";
 import {
   deleteFromDatabase,
   insertToDatabase,
@@ -31,10 +28,9 @@ describe("DiscordTokensRepository Tests", () => {
       const user1 = createUserTableFixture();
       await insertToDatabase(schema.user, user1);
 
-      const user2 = createUserTableFixtureWithoutFacultyAndDepartment();
+      const user2 = createUserTableFixture();
       await insertToDatabase(schema.user, user2);
 
-      // userIdを使ってdiscordTokensレコードを作成
       const discordTokens1 = createDiscordTokensTableFixture(user1.id);
       await insertToDatabase(schema.discordTokens, discordTokens1);
 
