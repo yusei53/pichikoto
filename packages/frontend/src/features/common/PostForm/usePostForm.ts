@@ -3,9 +3,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toaster } from "~/components/shared/AppToaster/AppToaster";
-import { ValueChangeDetails } from "~/components/ui/styled/combobox";
-import { User } from "~/model/user";
-import { PostFormValues, createPostSchema } from "./endpoints/postSchema";
+import type { ValueChangeDetails } from "~/components/ui/styled/combobox";
+import type { User } from "~/model/user";
+import type { PostFormValues} from "./endpoints/postSchema";
+import { createPostSchema } from "./endpoints/postSchema";
 
 type UsePostFormProps = {
 	users: User[];
