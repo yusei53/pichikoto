@@ -4,7 +4,7 @@ import { mockUsers } from "~/mock/user/user";
 import { ClientTopPage } from "./page.client";
 
 const TopPage = async () => {
-	const posts = await topPageAPI.getPosts();
+	const appreciationList = await topPageAPI.getAppreciationList();
 	const receivedPointRanking = await topPageAPI.getReceivedPointRankings();
 	const sendPointRanking = await topPageAPI.getSendPointRankings();
 	return (
@@ -16,7 +16,7 @@ const TopPage = async () => {
 			allUsers={mockUsers}
 			sendPointRanking={sendPointRanking}
 			receivedPointRanking={receivedPointRanking}
-			posts={posts}
+			appreciationList={appreciationList}
 		/>
 	);
 };

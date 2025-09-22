@@ -3,11 +3,11 @@ import { Box, Divider } from "styled-system/jsx";
 import { Stack } from "styled-system/jsx";
 import { Input } from "~/components/ui/input";
 
-type PostListHeaderProps = {
+type AppreciationListHeaderProps = {
 	onSearchChange: (value: string) => void;
 };
 
-export const PostListHeader: React.FC<PostListHeaderProps> = ({ onSearchChange }) => {
+export const AppreciationListHeader: React.FC<AppreciationListHeaderProps> = ({ onSearchChange }) => {
 	return (
 		<Stack direction={"column"} gap={"8px"}>
 			<Stack direction={"row"} alignItems={"center"} gap={"16px"}>

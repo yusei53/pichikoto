@@ -1,6 +1,6 @@
 import z from "zod";
 
-const postSchema = z.object({
+const appreciationSchema = z.object({
 	sendUserID: z.array(z.string()).min(1, { message: "送る人を選択してください" }),
 	message: z
 		.string()
@@ -9,8 +9,8 @@ const postSchema = z.object({
 	points: z.number().min(1, { message: "ポイントを選択してください" }),
 });
 
-export const createPostSchema = (remainingPoints: number) => {
-	return postSchema
+export const createAppreciationSchema = (remainingPoints: number) => {
+	return appreciationSchema
 		.refine((data) => data.points * data.sendUserID.length <= 40, {
 			message: "送ることができるのは合計40ptまでです",
 			path: ["points"],
@@ -21,4 +21,4 @@ export const createPostSchema = (remainingPoints: number) => {
 		});
 };
 
-export type PostFormValues = z.infer<typeof postSchema>;
+export type AppreciationValues = z.infer<typeof appreciationSchema>;

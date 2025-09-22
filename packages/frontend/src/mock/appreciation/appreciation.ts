@@ -1,8 +1,8 @@
-import type { Post } from "~/model/post";
+import type { Appreciation } from "~/model/appreciation";
 import { mockUser } from "../user";
 import { mockUsers } from "../user/user";
 
-export const mockPosts: Post[] = [
+export const mockAppreciationList: Appreciation[] = [
 	{
 		id: "1",
 		points: 13,

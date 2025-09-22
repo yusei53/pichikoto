@@ -9,16 +9,16 @@ import { Icon } from "~/components/ui/icon";
 import { Popover } from "~/components/ui/popover";
 import { usePopover } from "~/components/ui/usePopover";
 import { formatDate } from "~/lib/date-helper";
-import type { Post } from "~/model/post";
+import type { Appreciation } from "~/model/appreciation";
 import useDisplayReceivedUsers from "./useDisplayReceivedUsers";
 
-type PostCardProps = {
-	post: Post;
+type AppreciationCardProps = {
+	appreciation: Appreciation;
 };
 
-export const PostCard: React.FC<PostCardProps> = ({ post }) => {
+export const AppreciationCard: React.FC<AppreciationCardProps> = ({ appreciation }) => {
 	const { displayReceivedUsers, hiddenReceivedUsersCount } = useDisplayReceivedUsers(
-		post.receivedUsers
+		appreciation.receivedUsers
 	);
 	const { isOpen, onTriggerEnter, onTriggerLeave, onContentEnter, onContentLeave } = usePopover();
 	return (
@@ -32,10 +32,10 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
 			<Card.Header>
 				<Stack direction={"row"} alignItems={"center"} gap={"24px"}>
 					<Stack direction={"row"} alignItems={"center"}>
-						<Avatar size={"xl"} src={post.sendUser.discordAvatar} />
+						<Avatar size={"xl"} src={appreciation.sendUser.discordAvatar} />
 						<Stack gap={"4px"}>
-							<Box>{post.sendUser.discordUserName}</Box>
-							<Box>{post.sendUser.discordID}</Box>
+							<Box>{appreciation.sendUser.discordUserName}</Box>
+							<Box>{appreciation.sendUser.discordID}</Box>
 						</Stack>
 					</Stack>
 					<Icon size={"lg"}>
@@ -69,7 +69,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
 										fontSize: "3xl",
 									})}
 								>
-									+{post.points}pt
+									+{appreciation.points}pt
 								</Box>
 							</Stack>
 						</Popover.Trigger>
@@ -86,7 +86,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
 							</Popover.Arrow>
 							<Popover.Content>
 								<Stack direction={"column"} gap={"16px"} p={"8px"}>
-									{post.receivedUsers.map((user) => (
+									{appreciation.receivedUsers.map((user) => (
 										<Stack direction={"row"} alignItems={"center"} gap={"16px"} key={user.userID}>
 											<Avatar size={"xl"} src={user.discordAvatar} />
 											<Stack direction={"column"} gap={"8px"}>
@@ -99,15 +99,15 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
 							</Popover.Content>
 						</Popover.Positioner>
 					</Popover.Root>
-					<Box ml={"auto"}>{formatDate(post.createdAt)}</Box>
+					<Box ml={"auto"}>{formatDate(appreciation.createdAt)}</Box>
 				</Stack>
 			</Card.Header>
 			<Card.Body>
-				<Box>{post.message}</Box>
+				<Box>{appreciation.message}</Box>
 			</Card.Body>
 			<Card.Footer>
 				<Stack direction={"row"} alignItems={"center"} gap={"4px"}>
-					<Box color={"sage"}>{post.handsClapping}</Box>
+					<Box color={"sage"}>{appreciation.handsClapping}</Box>
 					<Button variant={"ghost"} px={"0"}>
 						<Image src="/hands-clapping.png" alt="hands-clapping" width={30} height={30} />
 					</Button>
