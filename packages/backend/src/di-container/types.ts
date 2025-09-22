@@ -6,6 +6,7 @@ export const TYPES = {
   DiscordTokensRepository: Symbol.for("DiscordTokensRepository"),
   UserRepository: Symbol.for("UserRepository"),
   StateRepository: Symbol.for("StateRepository"),
+  AppreciationRepository: Symbol.for("AppreciationRepository"),
 
   // Services
   DiscordOAuthFlowService: Symbol.for("DiscordOAuthFlowService"),

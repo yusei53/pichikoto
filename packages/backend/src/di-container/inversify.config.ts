@@ -21,6 +21,8 @@ import type { DiscordAuthVerifyUseCaseInterface } from "../application/use-case/
 import { DiscordAuthVerifyUseCase } from "../application/use-case/discord-auth/DiscordAuthVerifyUseCase.js";
 import type { JwtRefreshTokenUseCaseInterface } from "../application/use-case/discord-auth/JwtRefreshTokenUseCase";
 import { JwtRefreshTokenUseCase } from "../application/use-case/discord-auth/JwtRefreshTokenUseCase";
+import type { AppreciationRepositoryInterface } from "../infrastructure/repositories/AppreciationRepository";
+import { AppreciationRepository } from "../infrastructure/repositories/AppreciationRepository";
 import type { DiscordTokensRepositoryInterface } from "../infrastructure/repositories/DiscordTokensRepository";
 import { DiscordTokensRepository } from "../infrastructure/repositories/DiscordTokensRepository";
 import type { StateRepositoryInterface } from "../infrastructure/repositories/StateRepository";
@@ -51,6 +53,10 @@ container
 container
   .bind<StateRepositoryInterface>(TYPES.StateRepository)
   .to(StateRepository)
+  .inRequestScope();
+container
+  .bind<AppreciationRepositoryInterface>(TYPES.AppreciationRepository)
+  .to(AppreciationRepository)
   .inRequestScope();
 
 // Services
