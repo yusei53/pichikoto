@@ -5,17 +5,17 @@ import { useForm } from "react-hook-form";
 import { toaster } from "~/components/shared/AppToaster/AppToaster";
 import type { ValueChangeDetails } from "~/components/ui/styled/combobox";
 import type { User } from "~/model/user";
-import type { PostFormValues } from "./endpoints/postSchema";
-import { createPostSchema } from "./endpoints/postSchema";
+import type { AppreciationValues } from "./endpoints/appreciationSchema";
+import { createAppreciationSchema } from "./endpoints/appreciationSchema";
 
-type UsePostFormProps = {
+type UseAppreciationFormProps = {
 	users: User[];
 	remainingPoints: number;
 };
 const initialPoints = [5, 10, 15, 20, 30, 40] as const;
 
-export const usePostForm = ({ users, remainingPoints }: UsePostFormProps) => {
-	const postSchema = useMemo(() => createPostSchema(remainingPoints), [remainingPoints]);
+export const useAppreciationForm = ({ users, remainingPoints }: UseAppreciationFormProps) => {
+	const postSchema = useMemo(() => createAppreciationSchema(remainingPoints), [remainingPoints]);
 	const {
 		setValue,
 		register,
@@ -23,7 +23,7 @@ export const usePostForm = ({ users, remainingPoints }: UsePostFormProps) => {
 		watch,
 		trigger,
 		formState: { isValid, errors },
-	} = useForm<PostFormValues>({
+	} = useForm<AppreciationValues>({
 		resolver: zodResolver(postSchema),
 		mode: "onChange",
 		defaultValues: {

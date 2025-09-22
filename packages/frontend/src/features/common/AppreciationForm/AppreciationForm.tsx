@@ -11,14 +11,14 @@ import { IconButton } from "~/components/ui/icon-button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import type { User } from "~/model/user";
-import { usePostForm } from "./usePostForm";
+import { useAppreciationForm } from "./usePostForm";
 
-type PostFormProps = {
+type AppreciationFormProps = {
 	users: User[];
 	remainingPoints: number;
 };
 
-export const PostForm: React.FC<PostFormProps> = ({ users, remainingPoints }) => {
+export const AppreciationForm: React.FC<AppreciationFormProps> = ({ users, remainingPoints }) => {
 	const {
 		register,
 		onSubmit,
@@ -29,7 +29,7 @@ export const PostForm: React.FC<PostFormProps> = ({ users, remainingPoints }) =>
 		pointsCollection,
 		currentSendUsers,
 		currentPoints,
-	} = usePostForm({ users, remainingPoints });
+	} = useAppreciationForm({ users, remainingPoints });
 
 	return (
 		<form onSubmit={onSubmit}>

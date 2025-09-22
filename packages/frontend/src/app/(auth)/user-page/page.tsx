@@ -1,7 +1,8 @@
-import ClientUserPage from "./page.client";
+import { UserPageClient } from "./page.client";
 
-const Page = () => {
-	return <ClientUserPage />;
-};
-
-export default Page;
+export default async function Page({ }: {
+	searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+	console.log("user-page");
+	return <UserPageClient />;
+}

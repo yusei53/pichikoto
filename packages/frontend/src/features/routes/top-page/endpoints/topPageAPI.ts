@@ -1,18 +1,18 @@
+import { mockAppreciationList } from "~/mock/appreciation/appreciation";
 import { mockPointLog } from "~/mock/point-log";
 import { mockPointRankings } from "~/mock/point-ranking/point-ranking";
-import { mockPosts } from "~/mock/post";
+import type { Appreciation } from "~/model/appreciation";
 import type { PointLog } from "~/model/point-log";
 import type { PointRanking } from "~/model/point-ranking";
-import type { Post } from "~/model/post";
 
 export const topPageAPI = {
 	async getPointLog(): Promise<PointLog> {
 		// 将来的に実際のAPI呼び出しに置き換え
 		return mockPointLog;
 	},
-	async getPosts(): Promise<Post[]> {
+	async getAppreciationList(): Promise<Appreciation[]> {
 		// 将来的に実際のAPI呼び出しに置き換え
-		return mockPosts;
+		return mockAppreciationList;
 	},
 
 	async getReceivedPointRankings(): Promise<PointRanking[]> {

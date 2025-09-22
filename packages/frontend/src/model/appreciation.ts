@@ -1,6 +1,6 @@
 import type { User } from "./user";
 
-export type Post = {
+export type Appreciation = {
 	id: string;
 	points: number;
 	message: string;
