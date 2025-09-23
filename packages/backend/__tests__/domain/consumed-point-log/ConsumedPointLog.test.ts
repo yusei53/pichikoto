@@ -110,33 +110,33 @@ describe("ConsumedPointLogDomainTest", () => {
   });
 
   describe("WeekStartDateの動作確認", () => {
-    it("指定された日付でWeekStartDateを作成できること", () => {
-      const specificDate = new Date("2025-01-15T10:30:00.000Z");
-      const weekStartDate = WeekStartDate.from(specificDate);
-      expect(weekStartDate.value).toEqual(specificDate);
+    it("指定された文字列でWeekStartDateを作成できること", () => {
+      const dateString = "2025-01-15";
+      const weekStartDate = WeekStartDate.fromString(dateString);
+      expect(weekStartDate.value).toBe(dateString);
     });
 
     it("現在の週の開始日（月曜日）を取得できること", () => {
       // 2025-01-01は水曜日なので、同じ週の月曜日は2024-12-30
-      const expectedMonday = new Date("2024-12-30T00:00:00.000Z");
+      const expectedMondayString = "2024-12-30";
       const weekStartDate = WeekStartDate.new();
-      expect(weekStartDate.value).toEqual(expectedMonday);
+      expect(weekStartDate.value).toBe(expectedMondayString);
     });
 
     it("月曜日の場合はその日がweekStartDateになること", () => {
       // 2025-01-06は月曜日
       vi.setSystemTime(new Date("2025-01-06T15:30:00.000Z"));
-      const expectedMonday = new Date("2025-01-06T00:00:00.000Z");
+      const expectedMondayString = "2025-01-06";
       const weekStartDate = WeekStartDate.new();
-      expect(weekStartDate.value).toEqual(expectedMonday);
+      expect(weekStartDate.value).toBe(expectedMondayString);
     });
 
     it("日曜日の場合は前の週の月曜日がweekStartDateになること", () => {
       // 2025-01-05は日曜日、前の週の月曜日は2024-12-30
       vi.setSystemTime(new Date("2025-01-05T15:30:00.000Z"));
-      const expectedMonday = new Date("2024-12-30T00:00:00.000Z");
+      const expectedMondayString = "2024-12-30";
       const weekStartDate = WeekStartDate.new();
-      expect(weekStartDate.value).toEqual(expectedMonday);
+      expect(weekStartDate.value).toBe(expectedMondayString);
     });
   });
 });
