@@ -90,6 +90,7 @@ export class Appreciation {
   /**
    * 週次制限の検証
    */
+  // TODO: ドメインサービスかドメインモデルか何かに切り出す
   static validateWeeklyLimit(
     alreadyConsumed: AlreadyConsumedPoints,
     newConsumption: NewTotalConsumptionPoints
