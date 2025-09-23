@@ -1,6 +1,4 @@
 import type { Context } from "hono";
-import { inject } from "inversify";
-import { TYPES } from "../../../di-container/types";
 import type { StateRepositoryInterface } from "../../../infrastructure/repositories/StateRepository";
 
 /** Discord OAuth 2.0認証エンドポイントのベースURL */
@@ -32,10 +30,7 @@ export interface DiscordAuthInitiateUseCaseInterface {
 export class DiscordAuthInitiateUseCase
   implements DiscordAuthInitiateUseCaseInterface
 {
-  constructor(
-    @inject(TYPES.StateRepository)
-    private readonly stateRepository: StateRepositoryInterface
-  ) {}
+  constructor(private readonly stateRepository: StateRepositoryInterface) {}
 
   async execute(c: Context): Promise<DiscordAuthInitiateUseCaseResult> {
     const sessionID = this.generateSecureRandomString(32);

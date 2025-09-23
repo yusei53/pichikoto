@@ -1,7 +1,5 @@
-import { inject, injectable } from "inversify";
 import type { Result } from "neverthrow";
 import { err, ok } from "neverthrow";
-import { TYPES } from "../../../di-container/types";
 import type { StateRepositoryInterface } from "../../../infrastructure/repositories/StateRepository";
 
 type StateVerification = {
@@ -27,14 +25,10 @@ export interface DiscordOAuthFlowServiceInterface {
  * - セッション管理とクリーンアップ
  * - OIDC/PKCE用パラメータの安全な取得
  */
-@injectable()
 export class DiscordOAuthFlowService
   implements DiscordOAuthFlowServiceInterface
 {
-  constructor(
-    @inject(TYPES.StateRepository)
-    private readonly stateRepository: StateRepositoryInterface
-  ) {}
+  constructor(private readonly stateRepository: StateRepositoryInterface) {}
 
   /**
    * セッションIDとstateパラメータを検証する

@@ -1,7 +1,5 @@
 import type { CallbackResponse } from "@pichikoto/http-contracts";
 import type { Context } from "hono";
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../../di-container/types";
 import { DiscordTokens } from "../../../domain/discord-tokens/DiscordTokens";
 import { DiscordID, User } from "../../../domain/user/User";
 import type { DiscordTokensRepositoryInterface } from "../../../infrastructure/repositories/DiscordTokensRepository";
@@ -21,22 +19,15 @@ export interface DiscordAuthCallbackUseCaseInterface {
   ): Promise<CallbackResponse>;
 }
 
-@injectable()
 export class DiscordAuthCallbackUseCase
   implements DiscordAuthCallbackUseCaseInterface
 {
   constructor(
-    @inject(TYPES.DiscordOAuthFlowService)
     private readonly oauthFlowService: DiscordOAuthFlowServiceInterface,
-    @inject(TYPES.DiscordTokenService)
     private readonly discordTokenService: DiscordTokenServiceInterface,
-    @inject(TYPES.DiscordUserService)
     private readonly discordUserService: DiscordUserServiceInterface,
-    @inject(TYPES.UserRepository)
     private readonly userRepository: UserRepositoryInterface,
-    @inject(TYPES.DiscordTokensRepository)
     private readonly discordTokensRepository: DiscordTokensRepositoryInterface,
-    @inject(TYPES.JwtGenerateService)
     private readonly jwtGenerateService: JwtGenerateServiceInterface
   ) {}
 

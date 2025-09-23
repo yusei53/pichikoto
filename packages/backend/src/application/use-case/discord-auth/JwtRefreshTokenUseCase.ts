@@ -1,8 +1,6 @@
 import type { RefreshTokenResponse } from "@pichikoto/http-contracts";
 import type { Context } from "hono";
 import { sign } from "hono/jwt";
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../../di-container/types";
 import type { JwtVerifyServiceInterface } from "../../services/jwt/JWTVerifyService";
 
 export interface JwtRefreshTokenUseCaseInterface {
@@ -17,12 +15,8 @@ export interface JwtRefreshTokenUseCaseInterface {
  * 2. 新しいアクセストークンの生成（30日間有効）
  * 3. 新しいリフレッシュトークンの生成（1年間有効）
  */
-@injectable()
 export class JwtRefreshTokenUseCase implements JwtRefreshTokenUseCaseInterface {
-  constructor(
-    @inject(TYPES.JwtVerifyService)
-    private readonly jwtVerifyService: JwtVerifyServiceInterface
-  ) {}
+  constructor(private readonly jwtVerifyService: JwtVerifyServiceInterface) {}
 
   async execute(
     c: Context,

@@ -1,4 +1,3 @@
-import { injectable } from "inversify";
 import * as jose from "jose";
 import type { Result } from "neverthrow";
 import { err, fromThrowable, ok } from "neverthrow";
@@ -70,7 +69,6 @@ export interface DiscordJWKServiceInterface {
  * - JWTヘッダーのデコード
  * - JWT署名の検証
  */
-@injectable()
 export class DiscordJWKService implements DiscordJWKServiceInterface {
   private publicKeysCache: DiscordCryptoKey[] | null = null;
   private cacheExpiry: number = 0;

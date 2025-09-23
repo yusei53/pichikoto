@@ -1,4 +1,3 @@
-import { injectable } from "inversify";
 import type { Result } from "neverthrow";
 import { err, ok } from "neverthrow";
 
@@ -27,7 +26,6 @@ export interface DiscordUserServiceInterface {
  * - アクセストークンを使用したユーザー情報の取得
  * - APIエラーハンドリング
  */
-@injectable()
 export class DiscordUserService implements DiscordUserServiceInterface {
   /**
    * Discord APIからユーザー情報を取得する
