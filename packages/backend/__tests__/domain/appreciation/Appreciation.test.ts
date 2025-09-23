@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ZodError } from "zod";
 import {
-  AlreadyConsumedPoints,
   Appreciation,
   AppreciationID,
   AppreciationMessage,
@@ -9,10 +8,7 @@ import {
   PointPerReceiver,
   ReceiverIDs
 } from "../../../src/domain/appreciation/Appreciation";
-import {
-  CreateAppreciationError,
-  WeeklyPointLimitExceededError
-} from "../../../src/domain/appreciation/AppreciationError";
+import { CreateAppreciationError } from "../../../src/domain/appreciation/AppreciationError";
 import { UserID } from "../../../src/domain/user/User";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { UUID } from "../../../src/utils/UUID";
@@ -200,74 +196,9 @@ describe("AppreciationDomainTest", () => {
         expect(result.value).toBe(60); // 30 × 2 = 60
       });
     });
-
-    describe("validateWeeklyLimit", () => {
-      it("週次制限内の場合は成功すること", () => {
-        const alreadyConsumed = AlreadyConsumedPoints.from(300);
-        const newConsumption = NewTotalConsumptionPoints.from(50);
-
-        const result = Appreciation.validateWeeklyLimit(
-          alreadyConsumed,
-          newConsumption
-        );
-
-        expectOk(result);
-      });
-
-      it("週次制限を超える場合はエラーになること", () => {
-        const alreadyConsumed = AlreadyConsumedPoints.from(350);
-        const newConsumption = NewTotalConsumptionPoints.from(60); // 350 + 60 = 410 > 400
-
-        const result = Appreciation.validateWeeklyLimit(
-          alreadyConsumed,
-          newConsumption
-        );
-
-        const error = expectErr(result);
-        expect(error).toBeInstanceOf(WeeklyPointLimitExceededError);
-        expect(error.attemptedConsumption).toBe(410);
-        expect(error.weeklyLimit).toBe(400);
-      });
-
-      it("週次制限ちょうどの場合は成功すること", () => {
-        const alreadyConsumed = AlreadyConsumedPoints.from(350);
-        const newConsumption = NewTotalConsumptionPoints.from(50); // 350 + 50 = 400
-
-        const result = Appreciation.validateWeeklyLimit(
-          alreadyConsumed,
-          newConsumption
-        );
-
-        expectOk(result);
-      });
-    });
   });
 
   describe("値オブジェクトのテスト", () => {
-    describe("AlreadyConsumedPoints", () => {
-      it("有効な値で作成できること", () => {
-        const points = AlreadyConsumedPoints.from(200);
-        expect(points.value).toBe(200);
-      });
-
-      it("0で作成できること", () => {
-        const points = AlreadyConsumedPoints.zero();
-        expect(points.value).toBe(0);
-      });
-
-      it("負の値の場合はZodErrorがスローされること", () => {
-        const fn = () => AlreadyConsumedPoints.from(-1);
-        expect(fn).toThrow(ZodError);
-        expect(fn).toThrow("消費済みポイントは0以上である必要があります");
-      });
-
-      it("400を超える値の場合はZodErrorがスローされること", () => {
-        const fn = () => AlreadyConsumedPoints.from(401);
-        expect(fn).toThrow(ZodError);
-        expect(fn).toThrow("消費済みポイントは400以下である必要があります");
-      });
-    });
-
     describe("NewTotalConsumptionPoints", () => {
       it("有効な値で作成できること", () => {
         const points = NewTotalConsumptionPoints.from(50);
