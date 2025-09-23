@@ -97,11 +97,12 @@ export class ConsumedPoints {
 
 /**
  * 週の開始日（月曜日）を表す値オブジェクト
+ * YYYY-MM-DD形式の文字列として保持
  */
 export class WeekStartDate {
-  private constructor(readonly value: Date) {}
-
-  static from(value: Date): WeekStartDate {
+  private constructor(readonly value: string) {}
+  static fromString(value: string): WeekStartDate {
+    // YYYY-MM-DD形式の文字列から作成
     return new WeekStartDate(value);
   }
 
@@ -112,6 +113,7 @@ export class WeekStartDate {
     const monday = new Date(now);
     monday.setUTCDate(now.getUTCDate() - ((dayOfWeek + 6) % 7));
     monday.setUTCHours(0, 0, 0, 0);
-    return new WeekStartDate(monday);
+    const dateString = monday.toISOString().split("T")[0]; // YYYY-MM-DD形式に変換
+    return new WeekStartDate(dateString);
   }
 }
