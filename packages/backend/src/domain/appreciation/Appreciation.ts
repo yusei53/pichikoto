@@ -3,20 +3,12 @@ import { z } from "zod";
 import type { UserID } from "../../domain/user/User";
 import { CreatedAt } from "../../utils/CreatedAt";
 import { UUID } from "../../utils/UUID";
-import {
-  CreateAppreciationError,
-  WeeklyPointLimitExceededError
-} from "./AppreciationError";
+import { CreateAppreciationError } from "./AppreciationError";
 
 /**
  * 総ポイントの最大値（1回の投稿）
  */
 const MAX_POINTS_PER_APPRECIATION = 120;
-
-/**
- * 週次ポイント制限の定数
- */
-const WEEKLY_POINT_LIMIT = 400;
 
 export class Appreciation {
   private constructor(
@@ -85,25 +77,6 @@ export class Appreciation {
     const totalPoints =
       this.pointPerReceiver.value * this.receiverIDs.value.length;
     return NewTotalConsumptionPoints.from(totalPoints);
-  }
-
-  /**
-   * 週次制限の検証
-   */
-  // TODO: ドメインサービスかドメインモデルか何かに切り出す
-  static validateWeeklyLimit(
-    alreadyConsumed: AlreadyConsumedPoints,
-    newConsumption: NewTotalConsumptionPoints
-  ): Result<void, WeeklyPointLimitExceededError> {
-    if (alreadyConsumed.value + newConsumption.value > WEEKLY_POINT_LIMIT) {
-      return err(
-        new WeeklyPointLimitExceededError(
-          alreadyConsumed.value + newConsumption.value,
-          WEEKLY_POINT_LIMIT
-        )
-      );
-    }
-    return ok();
   }
 }
 
@@ -193,31 +166,6 @@ export class PointPerReceiver {
   static from(value: number): PointPerReceiver {
     const validatedValue = PointPerReceiverSchema.parse(value);
     return new PointPerReceiver(validatedValue);
-  }
-}
-
-/**
- * その週に既に消費されたポイント数（0〜400）
- */
-export class AlreadyConsumedPoints {
-  private constructor(readonly value: number) {}
-
-  static from(value: number): AlreadyConsumedPoints {
-    const schema = z
-      .number()
-      .min(0, "消費済みポイントは0以上である必要があります")
-      .max(
-        WEEKLY_POINT_LIMIT,
-        `消費済みポイントは${WEEKLY_POINT_LIMIT}以下である必要があります`
-      )
-      .int("消費済みポイントは整数である必要があります");
-
-    const validatedValue = schema.parse(value);
-    return new AlreadyConsumedPoints(validatedValue);
-  }
-
-  static zero(): AlreadyConsumedPoints {
-    return new AlreadyConsumedPoints(0);
   }
 }
 

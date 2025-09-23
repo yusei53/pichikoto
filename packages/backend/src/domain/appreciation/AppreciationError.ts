@@ -1,14 +1,11 @@
 import type { UserID } from "../../domain/user/User";
+import { DomainError } from "../../utils/Error";
 
 /**
  * Appreciation作成時に発生しうるエラーを管理するクラス
  */
-export class CreateAppreciationError extends Error {
-  constructor(public readonly message: string) {
-    super(message);
-    this.name = this.constructor.name;
-  }
 
+export class CreateAppreciationError extends DomainError {
   /**
    * 送信者が受信者リストに含まれている場合のエラーを作成
    */
@@ -25,20 +22,5 @@ export class CreateAppreciationError extends Error {
     return new CreateAppreciationError(
       `総ポイントが制限を超えています。総ポイント: ${totalPoints}`
     );
-  }
-}
-
-/**
- * 週次ポイント制限を超えている場合のエラー
- */
-export class WeeklyPointLimitExceededError extends Error {
-  constructor(
-    public readonly attemptedConsumption: number,
-    public readonly weeklyLimit: number
-  ) {
-    super(
-      `週次ポイント制限を超えています。消費予定: ${attemptedConsumption}pt, 制限: ${weeklyLimit}pt`
-    );
-    this.name = this.constructor.name;
   }
 }
