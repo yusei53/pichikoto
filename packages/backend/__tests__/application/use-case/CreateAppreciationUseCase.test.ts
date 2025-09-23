@@ -1,0 +1,247 @@
+import { err, ok } from "neverthrow";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  CreateAppreciationUseCase,
+  type CreateAppreciationUseCaseInterface
+} from "../../../src/application/use-case/appreciation/CreateAppreciationUseCase";
+import {
+  AppreciationMessage,
+  PointPerReceiver,
+  ReceiverIDs
+} from "../../../src/domain/appreciation/Appreciation";
+import {
+  ValidateWeeklyLimitError,
+  type WeeklyPointLimitDomainServiceInterface
+} from "../../../src/domain/appreciation/WeeklyPointLimitDomainService";
+import { UserID } from "../../../src/domain/user/User";
+import type { AppreciationRepositoryInterface } from "../../../src/infrastructure/repositories/AppreciationRepository";
+import type { ConsumedPointLogRepositoryInterface } from "../../../src/infrastructure/repositories/ConsumedPointLogRepository";
+import { UUID } from "../../../src/utils/UUID";
+import { expectOk } from "../../testing/utils/AssertResult";
+
+// モック定数（有効なUUID形式）
+const MOCK_SENDER_ID = UUID.new().value;
+const MOCK_RECEIVER_ID_1 = UUID.new().value;
+const MOCK_RECEIVER_ID_2 = UUID.new().value;
+const MOCK_MESSAGE = "いつもお疲れ様です！";
+const MOCK_POINT_PER_RECEIVER = 10;
+
+describe("CreateAppreciationUseCase Tests", () => {
+  // モックリポジトリ
+  const mockAppreciationRepository = {
+    store: vi.fn(),
+    findBy: vi.fn()
+  };
+
+  const mockConsumedPointLogRepository = {
+    store: vi.fn(),
+    findBy: vi.fn(),
+    findByUserAndWeek: vi.fn()
+  };
+
+  // モックドメインサービス
+  const mockWeeklyPointLimitDomainService = {
+    validateWeeklyLimit: vi.fn()
+  };
+
+  const createAppreciationUseCase: CreateAppreciationUseCaseInterface =
+    new CreateAppreciationUseCase(
+      mockAppreciationRepository as AppreciationRepositoryInterface,
+      mockConsumedPointLogRepository as ConsumedPointLogRepositoryInterface,
+      mockWeeklyPointLimitDomainService as WeeklyPointLimitDomainServiceInterface
+    );
+
+  // 共通のテストデータ
+  let senderID: UserID;
+  let receiverIDs: ReceiverIDs;
+  let message: AppreciationMessage;
+  let pointPerReceiver: PointPerReceiver;
+
+  beforeEach(async () => {
+    // モックのリセット
+    vi.clearAllMocks();
+
+    // テストデータの準備
+    senderID = UserID.from(MOCK_SENDER_ID);
+    receiverIDs = ReceiverIDs.from([
+      UserID.from(MOCK_RECEIVER_ID_1),
+      UserID.from(MOCK_RECEIVER_ID_2)
+    ]);
+    message = AppreciationMessage.from(MOCK_MESSAGE);
+    pointPerReceiver = PointPerReceiver.from(MOCK_POINT_PER_RECEIVER);
+
+    // デフォルトのモック動作設定
+    mockWeeklyPointLimitDomainService.validateWeeklyLimit.mockResolvedValue(
+      ok()
+    );
+    mockAppreciationRepository.store.mockResolvedValue(undefined);
+    mockConsumedPointLogRepository.store.mockResolvedValue(undefined);
+  });
+
+  afterEach(async () => {
+    vi.clearAllMocks();
+  });
+
+  describe("execute", () => {
+    /**
+     * 正常ケース：感謝の作成とポイント消費ログの記録が正常に行われることのテストケース
+     *
+     * @description 有効な入力で感謝を作成し、週次ポイント制限検証を通過し、感謝とポイント消費ログが正常に保存されることを確認
+     *
+     * Arrange
+     * - 有効な送信者ID、受信者ID、メッセージ、ポイントを準備
+     * - 週次ポイント制限検証を成功するようにモック設定
+     * - リポジトリのstoreメソッドを成功するようにモック設定
+     *
+     * Act
+     * - CreateAppreciationUseCaseのexecuteメソッド実行
+     *
+     * Assert
+     * - 正常完了（void）の確認
+     * - 週次ポイント制限検証の呼び出し確認
+     * - 感謝リポジトリのstore呼び出し確認
+     * - ポイント消費ログリポジトリのstore呼び出し確認
+     */
+    it("正常ケース：感謝の作成とポイント消費ログの記録が正常に行われること", async () => {
+      // Act
+      const result = await createAppreciationUseCase.execute(
+        senderID,
+        receiverIDs,
+        message,
+        pointPerReceiver
+      );
+
+      // Assert
+      expectOk(result);
+    });
+
+    /**
+     * 異常ケース：送信者が受信者リストに含まれている場合のエラーテストケース
+     *
+     * @description 送信者が受信者リストに含まれている場合、適切なドメインエラーが発生することを確認
+     */
+    it("異常ケース：送信者が受信者リストに含まれている場合、AppreciationDomainErrorが発生すること", async () => {
+      // Arrange
+      const invalidReceiverIDs = ReceiverIDs.from([
+        UserID.from(MOCK_SENDER_ID), // 送信者と同じID
+        UserID.from(MOCK_RECEIVER_ID_1)
+      ]);
+
+      // Act & Assert
+      await expect(
+        createAppreciationUseCase.execute(
+          senderID,
+          invalidReceiverIDs,
+          message,
+          pointPerReceiver
+        )
+      ).rejects.toThrowError(
+        /AppreciationDomainError\(cause: CreateAppreciationError\(送信者が受信者リストに含まれています/
+      );
+    });
+
+    /**
+     * 異常ケース：総ポイントが制限を超えている場合のエラーテストケース
+     *
+     * @description 総ポイント（ポイント×受信者数）が120を超える場合、適切なドメインエラーが発生することを確認
+     */
+    it("異常ケース：総ポイントが制限を超えている場合、AppreciationDomainErrorが発生すること", async () => {
+      // Arrange
+      const highPointPerReceiver = PointPerReceiver.from(100);
+      // 100ポイント × 2人 = 200ポイント（制限120を超える）
+
+      // Act & Assert
+      await expect(
+        createAppreciationUseCase.execute(
+          senderID,
+          receiverIDs,
+          message,
+          highPointPerReceiver
+        )
+      ).rejects.toThrowError(
+        /AppreciationDomainError\(cause: CreateAppreciationError\(総ポイントが制限を超えています/
+      );
+    });
+
+    /**
+     * 異常ケース：週次ポイント制限を超えている場合のエラーテストケース
+     *
+     * @description 週次ポイント制限を超える場合、適切なドメインサービスエラーが発生することを確認
+     */
+    it("異常ケース：週次ポイント制限を超えている場合、AppreciationDomainServiceErrorが発生すること", async () => {
+      // Arrange
+      const weeklyLimitError = ValidateWeeklyLimitError.totalPointExceedsLimit(
+        420,
+        400
+      );
+      mockWeeklyPointLimitDomainService.validateWeeklyLimit.mockResolvedValue(
+        err(weeklyLimitError)
+      );
+
+      // Act & Assert
+      await expect(
+        createAppreciationUseCase.execute(
+          senderID,
+          receiverIDs,
+          message,
+          pointPerReceiver
+        )
+      ).rejects.toThrowError(
+        /AppreciationDomainServiceError\(cause: ValidateWeeklyLimitError\(TotalPointExceedsLimit/
+      );
+    });
+
+    /**
+     * 正常ケース：異なるポイント数での動作確認テストケース
+     *
+     * @description 異なるポイント数（単一受信者）で正常に動作することを確認
+     */
+    it("正常ケース：単一受信者への感謝が正常に作成されること", async () => {
+      // Arrange
+      const singleReceiverIDs = ReceiverIDs.from([
+        UserID.from(MOCK_RECEIVER_ID_1)
+      ]);
+      const highPointPerReceiver = PointPerReceiver.from(50);
+
+      // Act
+      const result = await createAppreciationUseCase.execute(
+        senderID,
+        singleReceiverIDs,
+        message,
+        highPointPerReceiver
+      );
+
+      // Assert
+      expectOk(result);
+    });
+
+    /**
+     * 正常ケース：最大受信者数での動作確認テストケース
+     *
+     * @description 最大受信者数（6人）で正常に動作することを確認
+     */
+    it("正常ケース：最大受信者数（6人）への感謝が正常に作成されること", async () => {
+      // Arrange
+      const maxReceiverIDs = ReceiverIDs.from([
+        UserID.from(UUID.new().value),
+        UserID.from(UUID.new().value),
+        UserID.from(UUID.new().value),
+        UserID.from(UUID.new().value),
+        UserID.from(UUID.new().value),
+        UserID.from(UUID.new().value)
+      ]);
+      const pointFor6People = PointPerReceiver.from(20); // 20 × 6 = 120（制限内）
+
+      // Act
+      const result = await createAppreciationUseCase.execute(
+        senderID,
+        maxReceiverIDs,
+        message,
+        pointFor6People
+      );
+
+      // Assert
+      expectOk(result);
+    });
+  });
+});
