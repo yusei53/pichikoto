@@ -1,10 +1,13 @@
 import { err, ok } from "neverthrow";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import * as schema from "../../../database/schema";
 import {
   CreateAppreciationUseCase,
   type CreateAppreciationUseCaseInterface
 } from "../../../src/application/use-case/appreciation/CreateAppreciationUseCase";
 import {
+  Appreciation,
+  AppreciationID,
   AppreciationMessage,
   PointPerReceiver,
   ReceiverIDs
@@ -13,11 +16,29 @@ import {
   ValidateWeeklyLimitError,
   type WeeklyPointLimitDomainServiceInterface
 } from "../../../src/domain/appreciation/WeeklyPointLimitDomainService";
+import {
+  ConsumedPointLog,
+  ConsumedPointLogID,
+  ConsumedPoints,
+  WeekStartDate
+} from "../../../src/domain/consumed-point-log/ConsumedPointLog";
 import { UserID } from "../../../src/domain/user/User";
-import type { AppreciationRepositoryInterface } from "../../../src/infrastructure/repositories/AppreciationRepository";
-import type { ConsumedPointLogRepositoryInterface } from "../../../src/infrastructure/repositories/ConsumedPointLogRepository";
+import { AppreciationRepository } from "../../../src/infrastructure/repositories/AppreciationRepository";
+import { ConsumedPointLogRepository } from "../../../src/infrastructure/repositories/ConsumedPointLogRepository";
+import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { UUID } from "../../../src/utils/UUID";
+import {
+  assertEqualAppreciationReceiversTable,
+  assertEqualAppreciationTable
+} from "../../testing/table_assert/AssertEqualAppreciationTable";
+import { assertEqualConsumedPointLogTable } from "../../testing/table_assert/AssertEqualConsumedPointLogTable";
 import { expectOk } from "../../testing/utils/AssertResult";
+import {
+  deleteFromDatabase,
+  insertToDatabase,
+  selectFromDatabase,
+  selectOneFromDatabase
+} from "../../testing/utils/GenericTableHelper";
 
 // モック定数（有効なUUID形式）
 const MOCK_SENDER_ID = UUID.new().value;
@@ -27,17 +48,9 @@ const MOCK_MESSAGE = "いつもお疲れ様です！";
 const MOCK_POINT_PER_RECEIVER = 10;
 
 describe("CreateAppreciationUseCase Tests", () => {
-  // モックリポジトリ
-  const mockAppreciationRepository = {
-    store: vi.fn(),
-    findBy: vi.fn()
-  };
-
-  const mockConsumedPointLogRepository = {
-    store: vi.fn(),
-    findBy: vi.fn(),
-    findByUserAndWeek: vi.fn()
-  };
+  // 実際のリポジトリ（テスト用データベースに接続）
+  const appreciationRepository = new AppreciationRepository();
+  const consumedPointLogRepository = new ConsumedPointLogRepository();
 
   // モックドメインサービス
   const mockWeeklyPointLimitDomainService = {
@@ -46,8 +59,8 @@ describe("CreateAppreciationUseCase Tests", () => {
 
   const createAppreciationUseCase: CreateAppreciationUseCaseInterface =
     new CreateAppreciationUseCase(
-      mockAppreciationRepository as AppreciationRepositoryInterface,
-      mockConsumedPointLogRepository as ConsumedPointLogRepositoryInterface,
+      appreciationRepository,
+      consumedPointLogRepository,
       mockWeeklyPointLimitDomainService as WeeklyPointLimitDomainServiceInterface
     );
 
@@ -60,6 +73,48 @@ describe("CreateAppreciationUseCase Tests", () => {
   beforeEach(async () => {
     // モックのリセット
     vi.clearAllMocks();
+
+    const MOCK_APPRECIATION_ID = UUID.new().value;
+    vi.spyOn(AppreciationID, "new").mockReturnValue(
+      new (class {
+        constructor(public readonly value: UUID) {}
+      })(UUID.from(MOCK_APPRECIATION_ID))
+    );
+
+    const MOCK_CONSUMED_POINT_LOG_ID = UUID.new().value;
+    vi.spyOn(ConsumedPointLogID, "new").mockReturnValue(
+      new (class {
+        constructor(public readonly value: UUID) {}
+      })(UUID.from(MOCK_CONSUMED_POINT_LOG_ID))
+    );
+
+    // データベースのクリア（外部キー制約の順序に注意）
+    await deleteFromDatabase(schema.consumedPointLog);
+    await deleteFromDatabase(schema.appreciationReceivers);
+    await deleteFromDatabase(schema.appreciations);
+    await deleteFromDatabase(schema.user);
+
+    // テスト用ユーザーデータの作成
+    await insertToDatabase(schema.user, {
+      id: MOCK_SENDER_ID,
+      discordId: "sender_discord_id",
+      discordUserName: "送信者テストユーザー",
+      discordAvatar: "avatar_url"
+    });
+
+    await insertToDatabase(schema.user, {
+      id: MOCK_RECEIVER_ID_1,
+      discordId: "receiver1_discord_id",
+      discordUserName: "受信者1テストユーザー",
+      discordAvatar: "avatar_url"
+    });
+
+    await insertToDatabase(schema.user, {
+      id: MOCK_RECEIVER_ID_2,
+      discordId: "receiver2_discord_id",
+      discordUserName: "受信者2テストユーザー",
+      discordAvatar: "avatar_url"
+    });
 
     // テストデータの準備
     senderID = UserID.from(MOCK_SENDER_ID);
@@ -74,12 +129,16 @@ describe("CreateAppreciationUseCase Tests", () => {
     mockWeeklyPointLimitDomainService.validateWeeklyLimit.mockResolvedValue(
       ok()
     );
-    mockAppreciationRepository.store.mockResolvedValue(undefined);
-    mockConsumedPointLogRepository.store.mockResolvedValue(undefined);
   });
 
   afterEach(async () => {
     vi.clearAllMocks();
+
+    // データベースのクリア（外部キー制約の順序に注意）
+    await deleteFromDatabase(schema.consumedPointLog);
+    await deleteFromDatabase(schema.appreciationReceivers);
+    await deleteFromDatabase(schema.appreciations);
+    await deleteFromDatabase(schema.user);
   });
 
   describe("execute", () => {
@@ -101,8 +160,28 @@ describe("CreateAppreciationUseCase Tests", () => {
      * - 週次ポイント制限検証の呼び出し確認
      * - 感謝リポジトリのstore呼び出し確認
      * - ポイント消費ログリポジトリのstore呼び出し確認
+     * - データベースにレコードが正しくインサートされていることを確認
      */
     it("正常ケース：感謝の作成とポイント消費ログの記録が正常に行われること", async () => {
+      // Arrange
+      const appreciation = Appreciation.reconstruct(
+        AppreciationID.new(),
+        senderID,
+        receiverIDs,
+        message,
+        pointPerReceiver,
+        CreatedAt.new()
+      );
+
+      const consumedPointLog = ConsumedPointLog.reconstruct(
+        ConsumedPointLogID.new(),
+        senderID,
+        appreciation.appreciationID,
+        WeekStartDate.new(),
+        ConsumedPoints.from(pointPerReceiver.value * 2),
+        CreatedAt.new()
+      );
+
       // Act
       const result = await createAppreciationUseCase.execute(
         senderID,
@@ -113,6 +192,27 @@ describe("CreateAppreciationUseCase Tests", () => {
 
       // Assert
       expectOk(result);
+
+      const appreciationRecord = (await selectOneFromDatabase(
+        schema.appreciations
+      )) as typeof schema.appreciations.$inferSelect;
+      assertEqualAppreciationTable(appreciation, appreciationRecord!);
+
+      const actualReceiverRecords = (await selectFromDatabase(
+        schema.appreciationReceivers
+      )) as (typeof schema.appreciationReceivers.$inferSelect)[];
+      assertEqualAppreciationReceiversTable(
+        appreciation,
+        actualReceiverRecords
+      );
+
+      const consumedPointLogRecord = (await selectOneFromDatabase(
+        schema.consumedPointLog
+      )) as typeof schema.consumedPointLog.$inferSelect;
+      assertEqualConsumedPointLogTable(
+        consumedPointLog,
+        consumedPointLogRecord
+      );
     });
 
     /**
@@ -213,6 +313,39 @@ describe("CreateAppreciationUseCase Tests", () => {
 
       // Assert
       expectOk(result);
+
+      const appreciationRecord = await selectOneFromDatabase(
+        schema.appreciations
+      );
+      expect(appreciationRecord).not.toBeNull();
+      expect(appreciationRecord!.senderId).toBe(senderID.value.value);
+      expect(appreciationRecord!.message).toBe(message.value);
+      expect(appreciationRecord!.pointPerReceiver).toBe(
+        highPointPerReceiver.value
+      );
+
+      // 2. appreciation_receiversテーブルのレコード確認（単一受信者）
+      const actualReceiverRecords = await selectFromDatabase(
+        schema.appreciationReceivers
+      );
+      expect(actualReceiverRecords).toHaveLength(1);
+      expect(actualReceiverRecords[0].receiverId).toBe(MOCK_RECEIVER_ID_1);
+      expect(actualReceiverRecords[0].appreciationId).toBe(
+        appreciationRecord!.id
+      );
+
+      // 3. consumed_point_logテーブルのレコード確認
+      const consumedPointLogRecord = await selectOneFromDatabase(
+        schema.consumedPointLog
+      );
+      expect(consumedPointLogRecord).not.toBeNull();
+      expect(consumedPointLogRecord!.userId).toBe(senderID.value.value);
+      expect(consumedPointLogRecord!.appreciationId).toBe(
+        appreciationRecord!.id
+      );
+      expect(consumedPointLogRecord!.consumedPoints).toBe(
+        highPointPerReceiver.value * 1
+      ); // 1人分
     });
 
     /**
@@ -222,15 +355,48 @@ describe("CreateAppreciationUseCase Tests", () => {
      */
     it("正常ケース：最大受信者数（6人）への感謝が正常に作成されること", async () => {
       // Arrange
-      const maxReceiverIDs = ReceiverIDs.from([
-        UserID.from(UUID.new().value),
-        UserID.from(UUID.new().value),
-        UserID.from(UUID.new().value),
-        UserID.from(UUID.new().value),
-        UserID.from(UUID.new().value),
-        UserID.from(UUID.new().value)
-      ]);
+      // 追加の6人のユーザーIDを生成してDBに挿入
+      const additionalUserIds = [
+        UUID.new().value,
+        UUID.new().value,
+        UUID.new().value,
+        UUID.new().value,
+        UUID.new().value,
+        UUID.new().value
+      ];
+
+      // 追加ユーザーをDBに挿入
+      for (let i = 0; i < additionalUserIds.length; i++) {
+        await insertToDatabase(schema.user, {
+          id: additionalUserIds[i],
+          discordId: `additional_user_${i}_discord_id`,
+          discordUserName: `追加ユーザー${i + 1}`,
+          discordAvatar: "avatar_url"
+        });
+      }
+
+      const maxReceiverIDs = ReceiverIDs.from(
+        additionalUserIds.map((id) => UserID.from(id))
+      );
       const pointFor6People = PointPerReceiver.from(20); // 20 × 6 = 120（制限内）
+
+      const appreciation = Appreciation.reconstruct(
+        AppreciationID.new(),
+        senderID,
+        maxReceiverIDs,
+        message,
+        pointFor6People,
+        CreatedAt.new()
+      );
+
+      const consumedPointLog = ConsumedPointLog.reconstruct(
+        ConsumedPointLogID.new(),
+        senderID,
+        appreciation.appreciationID,
+        WeekStartDate.new(),
+        ConsumedPoints.from(pointFor6People.value * 6),
+        CreatedAt.new()
+      );
 
       // Act
       const result = await createAppreciationUseCase.execute(
@@ -242,6 +408,27 @@ describe("CreateAppreciationUseCase Tests", () => {
 
       // Assert
       expectOk(result);
+
+      const appreciationRecord = (await selectOneFromDatabase(
+        schema.appreciations
+      )) as typeof schema.appreciations.$inferSelect;
+      assertEqualAppreciationTable(appreciation, appreciationRecord!);
+
+      const actualReceiverRecords = (await selectFromDatabase(
+        schema.appreciationReceivers
+      )) as (typeof schema.appreciationReceivers.$inferSelect)[];
+      assertEqualAppreciationReceiversTable(
+        appreciation,
+        actualReceiverRecords
+      );
+
+      const consumedPointLogRecord = (await selectOneFromDatabase(
+        schema.consumedPointLog
+      )) as typeof schema.consumedPointLog.$inferSelect;
+      assertEqualConsumedPointLogTable(
+        consumedPointLog,
+        consumedPointLogRecord
+      );
     });
   });
 });
