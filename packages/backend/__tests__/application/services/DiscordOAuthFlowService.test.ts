@@ -7,10 +7,10 @@ import {
   createOauthStateTableFixtureWithExpired
 } from "../../testing/table_fixture/OauthStateTableFixture";
 import { expectErr, expectOk } from "../../testing/utils/AssertResult";
+import { getTypedSingleRecord } from "../../testing/utils/DatabaseAssertHelpers";
 import {
   deleteFromDatabase,
-  insertToDatabase,
-  selectOneFromDatabase
+  insertToDatabase
 } from "../../testing/utils/GenericTableHelper";
 
 describe("DiscordOAuthFlowService Tests", () => {
@@ -157,10 +157,6 @@ describe("DiscordOAuthFlowService Tests", () => {
 /**
  * OAuthStateテーブルからレコードを取得するヘルパー関数
  */
-const getOauthStateRecord = async (): Promise<
-  typeof schema.oauthState.$inferSelect | null
-> => {
-  return (await selectOneFromDatabase(
-    schema.oauthState
-  )) as typeof schema.oauthState.$inferSelect;
+const getOauthStateRecord = async () => {
+  return await getTypedSingleRecord(schema.oauthState);
 };

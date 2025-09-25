@@ -4,10 +4,10 @@ import { DiscordID, User, UserID } from "../../../src/domain/user/User";
 import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";
 import { assertEqualUserTable } from "../../testing/table_assert/AssertEqualUserTable";
 import { createUserTableFixture } from "../../testing/table_fixture/UserTableFixture";
+import { assertSingleRecord } from "../../testing/utils/DatabaseAssertHelpers";
 import {
   deleteFromDatabase,
-  insertToDatabase,
-  selectOneFromDatabase
+  insertToDatabase
 } from "../../testing/utils/GenericTableHelper";
 
 describe("UserRepository Tests", () => {
@@ -73,10 +73,11 @@ describe("UserRepository Tests", () => {
       await userRepository.save(user);
 
       // assert
-      const actualRecord = (await selectOneFromDatabase(
-        schema.user
-      )) as typeof schema.user.$inferSelect;
-      assertEqualUserTable(user, actualRecord);
+      await assertSingleRecord(
+        schema.user,
+        assertEqualUserTable,
+        user
+      );
     });
   });
 });

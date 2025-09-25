@@ -15,10 +15,10 @@ import { assertEqualConsumedPointLogTable } from "../../testing/table_assert/Ass
 import { createAppreciationTableFixture } from "../../testing/table_fixture/AppreciationTableFixture";
 import { createConsumedPointLogTableFixtureWith } from "../../testing/table_fixture/ConsumedPointLogTableFixture";
 import { createUserTableFixture } from "../../testing/table_fixture/UserTableFixture";
+import { assertSingleRecord } from "../../testing/utils/DatabaseAssertHelpers";
 import {
   deleteFromDatabase,
-  insertToDatabase,
-  selectOneFromDatabase
+  insertToDatabase
 } from "../../testing/utils/GenericTableHelper";
 
 describe("ConsumedPointLogRepository Tests", () => {
@@ -53,10 +53,11 @@ describe("ConsumedPointLogRepository Tests", () => {
       await consumedPointLogRepository.store(consumedPointLog);
 
       // assert
-      const actualRecord = (await selectOneFromDatabase(
-        schema.consumedPointLog
-      )) as typeof schema.consumedPointLog.$inferSelect;
-      assertEqualConsumedPointLogTable(consumedPointLog, actualRecord);
+      await assertSingleRecord(
+        schema.consumedPointLog,
+        assertEqualConsumedPointLogTable,
+        consumedPointLog
+      );
     });
   });
 

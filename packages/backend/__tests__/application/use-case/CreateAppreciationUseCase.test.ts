@@ -34,10 +34,12 @@ import {
 import { assertEqualConsumedPointLogTable } from "../../testing/table_assert/AssertEqualConsumedPointLogTable";
 import { expectOk } from "../../testing/utils/AssertResult";
 import {
+  assertMultipleRecords,
+  assertSingleRecord
+} from "../../testing/utils/DatabaseAssertHelpers";
+import {
   deleteFromDatabase,
-  insertToDatabase,
-  selectFromDatabase,
-  selectOneFromDatabase
+  insertToDatabase
 } from "../../testing/utils/GenericTableHelper";
 
 // モック定数（有効なUUID形式）
@@ -193,25 +195,22 @@ describe("CreateAppreciationUseCase Tests", () => {
       // Assert
       expectOk(result);
 
-      const appreciationRecord = (await selectOneFromDatabase(
-        schema.appreciations
-      )) as typeof schema.appreciations.$inferSelect;
-      assertEqualAppreciationTable(appreciation, appreciationRecord!);
-
-      const actualReceiverRecords = (await selectFromDatabase(
-        schema.appreciationReceivers
-      )) as (typeof schema.appreciationReceivers.$inferSelect)[];
-      assertEqualAppreciationReceiversTable(
-        appreciation,
-        actualReceiverRecords
+      await assertSingleRecord(
+        schema.appreciations,
+        assertEqualAppreciationTable,
+        appreciation
       );
 
-      const consumedPointLogRecord = (await selectOneFromDatabase(
-        schema.consumedPointLog
-      )) as typeof schema.consumedPointLog.$inferSelect;
-      assertEqualConsumedPointLogTable(
-        consumedPointLog,
-        consumedPointLogRecord
+      await assertMultipleRecords(
+        schema.appreciationReceivers,
+        assertEqualAppreciationReceiversTable,
+        appreciation
+      );
+
+      await assertSingleRecord(
+        schema.consumedPointLog,
+        assertEqualConsumedPointLogTable,
+        consumedPointLog
       );
     });
 
@@ -409,25 +408,22 @@ describe("CreateAppreciationUseCase Tests", () => {
       // Assert
       expectOk(result);
 
-      const appreciationRecord = (await selectOneFromDatabase(
-        schema.appreciations
-      )) as typeof schema.appreciations.$inferSelect;
-      assertEqualAppreciationTable(appreciation, appreciationRecord!);
-
-      const actualReceiverRecords = (await selectFromDatabase(
-        schema.appreciationReceivers
-      )) as (typeof schema.appreciationReceivers.$inferSelect)[];
-      assertEqualAppreciationReceiversTable(
-        appreciation,
-        actualReceiverRecords
+      await assertSingleRecord(
+        schema.appreciations,
+        assertEqualAppreciationTable,
+        appreciation
       );
 
-      const consumedPointLogRecord = (await selectOneFromDatabase(
-        schema.consumedPointLog
-      )) as typeof schema.consumedPointLog.$inferSelect;
-      assertEqualConsumedPointLogTable(
-        consumedPointLog,
-        consumedPointLogRecord
+      await assertMultipleRecords(
+        schema.appreciationReceivers,
+        assertEqualAppreciationReceiversTable,
+        appreciation
+      );
+
+      await assertSingleRecord(
+        schema.consumedPointLog,
+        assertEqualConsumedPointLogTable,
+        consumedPointLog
       );
     });
   });
