@@ -3,7 +3,7 @@ import * as schema from "../../../database/schema";
 import { StateRepository } from "../../../src/infrastructure/repositories/StateRepository";
 import { assertEqualOauthStateTable } from "../../testing/table_assert/AssertEqualOauthStateTable";
 import { createOauthStateTableFixture } from "../../testing/table_fixture/OauthStateTableFixture";
-import { assertSingleRecord } from "../../testing/utils/DatabaseAssertHelpers";
+import { getTypedSingleRecord } from "../../testing/utils/DatabaseAssertHelpers";
 import {
   deleteFromDatabase,
   insertToDatabase
@@ -38,11 +38,8 @@ describe("StateRepository Tests", () => {
       );
 
       // assert
-      await assertSingleRecord(
-        schema.oauthState,
-        assertEqualOauthStateTable,
-        expectedState
-      );
+      const actualRecord = await getTypedSingleRecord(schema.oauthState);
+      assertEqualOauthStateTable(expectedState, actualRecord!);
     });
   });
 

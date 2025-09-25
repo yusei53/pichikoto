@@ -21,8 +21,8 @@ import {
 } from "../../testing/table_fixture/AppreciationTableFixture";
 import { createUserTableFixture } from "../../testing/table_fixture/UserTableFixture";
 import {
-  assertMultipleRecords,
-  assertSingleRecord
+  getTypedMultipleRecords,
+  getTypedSingleRecord
 } from "../../testing/utils/DatabaseAssertHelpers";
 import {
   deleteFromDatabase,
@@ -59,17 +59,11 @@ describe("AppreciationRepository Tests", () => {
       await appreciationRepository.store(appreciation);
 
       // assert
-      await assertSingleRecord(
-        schema.appreciations,
-        assertEqualAppreciationTable,
-        appreciation
-      );
+      const actualAppreciationRecord = await getTypedSingleRecord(schema.appreciations);
+      assertEqualAppreciationTable(appreciation, actualAppreciationRecord!);
 
-      await assertMultipleRecords(
-        schema.appreciationReceivers,
-        assertEqualAppreciationReceiversTable,
-        appreciation
-      );
+      const actualReceiverRecords = await getTypedMultipleRecords(schema.appreciationReceivers);
+      assertEqualAppreciationReceiversTable(appreciation, actualReceiverRecords);
     });
 
     it("感謝を保存できること（複数受信者）", async () => {
@@ -101,20 +95,12 @@ describe("AppreciationRepository Tests", () => {
       await appreciationRepository.store(appreciation);
 
       // assert
-      await assertSingleRecord(
-        schema.appreciations,
-        assertEqualAppreciationTable,
-        appreciation
-      );
+      const actualAppreciationRecord = await getTypedSingleRecord(schema.appreciations);
+      assertEqualAppreciationTable(appreciation, actualAppreciationRecord!);
 
-      await assertMultipleRecords(
-        schema.appreciationReceivers,
-        (expected, actual) => {
-          expect(actual).toHaveLength(3);
-          assertEqualAppreciationReceiversTable(expected, actual);
-        },
-        appreciation
-      );
+      const actualReceiverRecords = await getTypedMultipleRecords(schema.appreciationReceivers);
+      expect(actualReceiverRecords).toHaveLength(3);
+      assertEqualAppreciationReceiversTable(appreciation, actualReceiverRecords);
     });
   });
 

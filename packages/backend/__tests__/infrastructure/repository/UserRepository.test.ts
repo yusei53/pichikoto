@@ -4,7 +4,7 @@ import { DiscordID, User, UserID } from "../../../src/domain/user/User";
 import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";
 import { assertEqualUserTable } from "../../testing/table_assert/AssertEqualUserTable";
 import { createUserTableFixture } from "../../testing/table_fixture/UserTableFixture";
-import { assertSingleRecord } from "../../testing/utils/DatabaseAssertHelpers";
+import { getTypedSingleRecord } from "../../testing/utils/DatabaseAssertHelpers";
 import {
   deleteFromDatabase,
   insertToDatabase
@@ -73,11 +73,8 @@ describe("UserRepository Tests", () => {
       await userRepository.save(user);
 
       // assert
-      await assertSingleRecord(
-        schema.user,
-        assertEqualUserTable,
-        user
-      );
+      const actualRecord = await getTypedSingleRecord(schema.user);
+      assertEqualUserTable(user, actualRecord!);
     });
   });
 });

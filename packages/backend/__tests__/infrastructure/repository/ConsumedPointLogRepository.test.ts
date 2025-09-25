@@ -15,7 +15,7 @@ import { assertEqualConsumedPointLogTable } from "../../testing/table_assert/Ass
 import { createAppreciationTableFixture } from "../../testing/table_fixture/AppreciationTableFixture";
 import { createConsumedPointLogTableFixtureWith } from "../../testing/table_fixture/ConsumedPointLogTableFixture";
 import { createUserTableFixture } from "../../testing/table_fixture/UserTableFixture";
-import { assertSingleRecord } from "../../testing/utils/DatabaseAssertHelpers";
+import { getTypedSingleRecord } from "../../testing/utils/DatabaseAssertHelpers";
 import {
   deleteFromDatabase,
   insertToDatabase
@@ -53,11 +53,8 @@ describe("ConsumedPointLogRepository Tests", () => {
       await consumedPointLogRepository.store(consumedPointLog);
 
       // assert
-      await assertSingleRecord(
-        schema.consumedPointLog,
-        assertEqualConsumedPointLogTable,
-        consumedPointLog
-      );
+      const actualRecord = await getTypedSingleRecord(schema.consumedPointLog);
+      assertEqualConsumedPointLogTable(consumedPointLog, actualRecord!);
     });
   });
 
