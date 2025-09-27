@@ -1,6 +1,9 @@
 import type { InferSelectModel } from "drizzle-orm";
 import type { PgTable } from "drizzle-orm/pg-core";
-import { selectFromDatabase, selectOneFromDatabase } from "./GenericTableHelper";
+import {
+  selectFromDatabase,
+  selectOneFromDatabase
+} from "./GenericTableHelper";
 
 /**
  * データベースから単一レコードを型安全に取得する

@@ -20,7 +20,7 @@ export class AppreciationController implements AppreciationControllerInterface {
   async createAppreciation(c: Context): Promise<Response> {
     try {
       const req = await toCreateAppreciationRequest(c.req.raw);
-      
+
       // JWTから送信者IDを取得（認証ミドルウェアで設定されることを想定）
       const senderID = c.get("userID");
       if (!senderID) {

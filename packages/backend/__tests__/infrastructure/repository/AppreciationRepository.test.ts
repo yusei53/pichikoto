@@ -59,11 +59,18 @@ describe("AppreciationRepository Tests", () => {
       await appreciationRepository.store(appreciation);
 
       // assert
-      const actualAppreciationRecord = await getTypedSingleRecord(schema.appreciations);
+      const actualAppreciationRecord = await getTypedSingleRecord(
+        schema.appreciations
+      );
       assertEqualAppreciationTable(appreciation, actualAppreciationRecord!);
 
-      const actualReceiverRecords = await getTypedMultipleRecords(schema.appreciationReceivers);
-      assertEqualAppreciationReceiversTable(appreciation, actualReceiverRecords);
+      const actualReceiverRecords = await getTypedMultipleRecords(
+        schema.appreciationReceivers
+      );
+      assertEqualAppreciationReceiversTable(
+        appreciation,
+        actualReceiverRecords
+      );
     });
 
     it("感謝を保存できること（複数受信者）", async () => {
@@ -95,12 +102,19 @@ describe("AppreciationRepository Tests", () => {
       await appreciationRepository.store(appreciation);
 
       // assert
-      const actualAppreciationRecord = await getTypedSingleRecord(schema.appreciations);
+      const actualAppreciationRecord = await getTypedSingleRecord(
+        schema.appreciations
+      );
       assertEqualAppreciationTable(appreciation, actualAppreciationRecord!);
 
-      const actualReceiverRecords = await getTypedMultipleRecords(schema.appreciationReceivers);
+      const actualReceiverRecords = await getTypedMultipleRecords(
+        schema.appreciationReceivers
+      );
       expect(actualReceiverRecords).toHaveLength(3);
-      assertEqualAppreciationReceiversTable(appreciation, actualReceiverRecords);
+      assertEqualAppreciationReceiversTable(
+        appreciation,
+        actualReceiverRecords
+      );
     });
   });
 
