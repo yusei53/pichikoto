@@ -21,10 +21,12 @@ import {
 } from "../../testing/table_fixture/AppreciationTableFixture";
 import { createUserTableFixture } from "../../testing/table_fixture/UserTableFixture";
 import {
+  getTypedMultipleRecords,
+  getTypedSingleRecord
+} from "../../testing/utils/DatabaseAssertHelpers";
+import {
   deleteFromDatabase,
-  insertToDatabase,
-  selectFromDatabase,
-  selectOneFromDatabase
+  insertToDatabase
 } from "../../testing/utils/GenericTableHelper";
 
 describe("AppreciationRepository Tests", () => {
@@ -57,18 +59,11 @@ describe("AppreciationRepository Tests", () => {
       await appreciationRepository.store(appreciation);
 
       // assert
-      const actualAppreciationRecord = (await selectOneFromDatabase(
-        schema.appreciations
-      )) as typeof schema.appreciations.$inferSelect;
-      assertEqualAppreciationTable(appreciation, actualAppreciationRecord);
+      const actualAppreciationRecord = await getTypedSingleRecord(schema.appreciations);
+      assertEqualAppreciationTable(appreciation, actualAppreciationRecord!);
 
-      const actualReceiverRecords = (await selectFromDatabase(
-        schema.appreciationReceivers
-      )) as (typeof schema.appreciationReceivers.$inferSelect)[];
-      assertEqualAppreciationReceiversTable(
-        appreciation,
-        actualReceiverRecords
-      );
+      const actualReceiverRecords = await getTypedMultipleRecords(schema.appreciationReceivers);
+      assertEqualAppreciationReceiversTable(appreciation, actualReceiverRecords);
     });
 
     it("感謝を保存できること（複数受信者）", async () => {
@@ -100,19 +95,12 @@ describe("AppreciationRepository Tests", () => {
       await appreciationRepository.store(appreciation);
 
       // assert
-      const actualAppreciationRecord = (await selectOneFromDatabase(
-        schema.appreciations
-      )) as typeof schema.appreciations.$inferSelect;
-      assertEqualAppreciationTable(appreciation, actualAppreciationRecord);
+      const actualAppreciationRecord = await getTypedSingleRecord(schema.appreciations);
+      assertEqualAppreciationTable(appreciation, actualAppreciationRecord!);
 
-      const actualReceiverRecords = (await selectFromDatabase(
-        schema.appreciationReceivers
-      )) as (typeof schema.appreciationReceivers.$inferSelect)[];
+      const actualReceiverRecords = await getTypedMultipleRecords(schema.appreciationReceivers);
       expect(actualReceiverRecords).toHaveLength(3);
-      assertEqualAppreciationReceiversTable(
-        appreciation,
-        actualReceiverRecords
-      );
+      assertEqualAppreciationReceiversTable(appreciation, actualReceiverRecords);
     });
   });
 

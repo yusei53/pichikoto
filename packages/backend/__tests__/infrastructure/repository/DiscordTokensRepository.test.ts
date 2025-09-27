@@ -14,10 +14,10 @@ import {
   createExpiredDiscordTokensTableFixture
 } from "../../testing/table_fixture/DiscordTokensTableFixture";
 import { createUserTableFixture } from "../../testing/table_fixture/UserTableFixture";
+import { getTypedSingleRecord } from "../../testing/utils/DatabaseAssertHelpers";
 import {
   deleteFromDatabase,
-  insertToDatabase,
-  selectOneFromDatabase
+  insertToDatabase
 } from "../../testing/utils/GenericTableHelper";
 
 describe("DiscordTokensRepository Tests", () => {
@@ -122,10 +122,8 @@ describe("DiscordTokensRepository Tests", () => {
       await discordTokensRepository.save(discordTokens);
 
       // assert
-      const actualRecord = (await selectOneFromDatabase(
-        schema.discordTokens
-      )) as typeof schema.discordTokens.$inferSelect;
-      assertEqualDiscordTokensTable(discordTokens, actualRecord);
+      const actualRecord = await getTypedSingleRecord(schema.discordTokens);
+      assertEqualDiscordTokensTable(discordTokens, actualRecord!);
     });
   });
 });
