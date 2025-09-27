@@ -60,13 +60,13 @@ erDiagram
     user ||--o{ appreciations : "sends"
     user ||--o{ appreciation_receivers : "receives"
     user ||--o{ consumed_point_log : "consumes_points"
-    
+
     appreciations ||--o{ appreciation_receivers : "has_receivers"
     appreciations ||--o{ consumed_point_log : "generates_consumption"
-    
+
     appreciation_receivers }o--|| appreciations : "belongs_to"
     appreciation_receivers }o--|| user : "received_by"
-    
+
     consumed_point_log }o--|| user : "belongs_to"
     consumed_point_log }o--|| appreciations : "from_appreciation"
 ```
@@ -121,19 +121,19 @@ sequenceDiagram
 
     U->>C: POST /appreciation (sender, receivers, message, points)
     C->>UC: createAppreciation()
-    
+
     UC->>A: Appreciation.create()
     A->>A: validateWeeklyLimit(consumed, new)
     A-->>UC: Result<Appreciation, Error>
-    
+
     alt Success
         UC->>AR: store(appreciation)
         AR->>DB: INSERT appreciations
         AR->>DB: INSERT appreciation_receivers
-        
+
         UC->>CR: store(consumedPointLog)
         CR->>DB: INSERT consumed_point_log
-        
+
         UC-->>C: Success Response
         C-->>U: 201 Created
     else Validation Error
@@ -150,15 +150,15 @@ flowchart TD
     B --> C[総消費ポイント計算]
     C --> D[既存消費ポイント取得]
     D --> E{週次制限チェック}
-    
+
     E -->|制限内| F[感謝作成成功]
     E -->|制限超過| G[WeeklyPointLimitExceededError]
-    
+
     F --> H[データベース保存]
     H --> I[感謝テーブル]
     H --> J[受信者テーブル]
     H --> K[消費ポイントログ]
-    
+
     G --> L[エラーレスポンス]
 
     subgraph "週次制限ロジック"
@@ -277,4 +277,3 @@ flowchart LR
 5. **型安全**: TypeScriptによる静的型チェック
 
 設計相談時にこの図を提示することで、システムの全体像と課題を明確に伝えることができます。
-

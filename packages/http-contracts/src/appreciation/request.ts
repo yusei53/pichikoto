@@ -7,7 +7,9 @@ import {
 
 export const createAppreciationRequestSchema = requestSchemaWithAuth.extend({
   body: z.object({
-    receiverIDs: z.array(z.string()).min(1, "At least one receiver is required"),
+    receiverIDs: z
+      .array(z.string())
+      .min(1, "At least one receiver is required"),
     message: z.string().min(1, "Message is required"),
     pointPerReceiver: z.number().int().min(1).max(100)
   })

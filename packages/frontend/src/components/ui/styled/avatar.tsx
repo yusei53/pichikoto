@@ -9,30 +9,24 @@ const { withProvider, withContext } = createStyleContext(avatar);
 
 export type RootProviderProps = ComponentProps<typeof RootProvider>;
 export const RootProvider = withProvider<
-  HTMLDivElement,
-  Assign<
-    Assign<HTMLStyledProps<"div">, Avatar.RootProviderBaseProps>,
-    AvatarVariantProps
-  >
+	HTMLDivElement,
+	Assign<Assign<HTMLStyledProps<"div">, Avatar.RootProviderBaseProps>, AvatarVariantProps>
 >(Avatar.RootProvider, "root");
 
 export type RootProps = ComponentProps<typeof Root>;
 export const Root = withProvider<
-  HTMLDivElement,
-  Assign<
-    Assign<HTMLStyledProps<"div">, Avatar.RootBaseProps>,
-    AvatarVariantProps
-  >
+	HTMLDivElement,
+	Assign<Assign<HTMLStyledProps<"div">, Avatar.RootBaseProps>, AvatarVariantProps>
 >(Avatar.Root, "root");
 
 export const Fallback = withContext<
-  HTMLSpanElement,
-  Assign<HTMLStyledProps<"span">, Avatar.FallbackBaseProps>
+	HTMLSpanElement,
+	Assign<HTMLStyledProps<"span">, Avatar.FallbackBaseProps>
 >(Avatar.Fallback, "fallback");
 
 export const Image = withContext<
-  HTMLImageElement,
-  Assign<HTMLStyledProps<"img">, Avatar.ImageBaseProps>
+	HTMLImageElement,
+	Assign<HTMLStyledProps<"img">, Avatar.ImageBaseProps>
 >(Avatar.Image, "image");
 
 export { AvatarContext as Context } from "@ark-ui/react/avatar";
