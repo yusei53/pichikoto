@@ -195,14 +195,26 @@ describe("CreateAppreciationUseCase Tests", () => {
       // Assert
       expectOk(result);
 
-      const appreciationRecord = await getTypedSingleRecord(schema.appreciations);
+      const appreciationRecord = await getTypedSingleRecord(
+        schema.appreciations
+      );
       assertEqualAppreciationTable(appreciation, appreciationRecord!);
 
-      const actualReceiverRecords = await getTypedMultipleRecords(schema.appreciationReceivers);
-      assertEqualAppreciationReceiversTable(appreciation, actualReceiverRecords);
+      const actualReceiverRecords = await getTypedMultipleRecords(
+        schema.appreciationReceivers
+      );
+      assertEqualAppreciationReceiversTable(
+        appreciation,
+        actualReceiverRecords
+      );
 
-      const consumedPointLogRecord = await getTypedSingleRecord(schema.consumedPointLog);
-      assertEqualConsumedPointLogTable(consumedPointLog, consumedPointLogRecord!);
+      const consumedPointLogRecord = await getTypedSingleRecord(
+        schema.consumedPointLog
+      );
+      assertEqualConsumedPointLogTable(
+        consumedPointLog,
+        consumedPointLogRecord!
+      );
     });
 
     /**
@@ -293,6 +305,24 @@ describe("CreateAppreciationUseCase Tests", () => {
       ]);
       const highPointPerReceiver = PointPerReceiver.from(50);
 
+      const appreciation = Appreciation.reconstruct(
+        AppreciationID.new(),
+        senderID,
+        singleReceiverIDs,
+        message,
+        highPointPerReceiver,
+        CreatedAt.new()
+      );
+
+      const consumedPointLog = ConsumedPointLog.reconstruct(
+        ConsumedPointLogID.new(),
+        senderID,
+        appreciation.appreciationID,
+        WeekStartDate.new(),
+        ConsumedPoints.from(highPointPerReceiver.value),
+        CreatedAt.new()
+      );
+
       // Act
       const result = await createAppreciationUseCase.execute(
         senderID,
@@ -304,38 +334,26 @@ describe("CreateAppreciationUseCase Tests", () => {
       // Assert
       expectOk(result);
 
-      const appreciationRecord = await selectOneFromDatabase(
+      const appreciationRecord = await getTypedSingleRecord(
         schema.appreciations
       );
-      expect(appreciationRecord).not.toBeNull();
-      expect(appreciationRecord!.senderId).toBe(senderID.value.value);
-      expect(appreciationRecord!.message).toBe(message.value);
-      expect(appreciationRecord!.pointPerReceiver).toBe(
-        highPointPerReceiver.value
-      );
+      assertEqualAppreciationTable(appreciation, appreciationRecord!);
 
-      // 2. appreciation_receiversテーブルのレコード確認（単一受信者）
-      const actualReceiverRecords = await selectFromDatabase(
+      const actualReceiverRecords = await getTypedMultipleRecords(
         schema.appreciationReceivers
       );
-      expect(actualReceiverRecords).toHaveLength(1);
-      expect(actualReceiverRecords[0].receiverId).toBe(MOCK_RECEIVER_ID_1);
-      expect(actualReceiverRecords[0].appreciationId).toBe(
-        appreciationRecord!.id
+      assertEqualAppreciationReceiversTable(
+        appreciation,
+        actualReceiverRecords
       );
 
-      // 3. consumed_point_logテーブルのレコード確認
-      const consumedPointLogRecord = await selectOneFromDatabase(
+      const consumedPointLogRecord = await getTypedSingleRecord(
         schema.consumedPointLog
       );
-      expect(consumedPointLogRecord).not.toBeNull();
-      expect(consumedPointLogRecord!.userId).toBe(senderID.value.value);
-      expect(consumedPointLogRecord!.appreciationId).toBe(
-        appreciationRecord!.id
+      assertEqualConsumedPointLogTable(
+        consumedPointLog,
+        consumedPointLogRecord!
       );
-      expect(consumedPointLogRecord!.consumedPoints).toBe(
-        highPointPerReceiver.value * 1
-      ); // 1人分
     });
 
     /**
@@ -399,14 +417,26 @@ describe("CreateAppreciationUseCase Tests", () => {
       // Assert
       expectOk(result);
 
-      const appreciationRecord = await getTypedSingleRecord(schema.appreciations);
+      const appreciationRecord = await getTypedSingleRecord(
+        schema.appreciations
+      );
       assertEqualAppreciationTable(appreciation, appreciationRecord!);
 
-      const actualReceiverRecords = await getTypedMultipleRecords(schema.appreciationReceivers);
-      assertEqualAppreciationReceiversTable(appreciation, actualReceiverRecords);
+      const actualReceiverRecords = await getTypedMultipleRecords(
+        schema.appreciationReceivers
+      );
+      assertEqualAppreciationReceiversTable(
+        appreciation,
+        actualReceiverRecords
+      );
 
-      const consumedPointLogRecord = await getTypedSingleRecord(schema.consumedPointLog);
-      assertEqualConsumedPointLogTable(consumedPointLog, consumedPointLogRecord!);
+      const consumedPointLogRecord = await getTypedSingleRecord(
+        schema.consumedPointLog
+      );
+      assertEqualConsumedPointLogTable(
+        consumedPointLog,
+        consumedPointLogRecord!
+      );
     });
   });
 });
