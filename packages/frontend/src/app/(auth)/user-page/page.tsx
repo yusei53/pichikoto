@@ -1,8 +1,32 @@
+import { userPageAPI } from "~/features/routes/user-page/endpoints/userPageAPI";
+import { useParseParams } from "~/features/routes/user-page/useParseParams";
+import { mockUsers } from "~/mock/user/user";
 import { UserPageClient } from "./page.client";
 
-export default async function Page({}: {
-	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+export default async function Page({
+	searchParams,
+}: {
+	searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-	console.log("user-page");
-	return <UserPageClient />;
+	const resolvedSearchParams = (await searchParams) ?? {};
+	const currentUser = await userPageAPI.getCurrentUser();
+	const paramUserId = useParseParams(resolvedSearchParams?.["user-id"]);
+	const targetUserId = paramUserId ?? currentUser.userID;
+	const targetUser = await userPageAPI.getUserById(targetUserId);
+	const appreciationList = await userPageAPI.getAppreciationList();
+
+	const user = targetUser ?? currentUser;
+	const isOwnUser = user.userID === currentUser.userID;
+
+	return (
+		<UserPageClient
+			user={user}
+			isOwnUser={isOwnUser}
+			isNotificationEnabled={false}
+			appreciationList={appreciationList}
+			allUsers={mockUsers}
+			sendUserList={[]}
+			receivedUserList={[]}
+		/>
+	);
 }
