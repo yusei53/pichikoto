@@ -14,4 +14,4 @@ export const UserPageClient: React.FC<UserPageClientProps> = ({ user, isOwnUser 
 			<div>{user.discordUserName} {isOwnUser ? "(you)" : ""}</div>
 		</Stack>
 	);
-}
+};

@@ -22,13 +22,13 @@
     "@pichikoto/http-contracts": "workspace:*",
     "@types/pg": "^8.15.5",
     "drizzle-orm": "^0.44.2",
-    "hono": "^4.7.11",
+    "hono": "^4.9.9",
     "jose": "^6.1.0",
     "neverthrow": "^8.2.0",
     "pg": "^8.16.3",
     "postgres": "^3.4.7",
     "reflect-metadata": "^0.2.2",
-    "uuid": "^11.1.0",
+    "uuid": "^13.0.0",
     "ws": "^8.18.3",
     "zod": "^3.25.76"
   },
@@ -49,6 +49,6 @@
     "tsx": "^4.19.2",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4",
-    "wrangler": "^4.37.0"
+    "wrangler": "^4.40.2"
   }
 }

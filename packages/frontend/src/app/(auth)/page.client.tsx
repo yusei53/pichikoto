@@ -65,7 +65,7 @@ export const ClientTopPage: React.FC<ClientTopPageProps> = ({
 					<AppreciationForm users={allUsers} remainingPoints={remainingPoints} />
 				</Stack>
 				<Stack direction={"column"} width={"100%"} height={"calc(100vh - 48px)"} overflowY={"auto"}>
-					<AppreciationListHeader onSearchChange={() => { }} />
+					<AppreciationListHeader onSearchChange={() => {}} />
 					<Stack direction={"column"} gap={"16px"}>
 						{appreciationList.map((appreciation) => (
 							<AppreciationCard key={appreciation.id} appreciation={appreciation} />

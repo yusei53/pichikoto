@@ -7,7 +7,9 @@ type AppreciationListHeaderProps = {
 	onSearchChange: (value: string) => void;
 };
 
-export const AppreciationListHeader: React.FC<AppreciationListHeaderProps> = ({ onSearchChange }) => {
+export const AppreciationListHeader: React.FC<AppreciationListHeaderProps> = ({
+	onSearchChange,
+}) => {
 	return (
 		<Stack direction={"column"} gap={"8px"}>
 			<Stack direction={"row"} alignItems={"center"} gap={"16px"}>

@@ -8,6 +8,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import "reflect-metadata";
 import z from "zod";
+import { appreciation } from "./presentation/routes/appreciation";
 import { auth } from "./presentation/routes/auth";
 
 export type Env = {
@@ -58,6 +59,7 @@ app.onError((err, c) => {
   return createJsonResponse(internal.status, internal.message);
 });
 
+app.route("/appreciations", appreciation);
 app.route("/auth", auth);
 
 export default app;

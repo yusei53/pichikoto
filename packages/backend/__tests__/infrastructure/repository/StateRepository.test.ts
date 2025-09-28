@@ -3,10 +3,10 @@ import * as schema from "../../../database/schema";
 import { StateRepository } from "../../../src/infrastructure/repositories/StateRepository";
 import { assertEqualOauthStateTable } from "../../testing/table_assert/AssertEqualOauthStateTable";
 import { createOauthStateTableFixture } from "../../testing/table_fixture/OauthStateTableFixture";
+import { getTypedSingleRecord } from "../../testing/utils/DatabaseAssertHelpers";
 import {
   deleteFromDatabase,
-  insertToDatabase,
-  selectOneFromDatabase
+  insertToDatabase
 } from "../../testing/utils/GenericTableHelper";
 
 describe("StateRepository Tests", () => {
@@ -38,10 +38,8 @@ describe("StateRepository Tests", () => {
       );
 
       // assert
-      const actualRecord = (await selectOneFromDatabase(
-        schema.oauthState
-      )) as typeof schema.oauthState.$inferSelect;
-      assertEqualOauthStateTable(expectedState, actualRecord);
+      const actualRecord = await getTypedSingleRecord(schema.oauthState);
+      assertEqualOauthStateTable(expectedState, actualRecord!);
     });
   });
 
