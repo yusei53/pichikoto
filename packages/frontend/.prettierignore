@@ -1,6 +1,5 @@
 .storybook
 .next
-.turbo
 .vscode
 .devcontainer
 .git

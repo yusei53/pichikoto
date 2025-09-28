@@ -11,7 +11,11 @@ const AuthCallbackDiscordPage = async ({
 }) => {
 	const params = await searchParams;
 	return (
-		<ClientAuthCallbackDiscordPage error={params.error} code={params.code} state={params.state} />
+		<ClientAuthCallbackDiscordPage
+			error={params.error}
+			code={params.code}
+			state={params.state}
+		/>
 	);
 };
 

@@ -9,12 +9,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "test-storybook": "turbo run test-storybook",
     "lint": "turbo run lint",
-    "format:prettier": "prettier --write .",
-    "format": "turbo run lint:fix && pnpm format:prettier"
+    "format": "turbo run format --filter=backend --filter=frontend"
   },
   "devDependencies": {
-    "prettier": "^3.5.1",
-    "prettier-plugin-organize-imports": "^4.3.0",
     "turbo": "2.5.8",
     "typescript": "^5.9.2"
   },

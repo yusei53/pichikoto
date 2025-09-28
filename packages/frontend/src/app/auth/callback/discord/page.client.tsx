@@ -11,11 +11,9 @@ type ClientAuthCallbackDiscordPageProps = {
 	state?: string;
 };
 
-const ClientAuthCallbackDiscordPage: React.FC<ClientAuthCallbackDiscordPageProps> = ({
-	error,
-	code,
-	state,
-}) => {
+const ClientAuthCallbackDiscordPage: React.FC<
+	ClientAuthCallbackDiscordPageProps
+> = ({ error, code, state }) => {
 	const router = useRouter();
 	const [authError, setAuthError] = useState<string | null>(null);
 	const [isProcessing, setIsProcessing] = useState(false);
@@ -36,7 +34,10 @@ const ClientAuthCallbackDiscordPage: React.FC<ClientAuthCallbackDiscordPageProps
 
 			try {
 				// APIクライアントを使用して認証処理を実行
-				const { accessToken, refreshToken } = await authLoginPageAPI.callback(code, state);
+				const { accessToken, refreshToken } = await authLoginPageAPI.callback(
+					code,
+					state
+				);
 
 				// トークンをCookieに保存
 				cookieUtils.auth.setAccessToken(accessToken);
@@ -46,7 +47,9 @@ const ClientAuthCallbackDiscordPage: React.FC<ClientAuthCallbackDiscordPageProps
 				router.replace("/");
 			} catch (err) {
 				console.error("Auth callback error:", err);
-				setAuthError(err instanceof Error ? err.message : "認証処理に失敗しました");
+				setAuthError(
+					err instanceof Error ? err.message : "認証処理に失敗しました"
+				);
 			} finally {
 				setIsProcessing(false);
 			}
@@ -77,7 +80,9 @@ const ClientAuthCallbackDiscordPage: React.FC<ClientAuthCallbackDiscordPageProps
 		<div className="flex items-center justify-center min-h-screen">
 			<div className="text-center">
 				<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-				<p>{isProcessing ? "認証処理を完了しています..." : "認証情報を処理中..."}</p>
+				<p>
+					{isProcessing ? "認証処理を完了しています..." : "認証情報を処理中..."}
+				</p>
 			</div>
 		</div>
 	);
