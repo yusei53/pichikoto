@@ -7,7 +7,9 @@ export default defineConfig({
 	// Whether to use css reset
 	preflight: true,
 
-	presets: [createPreset({ accentColor: amber, grayColor: sand, radius: "sm" })],
+	presets: [
+		createPreset({ accentColor: amber, grayColor: sand, radius: "sm" }),
+	],
 
 	// Where to look for your css declarations
 	include: [

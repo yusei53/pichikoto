@@ -16,11 +16,18 @@ type AppreciationCardProps = {
 	appreciation: Appreciation;
 };
 
-export const AppreciationCard: React.FC<AppreciationCardProps> = ({ appreciation }) => {
-	const { displayReceivedUsers, hiddenReceivedUsersCount } = useDisplayReceivedUsers(
-		appreciation.receivedUsers
-	);
-	const { isOpen, onTriggerEnter, onTriggerLeave, onContentEnter, onContentLeave } = usePopover();
+export const AppreciationCard: React.FC<AppreciationCardProps> = ({
+	appreciation,
+}) => {
+	const { displayReceivedUsers, hiddenReceivedUsersCount } =
+		useDisplayReceivedUsers(appreciation.receivedUsers);
+	const {
+		isOpen,
+		onTriggerEnter,
+		onTriggerLeave,
+		onContentEnter,
+		onContentLeave,
+	} = usePopover();
 	return (
 		<Card.Root
 			className={css({
@@ -47,10 +54,18 @@ export const AppreciationCard: React.FC<AppreciationCardProps> = ({ appreciation
 							placement: "right",
 						}}
 					>
-						<Popover.Trigger onMouseEnter={onTriggerEnter} onMouseLeave={onTriggerLeave}>
+						<Popover.Trigger
+							onMouseEnter={onTriggerEnter}
+							onMouseLeave={onTriggerLeave}
+						>
 							<Stack direction={"row"} alignItems={"center"} gap={"16px"}>
 								{displayReceivedUsers.map((user) => (
-									<Stack direction={"column"} alignItems={"center"} gap={"4px"} key={user.userID}>
+									<Stack
+										direction={"column"}
+										alignItems={"center"}
+										gap={"4px"}
+										key={user.userID}
+									>
 										<Avatar size={"xl"} src={user.discordAvatar} />
 										<Box>{user.discordUserName}</Box>
 									</Stack>
@@ -87,7 +102,12 @@ export const AppreciationCard: React.FC<AppreciationCardProps> = ({ appreciation
 							<Popover.Content>
 								<Stack direction={"column"} gap={"16px"} p={"8px"}>
 									{appreciation.receivedUsers.map((user) => (
-										<Stack direction={"row"} alignItems={"center"} gap={"16px"} key={user.userID}>
+										<Stack
+											direction={"row"}
+											alignItems={"center"}
+											gap={"16px"}
+											key={user.userID}
+										>
 											<Avatar size={"xl"} src={user.discordAvatar} />
 											<Stack direction={"column"} gap={"8px"}>
 												<Box>{user.discordUserName}</Box>
@@ -109,7 +129,12 @@ export const AppreciationCard: React.FC<AppreciationCardProps> = ({ appreciation
 				<Stack direction={"row"} alignItems={"center"} gap={"4px"}>
 					<Box color={"sage"}>{appreciation.handsClapping}</Box>
 					<Button variant={"ghost"} px={"0"}>
-						<Image src="/hands-clapping.png" alt="hands-clapping" width={30} height={30} />
+						<Image
+							src="/hands-clapping.png"
+							alt="hands-clapping"
+							width={30}
+							height={30}
+						/>
 					</Button>
 				</Stack>
 			</Card.Footer>

@@ -18,7 +18,10 @@ type AppreciationFormProps = {
 	remainingPoints: number;
 };
 
-export const AppreciationForm: React.FC<AppreciationFormProps> = ({ users, remainingPoints }) => {
+export const AppreciationForm: React.FC<AppreciationFormProps> = ({
+	users,
+	remainingPoints,
+}) => {
 	const {
 		register,
 		onSubmit,
@@ -43,7 +46,11 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({ users, remai
 			>
 				<Card.Body>
 					<Stack direction={"column"} gap={"16px"}>
-						<Combobox.Root multiple collection={usersCollection} onValueChange={onSendUserChange}>
+						<Combobox.Root
+							multiple
+							collection={usersCollection}
+							onValueChange={onSendUserChange}
+						>
 							<Field.Root invalid={!!errors.sendUserID}>
 								<Combobox.Control>
 									<Combobox.Input placeholder="送る人を選択" asChild>
@@ -64,7 +71,12 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({ users, remai
 									<Combobox.ItemGroup>
 										{usersCollection.items.map((item) => (
 											<Combobox.Item key={item.value} item={item}>
-												<Stack direction={"row"} alignItems={"center"} gap={"8px"} p={"8px"}>
+												<Stack
+													direction={"row"}
+													alignItems={"center"}
+													gap={"8px"}
+													p={"8px"}
+												>
 													<Avatar size={"sm"} src={item.avatarUrl} />
 													<Combobox.ItemText>{item.label}</Combobox.ItemText>
 													<Combobox.ItemText>{item.value}</Combobox.ItemText>
@@ -80,7 +92,12 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({ users, remai
 						</Combobox.Root>
 						<Stack direction={"row"} alignItems={"center"} gap={"16px"}>
 							{currentSendUsers.map((user) => (
-								<Stack direction={"column"} alignItems={"center"} gap={"4px"} key={user.userID}>
+								<Stack
+									direction={"column"}
+									alignItems={"center"}
+									gap={"4px"}
+									key={user.userID}
+								>
 									<Avatar size={"sm"} src={user.discordAvatar} />
 									<Box>{user.discordUserName}</Box>
 								</Stack>
@@ -101,7 +118,10 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({ users, remai
 									<Box ml={"auto"}>{remainingPoints}pt</Box>
 								</Stack>
 								<Divider mb={"16px"} />
-								<Combobox.Root collection={pointsCollection} onValueChange={onPointsChange}>
+								<Combobox.Root
+									collection={pointsCollection}
+									onValueChange={onPointsChange}
+								>
 									<Field.Root invalid={!!errors.points}>
 										<Combobox.Control>
 											<Field.Input asChild>
@@ -134,8 +154,18 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({ users, remai
 					</Stack>
 				</Card.Body>
 				<Card.Footer>
-					<Stack direction={"row"} alignItems={"center"} gap={"16px"} mr={"auto"}>
-						<Box border={"1px solid"} borderColor={"border"} borderRadius={"8px"} px={"8px"}>
+					<Stack
+						direction={"row"}
+						alignItems={"center"}
+						gap={"16px"}
+						mr={"auto"}
+					>
+						<Box
+							border={"1px solid"}
+							borderColor={"border"}
+							borderRadius={"8px"}
+							px={"8px"}
+						>
 							{currentPoints}pt
 						</Box>
 						<Box>

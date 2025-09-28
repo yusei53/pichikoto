@@ -11,6 +11,7 @@
     "test:setup": "tsx __tests__/setup/test-setup.ts",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write src __tests__ scripts database",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:migrate:safe": "tsx scripts/migrate.ts",

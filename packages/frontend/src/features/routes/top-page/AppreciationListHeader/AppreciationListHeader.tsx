@@ -15,7 +15,10 @@ export const AppreciationListHeader: React.FC<AppreciationListHeaderProps> = ({
 			<Stack direction={"row"} alignItems={"center"} gap={"16px"}>
 				<Box fontSize={"md"}>みんなのmomopos</Box>
 				<Box ml={"auto"}>
-					<Input placeholder="検索" onChange={(e) => onSearchChange(e.target.value)} />
+					<Input
+						placeholder="検索"
+						onChange={(e) => onSearchChange(e.target.value)}
+					/>
 				</Box>
 			</Stack>
 			<Divider />

@@ -8,9 +8,9 @@ type ClientAuthCallbackCompletePageProps = {
 	error?: string;
 };
 
-const ClientAuthCallbackCompletePage: React.FC<ClientAuthCallbackCompletePageProps> = ({
-	error,
-}) => {
+const ClientAuthCallbackCompletePage: React.FC<
+	ClientAuthCallbackCompletePageProps
+> = ({ error }) => {
 	const router = useRouter();
 	const [authError, setAuthError] = useState<string | null>(null);
 

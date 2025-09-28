@@ -7,7 +7,10 @@ type PointLogProps = {
 	receivedPoint: number;
 };
 
-export const PointLog: React.FC<PointLogProps> = ({ sendPoint, receivedPoint }) => {
+export const PointLog: React.FC<PointLogProps> = ({
+	sendPoint,
+	receivedPoint,
+}) => {
 	return (
 		<div className={css({ display: "flex", marginTop: "16px", gap: "24px" })}>
 			<UnderlinedText width="md">
@@ -22,7 +25,9 @@ export const PointLog: React.FC<PointLogProps> = ({ sendPoint, receivedPoint }) 
 				<span className="text-sm text-[#454545]">今月もらった</span>
 				<div className="flex items-baseline gap-2">
 					<Gift color="#5E5E5E" />
-					<span className="text-4xl font-bold text-[#A8CE8F]">{receivedPoint}</span>
+					<span className="text-4xl font-bold text-[#A8CE8F]">
+						{receivedPoint}
+					</span>
 					<span className="text-sm text-[#5E5E5E]">pt</span>
 				</div>
 			</UnderlinedText>
