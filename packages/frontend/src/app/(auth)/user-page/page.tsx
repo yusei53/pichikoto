@@ -6,10 +6,11 @@ import { UserPageClient } from "./page.client";
 export default async function Page({
 	searchParams,
 }: {
-	searchParams?: { [key: string]: string | string[] | undefined };
+	searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+	const resolvedSearchParams = (await searchParams) ?? {};
 	const currentUser = await userPageAPI.getCurrentUser();
-	const paramUserId = useParseParams(searchParams?.["user-id"]);
+	const paramUserId = useParseParams(resolvedSearchParams?.["user-id"]);
 	const targetUserId = paramUserId ?? currentUser.userID;
 	const targetUser = await userPageAPI.getUserById(targetUserId);
 	const appreciationList = await userPageAPI.getAppreciationList();
