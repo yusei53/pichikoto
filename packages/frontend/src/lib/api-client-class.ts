@@ -35,7 +35,8 @@ class ApiClient {
 		if (baseURL) {
 			this.baseURL = baseURL;
 		} else {
-			const backend = process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "http://localhost:8787";
+			const backend =
+				process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "http://localhost:8787";
 			this.baseURL = `${backend.replace(/\/+$/, "")}/api`;
 		}
 	}
@@ -108,9 +109,11 @@ class ApiClient {
 
 		// 既存のヘッダーがある場合は安全にマージ
 		if (fetchOptions.headers) {
-			Object.entries(fetchOptions.headers as Record<string, string>).forEach(([key, value]) => {
-				headers[key] = value;
-			});
+			Object.entries(fetchOptions.headers as Record<string, string>).forEach(
+				([key, value]) => {
+					headers[key] = value;
+				}
+			);
 		}
 
 		if (accessToken) {
@@ -181,7 +184,9 @@ class ApiClient {
 				this.processQueue(refreshError as Error);
 				// 認証情報をクリアしてログアウト状態にする
 				cookieUtils.auth.clearAuth();
-				throw new Error("認証の有効期限が切れました。再度ログインしてください。");
+				throw new Error(
+					"認証の有効期限が切れました。再度ログインしてください。"
+				);
 			} finally {
 				// 次回のリフレッシュのためにフラグをリセット
 				this.isRefreshing = false;
@@ -194,7 +199,10 @@ class ApiClient {
 		}
 	}
 
-	async get<T = any>(url: string, options?: RequestInit & { skipAuth?: boolean }): Promise<T> {
+	async get<T = any>(
+		url: string,
+		options?: RequestInit & { skipAuth?: boolean }
+	): Promise<T> {
 		return this.request<T>(url, { ...options, method: "GET" });
 	}
 
@@ -222,7 +230,10 @@ class ApiClient {
 		});
 	}
 
-	async delete<T = any>(url: string, options?: RequestInit & { skipAuth?: boolean }): Promise<T> {
+	async delete<T = any>(
+		url: string,
+		options?: RequestInit & { skipAuth?: boolean }
+	): Promise<T> {
 		return this.request<T>(url, { ...options, method: "DELETE" });
 	}
 

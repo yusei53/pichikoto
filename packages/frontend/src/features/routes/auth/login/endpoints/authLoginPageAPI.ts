@@ -11,16 +11,19 @@ export const authLoginPageAPI = {
 
 	// 認証コールバック処理
 	async callback(code: string, state: string): Promise<CallbackResponse> {
-		const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/auth/callback`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				code,
-				state,
-			}),
-		});
+		const response = await fetch(
+			`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/auth/callback`,
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					code,
+					state,
+				}),
+			}
+		);
 
 		if (!response.ok) {
 			const errorData: AuthErrorResponse = await response.json().catch(() => ({

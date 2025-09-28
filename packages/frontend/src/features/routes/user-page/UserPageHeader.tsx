@@ -4,7 +4,10 @@ type UserPageHeaderProps = {
 	image: string;
 };
 
-export const UserPageHeader: React.FC<UserPageHeaderProps> = ({ username, name }) => {
+export const UserPageHeader: React.FC<UserPageHeaderProps> = ({
+	username,
+	name,
+}) => {
 	return (
 		<div>
 			<div className="flex items-center">

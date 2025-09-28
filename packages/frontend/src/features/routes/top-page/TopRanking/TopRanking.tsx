@@ -11,7 +11,11 @@ type TopRankingProps = {
 	rankingUsers: PointRanking[];
 };
 
-export const TopRanking: React.FC<TopRankingProps> = ({ titleIcon, title, rankingUsers }) => {
+export const TopRanking: React.FC<TopRankingProps> = ({
+	titleIcon,
+	title,
+	rankingUsers,
+}) => {
 	const { getAvatarSize } = useGetAvatarSize();
 	return (
 		<Stack direction={"column"} gap={"16px"}>
@@ -26,7 +30,12 @@ export const TopRanking: React.FC<TopRankingProps> = ({ titleIcon, title, rankin
 			</Stack>
 			<Stack direction={"row"} gap={"24px"} alignItems={"center"}>
 				{rankingUsers.map((user, index) => (
-					<Stack key={user.userID} direction={"column"} alignItems={"center"} mt={"auto"}>
+					<Stack
+						key={user.userID}
+						direction={"column"}
+						alignItems={"center"}
+						mt={"auto"}
+					>
 						<Icon>
 							<Crown />
 						</Icon>
