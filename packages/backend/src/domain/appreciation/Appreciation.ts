@@ -78,6 +78,20 @@ export class Appreciation {
       this.pointPerReceiver.value * this.receiverIDs.value.length;
     return NewTotalConsumptionPoints.from(totalPoints);
   }
+
+  /**
+   * メッセージを更新する
+   */
+  updateMessage(newMessage: AppreciationMessage): Appreciation {
+    return new Appreciation(
+      this.appreciationID,
+      this.senderID,
+      this.receiverIDs,
+      newMessage,
+      this.pointPerReceiver,
+      this.createdAt
+    );
+  }
 }
 
 export class AppreciationID {
