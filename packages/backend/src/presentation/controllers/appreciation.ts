@@ -1,7 +1,9 @@
 import type { HttpError } from "@pichikoto/http-contracts";
 import {
   BadRequestError,
-  InternalServerError
+  InternalServerError,
+  NotFoundError,
+  UnauthorizedError
 } from "@pichikoto/http-contracts";
 import { toCreateAppreciationRequest } from "@pichikoto/http-contracts/appreciation";
 import type { Context } from "hono";
@@ -13,7 +15,16 @@ import {
   AppreciationDomainError,
   AppreciationDomainServiceError
 } from "../../application/use-case/appreciation/CreateAppreciationUseCase";
+import type {
+  UpdateAppreciationMessageUseCaseError,
+  UpdateAppreciationMessageUseCaseInterface
+} from "../../application/use-case/appreciation/UpdateAppreciationMessageUseCase";
 import {
+  AppreciationNotFoundError,
+  UnauthorizedUpdateError
+} from "../../application/use-case/appreciation/UpdateAppreciationMessageUseCase";
+import {
+  AppreciationID,
   AppreciationMessage,
   PointPerReceiver,
   ReceiverIDs
@@ -23,11 +34,13 @@ import { HttpErrorResponseCreator } from "../../utils/ResponseCreator";
 
 export interface AppreciationControllerInterface {
   createAppreciation(c: Context): Promise<Response>;
+  updateAppreciationMessage(c: Context): Promise<Response>;
 }
 
 export class AppreciationController implements AppreciationControllerInterface {
   constructor(
-    private readonly createAppreciationUseCase: CreateAppreciationUseCaseInterface
+    private readonly createAppreciationUseCase: CreateAppreciationUseCaseInterface,
+    private readonly updateAppreciationMessageUseCase: UpdateAppreciationMessageUseCaseInterface
   ) {}
 
   async createAppreciation(c: Context): Promise<Response> {
@@ -56,6 +69,39 @@ export class AppreciationController implements AppreciationControllerInterface {
 
     return responseCreator.fromResult(result).respond(c);
   }
+
+  async updateAppreciationMessage(c: Context): Promise<Response> {
+    const responseCreator = new UpdateAppreciationMessageErrorResponseCreator();
+
+    // JWTから送信者IDを取得（認証ミドルウェアで設定されることを想定）
+    const senderID = c.get("userID");
+    if (!senderID) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+
+    // URLパラメータから感謝IDを取得
+    const appreciationIDParam = c.req.param("id");
+    if (!appreciationIDParam) {
+      return c.json({ error: "Appreciation ID is required" }, 400);
+    }
+
+    // リクエストボディからメッセージを取得
+    const body = await c.req.json();
+    if (!body.message || typeof body.message !== "string") {
+      return c.json({ error: "Message is required" }, 400);
+    }
+
+    const appreciationID = AppreciationID.from(appreciationIDParam);
+    const newMessage = AppreciationMessage.from(body.message);
+
+    const result = await this.updateAppreciationMessageUseCase.execute(
+      appreciationID,
+      UserID.from(senderID),
+      newMessage
+    );
+
+    return responseCreator.fromResult(result).respond(c);
+  }
 }
 
 export class CreateAppreciationErrorResponseCreator extends HttpErrorResponseCreator<CreateAppreciationUseCaseError> {
@@ -68,6 +114,20 @@ export class CreateAppreciationErrorResponseCreator extends HttpErrorResponseCre
         error.message,
         "AppreciationDomainServiceError"
       );
+    }
+    return new InternalServerError(error.message, "InternalServerError");
+  }
+}
+
+export class UpdateAppreciationMessageErrorResponseCreator extends HttpErrorResponseCreator<UpdateAppreciationMessageUseCaseError> {
+  protected createHttpError(
+    error: UpdateAppreciationMessageUseCaseError
+  ): HttpError {
+    if (error instanceof AppreciationNotFoundError) {
+      return new NotFoundError(error.message, "AppreciationNotFoundError");
+    }
+    if (error instanceof UnauthorizedUpdateError) {
+      return new UnauthorizedError(error.message, "UnauthorizedUpdateError");
     }
     return new InternalServerError(error.message, "InternalServerError");
   }
