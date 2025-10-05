@@ -10,7 +10,7 @@ export const checkValidation = <T, U>(
       .flat()
       .filter(Boolean)
       .join(", ");
-    throw new BadRequestError(messages);
+    throw new BadRequestError(messages, "ValidationError");
   }
   return parsed.data;
 };
