@@ -41,22 +41,22 @@ app.onError((err, c) => {
     if (c.env.NODE_ENV === "development") {
       console.error(`${err.name}: ${String(err.cause)}`);
     }
-    return createJsonResponse(err.status, err.message);
+    return createJsonResponse(err.status, err.cause);
   }
 
   if (err instanceof z.ZodError) {
-    const badRequest = new BadRequestError(err.message);
+    const badRequest = new BadRequestError(err.message, err.name);
     if (c.env.NODE_ENV === "development") {
       console.error(`${badRequest.name}: ${String(badRequest.cause)}`);
     }
-    return createJsonResponse(badRequest.status, badRequest.message);
+    return createJsonResponse(badRequest.status, badRequest.cause);
   }
 
-  const internal = new InternalServerError(err);
+  const internal = new InternalServerError(err.message, "InternalServerError");
   if (c.env.NODE_ENV === "development") {
     console.error(`${internal.name}: ${String(internal.cause)}`);
   }
-  return createJsonResponse(internal.status, internal.message);
+  return createJsonResponse(internal.status, internal.cause);
 });
 
 app.route("/appreciations", appreciation);

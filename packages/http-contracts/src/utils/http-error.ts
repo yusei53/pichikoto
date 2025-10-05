@@ -1,40 +1,40 @@
 export class HttpError extends Error {
   constructor(
     readonly status: number,
-    message?: string,
-    cause?: unknown
+    readonly cause: string,
+    readonly errorType: string
   ) {
-    super(message ?? `HTTP Error ${status}`, { cause });
+    super(`HTTP Error ${status}`);
     this.name = new.target.name;
   }
 }
 
 export class BadRequestError extends HttpError {
-  constructor(cause?: unknown) {
-    super(400, "Bad Request", cause);
+  constructor(cause: string, errorType: string) {
+    super(400, cause, errorType);
   }
 }
 
 export class UnauthorizedError extends HttpError {
-  constructor(cause?: unknown) {
-    super(401, "Unauthorized", cause);
+  constructor(cause: string, errorType: string) {
+    super(401, cause, errorType);
   }
 }
 
 export class ForbiddenError extends HttpError {
-  constructor(cause?: unknown) {
-    super(403, "Forbidden", cause);
+  constructor(cause: string, errorType: string) {
+    super(403, cause, errorType);
   }
 }
 
 export class NotFoundError extends HttpError {
-  constructor(cause?: unknown) {
-    super(404, "Not Found", cause);
+  constructor(cause: string, errorType: string) {
+    super(404, cause, errorType);
   }
 }
 
 export class InternalServerError extends HttpError {
-  constructor(cause?: unknown) {
-    super(500, "Internal Server Error", cause);
+  constructor(cause: string, errorType: string) {
+    super(500, cause, errorType);
   }
 }
