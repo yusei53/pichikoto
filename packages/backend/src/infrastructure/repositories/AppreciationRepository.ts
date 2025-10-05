@@ -18,11 +18,17 @@ import { UUID } from "../../utils/UUID";
 export interface AppreciationRepositoryInterface {
   store(appreciation: Appreciation): Promise<void>;
   findBy(appreciationId: AppreciationID): Promise<Appreciation | null>;
+  delete(appreciationId: AppreciationID): Promise<void>;
 }
 
 export class AppreciationRepository implements AppreciationRepositoryInterface {
   async store(appreciation: Appreciation): Promise<void> {
-    // appreciationsテーブルにインサート
+    // 事前に既存レコードをチェック
+    const existingAppreciation = await db().query.appreciations.findFirst({
+      where: eq(appreciationsSchema.id, appreciation.appreciationID.value.value)
+    });
+
+    // appreciationsテーブルにUPSERT
     await db()
       .insert(appreciationsSchema)
       .values({
@@ -31,17 +37,27 @@ export class AppreciationRepository implements AppreciationRepositoryInterface {
         message: appreciation.message.value,
         pointPerReceiver: appreciation.pointPerReceiver.value,
         createdAt: new Date(appreciation.createdAt.value)
+      })
+      .onConflictDoUpdate({
+        target: appreciationsSchema.id,
+        set: {
+          message: appreciation.message.value
+        }
       });
 
-    // appreciation_receiversテーブルにインサート
-    const receiverValues = appreciation.receiverIDs.value.map((receiverId) => ({
-      id: UUID.new().value,
-      appreciationId: appreciation.appreciationID.value.value,
-      receiverId: receiverId.value.value,
-      createdAt: new Date(appreciation.createdAt.value)
-    }));
+    // 新規作成の場合のみ受信者レコードを挿入
+    if (!existingAppreciation) {
+      const receiverValues = appreciation.receiverIDs.value.map(
+        (receiverId) => ({
+          id: UUID.new().value,
+          appreciationId: appreciation.appreciationID.value.value,
+          receiverId: receiverId.value.value,
+          createdAt: new Date(appreciation.createdAt.value)
+        })
+      );
 
-    await db().insert(appreciationReceiversSchema).values(receiverValues);
+      await db().insert(appreciationReceiversSchema).values(receiverValues);
+    }
   }
 
   async findBy(appreciationId: AppreciationID): Promise<Appreciation | null> {
@@ -52,6 +68,12 @@ export class AppreciationRepository implements AppreciationRepositoryInterface {
       await this.findReceiversByAppreciationID(appreciationId);
 
     return this.toAppreciation(appreciationRecord, receiverRecords);
+  }
+
+  async delete(appreciationId: AppreciationID): Promise<void> {
+    await db()
+      .delete(appreciationsSchema)
+      .where(eq(appreciationsSchema.id, appreciationId.value.value));
   }
 
   private async findAppreciationByID(

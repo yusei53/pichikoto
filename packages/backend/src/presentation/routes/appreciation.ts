@@ -2,6 +2,7 @@ import type { Context } from "hono";
 import { Hono } from "hono";
 import { DbClient } from "../../../database/client";
 import { CreateAppreciationUseCase } from "../../application/use-case/appreciation/CreateAppreciationUseCase";
+import { UpdateAppreciationMessageUseCase } from "../../application/use-case/appreciation/UpdateAppreciationMessageUseCase";
 import { WeeklyPointLimitDomainService } from "../../domain/appreciation/WeeklyPointLimitDomainService";
 import type { Env } from "../../index";
 import { AppreciationRepository } from "../../infrastructure/repositories/AppreciationRepository";
@@ -24,7 +25,14 @@ const appreciationControllerFactory = (c: Context) => {
     weeklyPointLimitDomainService
   );
 
-  return new AppreciationController(createAppreciationUseCase);
+  const updateAppreciationMessageUseCase = new UpdateAppreciationMessageUseCase(
+    appreciationRepository
+  );
+
+  return new AppreciationController(
+    createAppreciationUseCase,
+    updateAppreciationMessageUseCase
+  );
 };
 
 export const appreciation = new Hono<{ Bindings: Env }>();
@@ -32,4 +40,9 @@ export const appreciation = new Hono<{ Bindings: Env }>();
 appreciation.post("/", async (c: Context) => {
   const controller = appreciationControllerFactory(c);
   return controller.createAppreciation(c);
+});
+
+appreciation.put("/:id", async (c: Context) => {
+  const controller = appreciationControllerFactory(c);
+  return controller.updateAppreciationMessage(c);
 });
