@@ -4,16 +4,18 @@ import { Stack } from "styled-system/jsx";
 import { Input } from "~/components/ui/input";
 
 type AppreciationListHeaderProps = {
+	children: React.ReactNode;
 	onSearchChange: (value: string) => void;
 };
 
 export const AppreciationListHeader: React.FC<AppreciationListHeaderProps> = ({
 	onSearchChange,
+	children,
 }) => {
 	return (
 		<Stack direction={"column"} gap={"8px"}>
 			<Stack direction={"row"} alignItems={"center"} gap={"16px"}>
-				<Box fontSize={"md"}>みんなのmomopos</Box>
+				{children}
 				<Box ml={"auto"}>
 					<Input
 						placeholder="検索"
