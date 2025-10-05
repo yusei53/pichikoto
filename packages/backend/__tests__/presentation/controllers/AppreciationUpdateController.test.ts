@@ -176,7 +176,7 @@ describe("AppreciationUpdateController Tests", () => {
       // Assert
       expect(mockContext.json).toHaveBeenCalledWith(
         {
-          error: expect.stringContaining("AppreciationNotFoundError"),
+          error: `AppreciationNotFoundError(cause: Appreciation not found: AppreciationID(value: ${MOCK_APPRECIATION_ID}))`,
           errorType: "AppreciationNotFoundError"
         },
         404
@@ -228,7 +228,7 @@ describe("AppreciationUpdateController Tests", () => {
       // Assert
       expect(mockContext.json).toHaveBeenCalledWith(
         {
-          error: expect.stringContaining("UnauthorizedUpdateError"),
+          error: `UnauthorizedUpdateError(cause: User ${MOCK_SENDER_ID} is not authorized to update appreciation ${MOCK_APPRECIATION_ID})`,
           errorType: "UnauthorizedUpdateError"
         },
         401

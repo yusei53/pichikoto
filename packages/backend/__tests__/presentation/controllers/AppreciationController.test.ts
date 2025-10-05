@@ -11,6 +11,8 @@ import {
   PointPerReceiver,
   ReceiverIDs
 } from "../../../src/domain/appreciation/Appreciation";
+import { CreateAppreciationError } from "../../../src/domain/appreciation/AppreciationError";
+import { ValidateWeeklyLimitError } from "../../../src/domain/appreciation/WeeklyPointLimitDomainService";
 import { UserID } from "../../../src/domain/user/User";
 import { AppreciationController } from "../../../src/presentation/controllers/appreciation";
 import { UUID } from "../../../src/utils/UUID";
@@ -166,7 +168,7 @@ describe("AppreciationController Tests", () => {
               Authorization: "Bearer mock-jwt-token"
             },
             body: JSON.stringify({
-              receiverIDs: [MOCK_RECEIVER_ID_1],
+              receiverIDs: [MOCK_SENDER_ID],
               message: MOCK_MESSAGE,
               pointPerReceiver: MOCK_POINT_PER_RECEIVER
             })
@@ -175,11 +177,12 @@ describe("AppreciationController Tests", () => {
       } as any;
 
       // CreateAppreciationUseCaseのモック設定（AppreciationDomainError）
-      const domainError = new Error("送信者が受信者リストに含まれています");
-      domainError.name = "CreateAppreciationError";
-      const appreciationDomainError = new AppreciationDomainError(domainError);
       vi.mocked(mockCreateAppreciationUseCase.execute).mockResolvedValue(
-        err(appreciationDomainError)
+        err(
+          new AppreciationDomainError(
+            new CreateAppreciationError("送信者が受信者リストに含まれています")
+          )
+        )
       );
 
       // Act
@@ -224,14 +227,12 @@ describe("AppreciationController Tests", () => {
         }
       } as any;
 
-      // CreateAppreciationUseCaseのモック設定（AppreciationDomainServiceError）
-      const serviceError = new Error("週次ポイント制限を超えています");
-      serviceError.name = "ValidateWeeklyLimitError";
-      const appreciationDomainServiceError = new AppreciationDomainServiceError(
-        serviceError
-      );
       vi.mocked(mockCreateAppreciationUseCase.execute).mockResolvedValue(
-        err(appreciationDomainServiceError)
+        err(
+          new AppreciationDomainServiceError(
+            new ValidateWeeklyLimitError("週次ポイント制限を超えています")
+          )
+        )
       );
 
       // Act
@@ -276,12 +277,12 @@ describe("AppreciationController Tests", () => {
         }
       } as any;
 
-      // CreateAppreciationUseCaseのモック設定（その他のエラー）
-      const causeError = new Error("予期しないエラーが発生しました");
-      causeError.name = "UnknownError";
-      const unknownError = new CreateAppreciationUseCaseError(causeError);
       vi.mocked(mockCreateAppreciationUseCase.execute).mockResolvedValue(
-        err(unknownError)
+        err(
+          new CreateAppreciationUseCaseError(
+            new Error("予期しないエラーが発生しました")
+          )
+        )
       );
 
       // Act
@@ -291,7 +292,7 @@ describe("AppreciationController Tests", () => {
       expect(mockContext.json).toHaveBeenCalledWith(
         {
           error:
-            "CreateAppreciationUseCaseError(cause: UnknownError(予期しないエラーが発生しました))",
+            "CreateAppreciationUseCaseError(cause: Error(予期しないエラーが発生しました))",
           errorType: "InternalServerError"
         },
         500

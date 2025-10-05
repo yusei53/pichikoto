@@ -198,7 +198,7 @@ describe("UpdateAppreciationMessageUseCase Tests", () => {
       if (result.isErr()) {
         expect(result.error).toBeInstanceOf(AppreciationNotFoundError);
         expect(result.error.message).toContain(
-          `Appreciation not found: ${nonExistentAppreciationID.value.value}`
+          `Appreciation not found: AppreciationID(value: ${nonExistentAppreciationID.value.value})`
         );
       }
     });

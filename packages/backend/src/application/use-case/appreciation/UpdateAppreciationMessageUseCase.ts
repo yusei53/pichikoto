@@ -53,16 +53,16 @@ export class UpdateAppreciationMessageUseCaseError extends UseCaseError {}
 
 export class AppreciationNotFoundError extends UpdateAppreciationMessageUseCaseError {
   constructor(appreciationID: AppreciationID) {
-    super(new Error(`Appreciation not found: ${appreciationID.value.value}`));
+    super(
+      `Appreciation not found: AppreciationID(value: ${appreciationID.value.value})`
+    );
   }
 }
 
 export class UnauthorizedUpdateError extends UpdateAppreciationMessageUseCaseError {
   constructor(senderID: UserID, appreciationID: AppreciationID) {
     super(
-      new Error(
-        `User ${senderID.value.value} is not authorized to update appreciation ${appreciationID.value.value}`
-      )
+      `User ${senderID.value.value} is not authorized to update appreciation ${appreciationID.value.value}`
     );
   }
 }
