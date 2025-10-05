@@ -1,6 +1,6 @@
 import type { Context } from "hono";
-import { DatabaseConnectionFactory } from "./factory";
 import { DatabaseConfig } from "./config";
+import { DatabaseConnectionFactory } from "./factory";
 
 export interface DbClientInterface {
   init(c: Context): void;
@@ -29,7 +29,9 @@ const connectToDatabase = (c: Context) => {
 };
 
 // テスト環境での接続プール
-let testConnection: ReturnType<typeof DatabaseConnectionFactory.createConnection> | null = null;
+let testConnection: ReturnType<
+  typeof DatabaseConnectionFactory.createConnection
+> | null = null;
 
 /**
  * 環境に応じたDB接続を取得する関数
@@ -43,7 +45,7 @@ export const db = () => {
     }
     return testConnection;
   }
-  
+
   // 本番環境ではリクエスト毎に新しい接続を作成
   return DatabaseConnectionFactory.createConnection();
 };
@@ -55,7 +57,7 @@ export const cleanupTestConnection = async () => {
   if (testConnection && DatabaseConfig.isTestEnvironment()) {
     // postgres接続をクローズ
     const sql = (testConnection as any).$client;
-    if (sql && typeof sql.end === 'function') {
+    if (sql && typeof sql.end === "function") {
       await sql.end();
     }
     testConnection = null;
