@@ -18,6 +18,7 @@ import { UUID } from "../../utils/UUID";
 export interface AppreciationRepositoryInterface {
   store(appreciation: Appreciation): Promise<void>;
   findBy(appreciationId: AppreciationID): Promise<Appreciation | null>;
+  delete(appreciationId: AppreciationID): Promise<void>;
 }
 
 export class AppreciationRepository implements AppreciationRepositoryInterface {
@@ -67,6 +68,12 @@ export class AppreciationRepository implements AppreciationRepositoryInterface {
       await this.findReceiversByAppreciationID(appreciationId);
 
     return this.toAppreciation(appreciationRecord, receiverRecords);
+  }
+
+  async delete(appreciationId: AppreciationID): Promise<void> {
+    await db()
+      .delete(appreciationsSchema)
+      .where(eq(appreciationsSchema.id, appreciationId.value.value));
   }
 
   private async findAppreciationByID(
