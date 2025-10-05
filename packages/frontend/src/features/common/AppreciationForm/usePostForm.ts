@@ -14,8 +14,14 @@ type UseAppreciationFormProps = {
 };
 const initialPoints = [5, 10, 15, 20, 30, 40] as const;
 
-export const useAppreciationForm = ({ users, remainingPoints }: UseAppreciationFormProps) => {
-	const postSchema = useMemo(() => createAppreciationSchema(remainingPoints), [remainingPoints]);
+export const useAppreciationForm = ({
+	users,
+	remainingPoints,
+}: UseAppreciationFormProps) => {
+	const postSchema = useMemo(
+		() => createAppreciationSchema(remainingPoints),
+		[remainingPoints]
+	);
 	const {
 		setValue,
 		register,
@@ -66,10 +72,13 @@ export const useAppreciationForm = ({ users, remainingPoints }: UseAppreciationF
 		[handleSubmit]
 	);
 
-	const calculatePoints = useCallback((point: number, sendUsersLength: number) => {
-		if (sendUsersLength === 0) return point;
-		return Math.floor(point / sendUsersLength);
-	}, []);
+	const calculatePoints = useCallback(
+		(point: number, sendUsersLength: number) => {
+			if (sendUsersLength === 0) return point;
+			return Math.floor(point / sendUsersLength);
+		},
+		[]
+	);
 
 	const pointsCollection = useMemo(() => {
 		return createListCollection({
@@ -77,7 +86,8 @@ export const useAppreciationForm = ({ users, remainingPoints }: UseAppreciationF
 				value: calculatePoints(point, currentSendUsers.length),
 				label: `${calculatePoints(point, currentSendUsers.length)}pt`,
 				disabled:
-					calculatePoints(point, currentSendUsers.length) * currentSendUsers.length >
+					calculatePoints(point, currentSendUsers.length) *
+						currentSendUsers.length >
 					remainingPoints,
 			})),
 		});
@@ -95,7 +105,13 @@ export const useAppreciationForm = ({ users, remainingPoints }: UseAppreciationF
 	);
 
 	const onPointsChange = useCallback(
-		(value: ValueChangeDetails<{ value: number; label: string; disabled: boolean }>) => {
+		(
+			value: ValueChangeDetails<{
+				value: number;
+				label: string;
+				disabled: boolean;
+			}>
+		) => {
 			setValue("points", value.items[0].value);
 			trigger("points");
 		},

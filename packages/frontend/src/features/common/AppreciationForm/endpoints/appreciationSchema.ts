@@ -1,7 +1,9 @@
 import z from "zod";
 
 const appreciationSchema = z.object({
-	sendUserID: z.array(z.string()).min(1, { message: "送る人を選択してください" }),
+	sendUserID: z
+		.array(z.string())
+		.min(1, { message: "送る人を選択してください" }),
 	message: z
 		.string()
 		.min(1, { message: "メッセージを入力してください" })
