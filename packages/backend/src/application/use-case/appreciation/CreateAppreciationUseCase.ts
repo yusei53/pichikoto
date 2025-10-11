@@ -59,14 +59,14 @@ export class CreateAppreciationUseCase
       (error) => new AppreciationDomainServiceError(error)
     );
 
-    await this.appreciationRepository.store(appreciation);
-
     const consumedPointLog = ConsumedPointLog.create(
       senderID,
       appreciation.appreciationID,
       weekStartDate,
       ConsumedPoints.from(newConsumption.value)
     );
+
+    await this.appreciationRepository.store(appreciation);
     await this.consumedPointLogRepository.store(consumedPointLog);
 
     return ok();
