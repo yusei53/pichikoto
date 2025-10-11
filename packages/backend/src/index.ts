@@ -10,6 +10,7 @@ import "reflect-metadata";
 import z from "zod";
 import { appreciation } from "./presentation/routes/appreciation";
 import { auth } from "./presentation/routes/auth";
+import { user } from "./presentation/routes/user";
 
 export type Env = {
   NODE_ENV: string;
@@ -61,6 +62,7 @@ app.onError((err, c) => {
 
 app.route("/appreciations", appreciation);
 app.route("/auth", auth);
+app.route("/users", user);
 
 export default app;
 

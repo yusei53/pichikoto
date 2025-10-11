@@ -5,6 +5,7 @@ import { DiscordID, User, UserID } from "../../domain/user/User";
 
 export interface UserRepositoryInterface {
   findBy(discordID: DiscordID): Promise<User | null>;
+  getAll(): Promise<User[]>;
   save(user: User): Promise<void>;
 }
 
@@ -13,6 +14,10 @@ export class UserRepository implements UserRepositoryInterface {
     const userRecord = await this.findByDiscordID(discordID);
     if (!userRecord) return null;
     return this.toUser(userRecord);
+  }
+  async getAll(): Promise<User[]> {
+    const userRecords = await db().query.user.findMany();
+    return userRecords.map(this.toUser);
   }
   private async findByDiscordID(
     discordID: DiscordID
