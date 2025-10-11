@@ -21,7 +21,7 @@
 		"@pichikoto/http-contracts": "workspace:*",
 		"class-variance-authority": "^0.7.1",
 		"date-fns": "^4.1.0",
-		"lucide-react": "^0.525.0",
+		"lucide-react": "^0.545.0",
 		"next": "15.5.3",
 		"postcss": "^8.5.6",
 		"react": "^19.1.1",
