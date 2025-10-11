@@ -7,6 +7,7 @@ import { WeeklyPointLimitDomainService } from "../../domain/appreciation/WeeklyP
 import type { Env } from "../../index";
 import { AppreciationRepository } from "../../infrastructure/repositories/AppreciationRepository";
 import { ConsumedPointLogRepository } from "../../infrastructure/repositories/ConsumedPointLogRepository";
+import { AppreciationsQueryService } from "../../query-service/AppreciationsQueryService";
 import { AppreciationController } from "../controllers/appreciation";
 
 const appreciationControllerFactory = (c: Context) => {
@@ -29,13 +30,21 @@ const appreciationControllerFactory = (c: Context) => {
     appreciationRepository
   );
 
+  const appreciationsQueryService = new AppreciationsQueryService();
+
   return new AppreciationController(
     createAppreciationUseCase,
-    updateAppreciationMessageUseCase
+    updateAppreciationMessageUseCase,
+    appreciationsQueryService
   );
 };
 
 export const appreciation = new Hono<{ Bindings: Env }>();
+
+appreciation.get("/", async (c: Context) => {
+  const controller = appreciationControllerFactory(c);
+  return controller.getAllAppreciations(c);
+});
 
 appreciation.post("/", async (c: Context) => {
   const controller = appreciationControllerFactory(c);

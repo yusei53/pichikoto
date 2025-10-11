@@ -7,6 +7,7 @@ import {
 } from "@pichikoto/http-contracts";
 import { toCreateAppreciationRequest } from "@pichikoto/http-contracts/appreciation";
 import type { Context } from "hono";
+import type { AppreciationsQueryService } from "../../query-service/AppreciationsQueryService";
 import type {
   CreateAppreciationUseCaseError,
   CreateAppreciationUseCaseInterface
@@ -35,12 +36,14 @@ import { HttpErrorResponseCreator } from "../../utils/ResponseCreator";
 export interface AppreciationControllerInterface {
   createAppreciation(c: Context): Promise<Response>;
   updateAppreciationMessage(c: Context): Promise<Response>;
+  getAllAppreciations(c: Context): Promise<Response>;
 }
 
 export class AppreciationController implements AppreciationControllerInterface {
   constructor(
     private readonly createAppreciationUseCase: CreateAppreciationUseCaseInterface,
-    private readonly updateAppreciationMessageUseCase: UpdateAppreciationMessageUseCaseInterface
+    private readonly updateAppreciationMessageUseCase: UpdateAppreciationMessageUseCaseInterface,
+    private readonly appreciationsQueryService: AppreciationsQueryService
   ) {}
 
   async createAppreciation(c: Context): Promise<Response> {
@@ -101,6 +104,16 @@ export class AppreciationController implements AppreciationControllerInterface {
     );
 
     return responseCreator.fromResult(result).respond(c);
+  }
+
+  async getAllAppreciations(c: Context): Promise<Response> {
+    try {
+      const result = await this.appreciationsQueryService.getAll();
+      return c.json(result);
+    } catch (error) {
+      console.error("Failed to get all appreciations:", error);
+      return c.json({ error: "Internal Server Error" }, 500);
+    }
   }
 }
 
