@@ -25,10 +25,10 @@ export class PointLeaderQueryService {
    */
   async getWeeklyLeaders(): Promise<WeeklyPointLeadersResponse> {
     const weekStartDate = this.getCurrentWeekStartDate();
-    
+
     // 今週のポイント送信上位3人を取得
     const topSenders = await this.getTopSenders(weekStartDate);
-    
+
     // 今週のポイント受信上位3人を取得
     const topReceivers = await this.getTopReceivers(weekStartDate);
 
@@ -41,41 +41,55 @@ export class PointLeaderQueryService {
   /**
    * 今週のポイント送信上位3人を取得
    */
-  private async getTopSenders(weekStartDate: string): Promise<PointLeaderUser[]> {
+  private async getTopSenders(
+    weekStartDate: string
+  ): Promise<PointLeaderUser[]> {
     const result = await db()
       .select({
         id: userSchema.id,
         discordUserName: userSchema.discordUserName,
         discordAvatar: userSchema.discordAvatar,
-        totalPoints: sql<number>`COALESCE(SUM(${consumedPointLogSchema.consumedPoints}), 0)`.as('totalPoints')
+        totalPoints:
+          sql<number>`COALESCE(SUM(${consumedPointLogSchema.consumedPoints}), 0)`.as(
+            "totalPoints"
+          )
       })
       .from(userSchema)
       .leftJoin(
         consumedPointLogSchema,
         sql`${userSchema.id} = ${consumedPointLogSchema.userId} AND ${consumedPointLogSchema.weekStartDate} = ${weekStartDate}`
       )
-      .groupBy(userSchema.id, userSchema.discordUserName, userSchema.discordAvatar)
-      .orderBy(sql`totalPoints DESC`)
+      .groupBy(
+        userSchema.id,
+        userSchema.discordUserName,
+        userSchema.discordAvatar
+      )
+      .orderBy(sql`"totalPoints" DESC`)
       .limit(3);
 
-    return result.map(row => ({
+    return result.map((row) => ({
       id: row.id,
       discordUserName: row.discordUserName,
       discordAvatar: row.discordAvatar,
-      totalPoints: row.totalPoints
+      totalPoints: Number(row.totalPoints)
     }));
   }
 
   /**
    * 今週のポイント受信上位3人を取得
    */
-  private async getTopReceivers(weekStartDate: string): Promise<PointLeaderUser[]> {
+  private async getTopReceivers(
+    weekStartDate: string
+  ): Promise<PointLeaderUser[]> {
     const result = await db()
       .select({
         id: userSchema.id,
         discordUserName: userSchema.discordUserName,
         discordAvatar: userSchema.discordAvatar,
-        totalPoints: sql<number>`COALESCE(SUM(${appreciationsSchema.pointPerReceiver}), 0)`.as('totalPoints')
+        totalPoints:
+          sql<number>`COALESCE(SUM(${appreciationsSchema.pointPerReceiver}), 0)`.as(
+            "totalPoints"
+          )
       })
       .from(userSchema)
       .leftJoin(
@@ -86,15 +100,19 @@ export class PointLeaderQueryService {
         appreciationsSchema,
         sql`${appreciationReceiversSchema.appreciationId} = ${appreciationsSchema.id} AND ${appreciationsSchema.createdAt} >= ${this.getWeekStartDateTime(weekStartDate)} AND ${appreciationsSchema.createdAt} < ${this.getWeekEndDateTime(weekStartDate)}`
       )
-      .groupBy(userSchema.id, userSchema.discordUserName, userSchema.discordAvatar)
-      .orderBy(sql`totalPoints DESC`)
+      .groupBy(
+        userSchema.id,
+        userSchema.discordUserName,
+        userSchema.discordAvatar
+      )
+      .orderBy(sql`"totalPoints" DESC`)
       .limit(3);
 
-    return result.map(row => ({
+    return result.map((row) => ({
       id: row.id,
       discordUserName: row.discordUserName,
       discordAvatar: row.discordAvatar,
-      totalPoints: row.totalPoints
+      totalPoints: Number(row.totalPoints)
     }));
   }
 
@@ -124,6 +142,6 @@ export class PointLeaderQueryService {
     const startDate = new Date(`${weekStartDate}T00:00:00Z`);
     const endDate = new Date(startDate);
     endDate.setUTCDate(startDate.getUTCDate() + 7);
-    return endDate.toISOString().replace('T', ' ').replace('Z', '');
+    return endDate.toISOString().replace("T", " ").replace("Z", "");
   }
 }

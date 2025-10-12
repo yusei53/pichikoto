@@ -1,9 +1,11 @@
 import type { Context } from "hono";
-import { PointLeaderQueryService } from "../../query-service/PointLeaderQueryService";
-import { ResponseCreator } from "../../utils/ResponseCreator";
+import type { PointLeaderQueryService } from "../../query-service/PointLeaderQueryService";
+import { Response } from "../../utils/Response";
 
 export class PointLeaderController {
-  constructor(private readonly pointLeaderQueryService: PointLeaderQueryService) {}
+  constructor(
+    private readonly pointLeaderQueryService: PointLeaderQueryService
+  ) {}
 
   /**
    * 今週のポイント送信・受信上位3人ずつを取得するエンドポイント
@@ -11,11 +13,11 @@ export class PointLeaderController {
   async getWeeklyLeaders(c: Context) {
     try {
       const leaders = await this.pointLeaderQueryService.getWeeklyLeaders();
-      
-      return ResponseCreator.success(c, leaders);
+
+      return Response.ok(leaders).respond(c);
     } catch (error) {
       console.error("Error getting weekly point leaders:", error);
-      return ResponseCreator.internalServerError(c, "週次ポイントリーダーの取得に失敗しました");
+      return c.json({ error: "週次ポイントリーダーの取得に失敗しました" }, 500);
     }
   }
 }
