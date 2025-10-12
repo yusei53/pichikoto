@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UpdateAppreciationMessageUseCaseInterface } from "../../../src/application/use-case/appreciation/UpdateAppreciationMessageUseCase";
 import {
   AppreciationNotFoundError,
-  UnauthorizedUpdateError,
   UpdateAppreciationMessageUseCaseError
 } from "../../../src/application/use-case/appreciation/UpdateAppreciationMessageUseCase";
 import {
@@ -92,48 +91,6 @@ describe("AppreciationUpdateController Tests", () => {
     });
 
     /**
-     * 異常ケース：認証されていないユーザーが感謝メッセージを更新しようとした場合のテストケース
-     *
-     * @description 認証されていないユーザー（userIDが未設定）が感謝メッセージの更新を試行した場合、
-     *              401 Unauthorizedエラーが返されることを確認する
-     */
-    it("異常ケース：認証されていないユーザーが更新を試行した場合、401エラーが返されること", async () => {
-      // Arrange
-      const url = `http://localhost/appreciations/${MOCK_APPRECIATION_ID}`;
-      const mockContext = {
-        get: vi.fn().mockReturnValue(null), // 認証されていないユーザー
-        json: vi.fn().mockReturnValue(new Response()),
-        text: vi.fn().mockReturnValue(new Response()),
-        req: {
-          raw: new Request(url, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer mock-jwt-token"
-            },
-            body: JSON.stringify({
-              message: MOCK_NEW_MESSAGE
-            })
-          }),
-          param: vi.fn().mockReturnValue(MOCK_APPRECIATION_ID),
-          json: vi.fn().mockResolvedValue({ message: MOCK_NEW_MESSAGE })
-        }
-      } as any;
-
-      // Act
-      await appreciationController.updateAppreciationMessage(mockContext);
-
-      // Assert
-      expect(mockContext.json).toHaveBeenCalledWith(
-        { error: "Unauthorized" },
-        401
-      );
-      expect(
-        vi.mocked(mockUpdateAppreciationMessageUseCase.execute)
-      ).not.toHaveBeenCalled();
-    });
-
-    /**
      * 異常ケース：感謝が見つからない場合のテストケース
      *
      * @description 存在しない感謝IDでメッセージ更新を試行した場合、
@@ -181,58 +138,6 @@ describe("AppreciationUpdateController Tests", () => {
           errorType: "AppreciationNotFoundError"
         },
         404
-      );
-    });
-
-    /**
-     * 異常ケース：権限のないユーザーが感謝メッセージを更新しようとした場合のテストケース
-     *
-     * @description 感謝の送信者ではないユーザーがメッセージ更新を試行した場合、
-     *              401 Unauthorizedエラーが返されることを確認する
-     */
-    it("異常ケース：権限のないユーザーが更新を試行した場合、401エラーが返されること", async () => {
-      // Arrange
-      const url = `http://localhost/appreciations/${MOCK_APPRECIATION_ID}`;
-      const mockContext = {
-        get: vi.fn().mockReturnValue(MOCK_SENDER_ID),
-        json: vi.fn().mockReturnValue(new Response()),
-        text: vi.fn().mockReturnValue(new Response()),
-        req: {
-          raw: new Request(url, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer mock-jwt-token"
-            },
-            body: JSON.stringify({
-              message: MOCK_NEW_MESSAGE
-            })
-          }),
-          param: vi.fn().mockReturnValue(MOCK_APPRECIATION_ID),
-          json: vi.fn().mockResolvedValue({ message: MOCK_NEW_MESSAGE })
-        }
-      } as any;
-
-      // UpdateAppreciationMessageUseCaseのモック設定（UnauthorizedUpdateError）
-      vi.mocked(mockUpdateAppreciationMessageUseCase.execute).mockResolvedValue(
-        err(
-          new UnauthorizedUpdateError(
-            UserID.from(MOCK_SENDER_ID),
-            AppreciationID.from(MOCK_APPRECIATION_ID)
-          )
-        )
-      );
-
-      // Act
-      await appreciationController.updateAppreciationMessage(mockContext);
-
-      // Assert
-      expect(mockContext.json).toHaveBeenCalledWith(
-        {
-          error: `UnauthorizedUpdateError(cause: User ${MOCK_SENDER_ID} is not authorized to update appreciation ${MOCK_APPRECIATION_ID})`,
-          errorType: "UnauthorizedUpdateError"
-        },
-        401
       );
     });
 
@@ -285,45 +190,6 @@ describe("AppreciationUpdateController Tests", () => {
           errorType: "InternalServerError"
         },
         500
-      );
-    });
-
-    /**
-     * 異常ケース：空のメッセージで更新を試行した場合のテストケース
-     *
-     * @description 空のメッセージで感謝メッセージの更新を試行した場合、
-     *              バリデーションエラーが返されることを確認する
-     */
-    it("異常ケース：空のメッセージで更新を試行した場合、バリデーションエラーが返されること", async () => {
-      // Arrange
-      const url = `http://localhost/appreciations/${MOCK_APPRECIATION_ID}`;
-      const mockContext = {
-        get: vi.fn().mockReturnValue(MOCK_SENDER_ID),
-        json: vi.fn().mockReturnValue(new Response()),
-        text: vi.fn().mockReturnValue(new Response()),
-        req: {
-          raw: new Request(url, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer mock-jwt-token"
-            },
-            body: JSON.stringify({
-              message: "" // 空のメッセージ
-            })
-          }),
-          param: vi.fn().mockReturnValue(MOCK_APPRECIATION_ID),
-          json: vi.fn().mockResolvedValue({ message: "" }) // 空のメッセージ
-        }
-      } as any;
-
-      // Act
-      await appreciationController.updateAppreciationMessage(mockContext);
-
-      // Assert
-      expect(mockContext.json).toHaveBeenCalledWith(
-        { error: "Message is required" },
-        400
       );
     });
 

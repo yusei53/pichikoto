@@ -1,7 +1,9 @@
 import type { Context } from "hono";
+import { err, ok } from "neverthrow";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PointLeaderController } from "../../../src/presentation/controllers/point-leader";
 import type { PointLeaderQueryService } from "../../../src/query-service/PointLeaderQueryService";
+import { PointLeaderQueryServiceError } from "../../../src/query-service/PointLeaderQueryService";
 
 describe("PointLeaderController", () => {
   let controller: PointLeaderController;
@@ -43,7 +45,7 @@ describe("PointLeaderController", () => {
       };
 
       vi.mocked(mockQueryService.getWeeklyLeaders).mockResolvedValue(
-        mockLeaders
+        ok(mockLeaders)
       );
 
       // テスト実行
@@ -51,29 +53,28 @@ describe("PointLeaderController", () => {
 
       // 検証
       expect(mockQueryService.getWeeklyLeaders).toHaveBeenCalledOnce();
+      expect(mockContext.json).toHaveBeenCalledWith(mockLeaders, 200);
     });
 
     it("エラーが発生した場合は500エラーを返す", async () => {
       // エラーをモック
-      const error = new Error("Database error");
-      vi.mocked(mockQueryService.getWeeklyLeaders).mockRejectedValue(error);
-
-      // コンソールエラーをモック
-      const consoleSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
+      const error = new PointLeaderQueryServiceError("Database error");
+      vi.mocked(mockQueryService.getWeeklyLeaders).mockResolvedValue(
+        err(error)
+      );
 
       // テスト実行
       await controller.getWeeklyLeaders(mockContext);
 
       // 検証
       expect(mockQueryService.getWeeklyLeaders).toHaveBeenCalledOnce();
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Error getting weekly point leaders:",
-        error
+      expect(mockContext.json).toHaveBeenCalledWith(
+        {
+          error: "Database error",
+          errorType: "PointLeaderQueryServiceError"
+        },
+        500
       );
-
-      consoleSpy.mockRestore();
     });
   });
 });

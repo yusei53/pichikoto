@@ -1,4 +1,6 @@
 import { sql } from "drizzle-orm";
+import type { Result } from "neverthrow";
+import { err, ok } from "neverthrow";
 import { db } from "../../database/client";
 import {
   appreciationReceivers as appreciationReceiversSchema,
@@ -23,19 +25,30 @@ export class PointLeaderQueryService {
   /**
    * 今週のポイント送信・受信上位3人ずつを取得
    */
-  async getWeeklyLeaders(): Promise<WeeklyPointLeadersResponse> {
-    const weekStartDate = this.getCurrentWeekStartDate();
+  async getWeeklyLeaders(): Promise<
+    Result<WeeklyPointLeadersResponse, PointLeaderQueryServiceError>
+  > {
+    try {
+      const weekStartDate = this.getCurrentWeekStartDate();
 
-    // 今週のポイント送信上位3人を取得
-    const topSenders = await this.getTopSenders(weekStartDate);
+      // 今週のポイント送信上位3人を取得
+      const topSenders = await this.getTopSenders(weekStartDate);
 
-    // 今週のポイント受信上位3人を取得
-    const topReceivers = await this.getTopReceivers(weekStartDate);
+      // 今週のポイント受信上位3人を取得
+      const topReceivers = await this.getTopReceivers(weekStartDate);
 
-    return {
-      topSenders,
-      topReceivers
-    };
+      return ok({
+        topSenders,
+        topReceivers
+      });
+    } catch (error) {
+      return err(
+        new PointLeaderQueryServiceError(
+          "Failed to get weekly leaders",
+          error instanceof Error ? error : new Error(String(error))
+        )
+      );
+    }
   }
 
   /**
@@ -143,5 +156,15 @@ export class PointLeaderQueryService {
     const endDate = new Date(startDate);
     endDate.setUTCDate(startDate.getUTCDate() + 7);
     return endDate.toISOString().replace("T", " ").replace("Z", "");
+  }
+}
+
+export class PointLeaderQueryServiceError extends Error {
+  constructor(message: string, cause?: Error) {
+    super(message);
+    this.name = this.constructor.name;
+    if (cause) {
+      this.cause = cause;
+    }
   }
 }

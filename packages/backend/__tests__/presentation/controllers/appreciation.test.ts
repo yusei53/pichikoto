@@ -1,9 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Context } from "hono";
-import { AppreciationController } from "../../../src/presentation/controllers/appreciation";
+import { err, ok } from "neverthrow";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CreateAppreciationUseCaseInterface } from "../../../src/application/use-case/appreciation/CreateAppreciationUseCase";
 import type { UpdateAppreciationMessageUseCaseInterface } from "../../../src/application/use-case/appreciation/UpdateAppreciationMessageUseCase";
+import { AppreciationController } from "../../../src/presentation/controllers/appreciation";
 import type { AppreciationsQueryService } from "../../../src/query-service/AppreciationsQueryService";
+import { AppreciationsQueryServiceError } from "../../../src/query-service/AppreciationsQueryService";
 
 describe("AppreciationController", () => {
   let controller: AppreciationController;
@@ -14,19 +16,19 @@ describe("AppreciationController", () => {
 
   beforeEach(() => {
     mockCreateUseCase = {
-      execute: vi.fn(),
+      execute: vi.fn()
     } as any;
 
     mockUpdateUseCase = {
-      execute: vi.fn(),
+      execute: vi.fn()
     } as any;
 
     mockQueryService = {
-      getAll: vi.fn(),
+      getAll: vi.fn()
     } as any;
 
     mockContext = {
-      json: vi.fn().mockReturnValue(new Response()),
+      json: vi.fn().mockReturnValue(new Response())
     } as any;
 
     controller = new AppreciationController(
@@ -46,50 +48,49 @@ describe("AppreciationController", () => {
             sender: {
               id: "user-1",
               discordUserName: "sender",
-              discordAvatar: "sender-avatar",
+              discordAvatar: "sender-avatar"
             },
             receivers: [
               {
                 id: "user-2",
                 discordUserName: "receiver",
-                discordAvatar: "receiver-avatar",
-              },
+                discordAvatar: "receiver-avatar"
+              }
             ],
             message: "ありがとうございます！",
             pointPerReceiver: 10,
-            createdAt: "2023-01-01T00:00:00.000Z",
-          },
-        ],
+            createdAt: "2023-01-01T00:00:00.000Z"
+          }
+        ]
       };
 
-      vi.mocked(mockQueryService.getAll).mockResolvedValue(mockResult);
+      vi.mocked(mockQueryService.getAll).mockResolvedValue(ok(mockResult));
 
       // Act
       await controller.getAllAppreciations(mockContext);
 
       // Assert
       expect(mockQueryService.getAll).toHaveBeenCalledOnce();
-      expect(mockContext.json).toHaveBeenCalledWith(mockResult);
+      expect(mockContext.json).toHaveBeenCalledWith(mockResult, 200);
     });
 
     it("エラーが発生した場合は500エラーを返す", async () => {
       // Arrange
-      const error = new Error("Database error");
-      vi.mocked(mockQueryService.getAll).mockRejectedValue(error);
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const error = new AppreciationsQueryServiceError("Database error");
+      vi.mocked(mockQueryService.getAll).mockResolvedValue(err(error));
 
       // Act
       await controller.getAllAppreciations(mockContext);
 
       // Assert
       expect(mockQueryService.getAll).toHaveBeenCalledOnce();
-      expect(consoleSpy).toHaveBeenCalledWith("Failed to get all appreciations:", error);
       expect(mockContext.json).toHaveBeenCalledWith(
-        { error: "Internal Server Error" },
+        {
+          error: "Database error",
+          errorType: "AppreciationsQueryServiceError"
+        },
         500
       );
-
-      consoleSpy.mockRestore();
     });
   });
 });

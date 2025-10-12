@@ -112,39 +112,47 @@ describe("PointLeaderQueryService", () => {
       const result = await pointLeaderQueryService.getWeeklyLeaders();
 
       // 検証：0ポイントのユーザーは除外され、ポイントがあるユーザーのみ返される
-      expect(result.topSenders).toHaveLength(2); // ポイントがある送信者のみ
-      expect(result.topReceivers).toHaveLength(2); // ポイントがある受信者のみ
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.topSenders).toHaveLength(2); // ポイントがある送信者のみ
+        expect(result.value.topReceivers).toHaveLength(2); // ポイントがある受信者のみ
 
-      // 送信者の確認：全員ポイントを持っている
-      expect(
-        result.topSenders.some(
-          (sender) => sender.id === user1.id && sender.totalPoints === 20
-        )
-      ).toBe(true);
-      expect(
-        result.topSenders.some(
-          (sender) => sender.id === user2.id && sender.totalPoints === 20
-        )
-      ).toBe(true);
+        // 送信者の確認：全員ポイントを持っている
+        expect(
+          result.value.topSenders.some(
+            (sender) => sender.id === user1.id && sender.totalPoints === 20
+          )
+        ).toBe(true);
+        expect(
+          result.value.topSenders.some(
+            (sender) => sender.id === user2.id && sender.totalPoints === 20
+          )
+        ).toBe(true);
 
-      // 受信者の確認：全員ポイントを持っている
-      expect(
-        result.topReceivers.some(
-          (receiver) => receiver.id === user3.id && receiver.totalPoints === 30
-        )
-      ).toBe(true); // 10 + 20
-      expect(
-        result.topReceivers.some(
-          (receiver) => receiver.id === user4.id && receiver.totalPoints === 10
-        )
-      ).toBe(true);
+        // 受信者の確認：全員ポイントを持っている
+        expect(
+          result.value.topReceivers.some(
+            (receiver) =>
+              receiver.id === user3.id && receiver.totalPoints === 30
+          )
+        ).toBe(true); // 10 + 20
+        expect(
+          result.value.topReceivers.some(
+            (receiver) =>
+              receiver.id === user4.id && receiver.totalPoints === 10
+          )
+        ).toBe(true);
+      }
     });
 
     it("データが存在しない場合は空の結果を返す", async () => {
       const result = await pointLeaderQueryService.getWeeklyLeaders();
 
-      expect(result.topSenders).toHaveLength(0);
-      expect(result.topReceivers).toHaveLength(0);
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.topSenders).toHaveLength(0);
+        expect(result.value.topReceivers).toHaveLength(0);
+      }
     });
 
     it("全ユーザーが0ポイントの場合の動作確認", async () => {
@@ -162,18 +170,21 @@ describe("PointLeaderQueryService", () => {
 
       const result = await pointLeaderQueryService.getWeeklyLeaders();
 
-      console.log(
-        "全員0ポイントの場合 - Top senders:",
-        JSON.stringify(result.topSenders, null, 2)
-      );
-      console.log(
-        "全員0ポイントの場合 - Top receivers:",
-        JSON.stringify(result.topReceivers, null, 2)
-      );
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        console.log(
+          "全員0ポイントの場合 - Top senders:",
+          JSON.stringify(result.value.topSenders, null, 2)
+        );
+        console.log(
+          "全員0ポイントの場合 - Top receivers:",
+          JSON.stringify(result.value.topReceivers, null, 2)
+        );
 
-      // 0ポイントのユーザーは除外されるため、空の配列が返される
-      expect(result.topSenders).toHaveLength(0);
-      expect(result.topReceivers).toHaveLength(0);
+        // 0ポイントのユーザーは除外されるため、空の配列が返される
+        expect(result.value.topSenders).toHaveLength(0);
+        expect(result.value.topReceivers).toHaveLength(0);
+      }
     });
 
     it("1人だけポイントがある場合の動作確認", async () => {
@@ -227,24 +238,18 @@ describe("PointLeaderQueryService", () => {
 
       const result = await pointLeaderQueryService.getWeeklyLeaders();
 
-      console.log(
-        "1人だけポイントがある場合 - Top senders:",
-        JSON.stringify(result.topSenders, null, 2)
-      );
-      console.log(
-        "1人だけポイントがある場合 - Top receivers:",
-        JSON.stringify(result.topReceivers, null, 2)
-      );
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        // 送信者：ポイントがある1人のみが返される
+        expect(result.value.topSenders).toHaveLength(1);
+        expect(result.value.topSenders[0].id).toBe(user1.id);
+        expect(result.value.topSenders[0].totalPoints).toBe(10);
 
-      // 送信者：ポイントがある1人のみが返される
-      expect(result.topSenders).toHaveLength(1);
-      expect(result.topSenders[0].id).toBe(user1.id);
-      expect(result.topSenders[0].totalPoints).toBe(10);
-
-      // 受信者：ポイントがある1人のみが返される
-      expect(result.topReceivers).toHaveLength(1);
-      expect(result.topReceivers[0].id).toBe(user2.id);
-      expect(result.topReceivers[0].totalPoints).toBe(10);
+        // 受信者：ポイントがある1人のみが返される
+        expect(result.value.topReceivers).toHaveLength(1);
+        expect(result.value.topReceivers[0].id).toBe(user2.id);
+        expect(result.value.topReceivers[0].totalPoints).toBe(10);
+      }
     });
   });
 });

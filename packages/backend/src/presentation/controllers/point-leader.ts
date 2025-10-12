@@ -1,6 +1,11 @@
+import type { HttpError } from "@pichikoto/http-contracts";
+import { InternalServerError } from "@pichikoto/http-contracts";
 import type { Context } from "hono";
-import type { PointLeaderQueryService } from "../../query-service/PointLeaderQueryService";
-import { Response } from "../../utils/Response";
+import type {
+  PointLeaderQueryService,
+  PointLeaderQueryServiceError
+} from "../../query-service/PointLeaderQueryService";
+import { HttpErrorResponseCreator } from "../../utils/ResponseCreator";
 
 export class PointLeaderController {
   constructor(
@@ -11,13 +16,18 @@ export class PointLeaderController {
    * 今週のポイント送信・受信上位3人ずつを取得するエンドポイント
    */
   async getWeeklyLeaders(c: Context) {
-    try {
-      const leaders = await this.pointLeaderQueryService.getWeeklyLeaders();
+    const responseCreator = new PointLeaderQueryServiceErrorResponseCreator();
+    const leaders = await this.pointLeaderQueryService.getWeeklyLeaders();
 
-      return Response.ok(leaders).respond(c);
-    } catch (error) {
-      console.error("Error getting weekly point leaders:", error);
-      return c.json({ error: "週次ポイントリーダーの取得に失敗しました" }, 500);
-    }
+    return responseCreator.fromResult(leaders).respond(c);
+  }
+}
+
+export class PointLeaderQueryServiceErrorResponseCreator extends HttpErrorResponseCreator<PointLeaderQueryServiceError> {
+  protected createHttpError(error: PointLeaderQueryServiceError): HttpError {
+    return new InternalServerError(
+      error.message,
+      "PointLeaderQueryServiceError"
+    );
   }
 }

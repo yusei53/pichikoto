@@ -7,7 +7,6 @@ import {
 } from "@pichikoto/http-contracts";
 import { toCreateAppreciationRequest } from "@pichikoto/http-contracts/appreciation";
 import type { Context } from "hono";
-import type { AppreciationsQueryService } from "../../query-service/AppreciationsQueryService";
 import type {
   CreateAppreciationUseCaseError,
   CreateAppreciationUseCaseInterface
@@ -31,12 +30,16 @@ import {
   ReceiverIDs
 } from "../../domain/appreciation/Appreciation";
 import { UserID } from "../../domain/user/User";
+import type {
+  AppreciationsQueryService,
+  AppreciationsQueryServiceError
+} from "../../query-service/AppreciationsQueryService";
 import { HttpErrorResponseCreator } from "../../utils/ResponseCreator";
 
 export interface AppreciationControllerInterface {
+  getAllAppreciations(c: Context): Promise<Response>;
   createAppreciation(c: Context): Promise<Response>;
   updateAppreciationMessage(c: Context): Promise<Response>;
-  getAllAppreciations(c: Context): Promise<Response>;
 }
 
 export class AppreciationController implements AppreciationControllerInterface {
@@ -45,6 +48,13 @@ export class AppreciationController implements AppreciationControllerInterface {
     private readonly updateAppreciationMessageUseCase: UpdateAppreciationMessageUseCaseInterface,
     private readonly appreciationsQueryService: AppreciationsQueryService
   ) {}
+
+  async getAllAppreciations(c: Context): Promise<Response> {
+    const responseCreator = new AppreciationsQueryServiceErrorResponseCreator();
+    const result = await this.appreciationsQueryService.getAll();
+
+    return responseCreator.fromResult(result).respond(c);
+  }
 
   async createAppreciation(c: Context): Promise<Response> {
     const responseCreator = new CreateAppreciationErrorResponseCreator();
@@ -76,23 +86,9 @@ export class AppreciationController implements AppreciationControllerInterface {
   async updateAppreciationMessage(c: Context): Promise<Response> {
     const responseCreator = new UpdateAppreciationMessageErrorResponseCreator();
 
-    // JWTから送信者IDを取得（認証ミドルウェアで設定されることを想定）
     const senderID = c.get("userID");
-    if (!senderID) {
-      return c.json({ error: "Unauthorized" }, 401);
-    }
-
-    // URLパラメータから感謝IDを取得
     const appreciationIDParam = c.req.param("id");
-    if (!appreciationIDParam) {
-      return c.json({ error: "Appreciation ID is required" }, 400);
-    }
-
-    // リクエストボディからメッセージを取得
     const body = await c.req.json();
-    if (!body.message || typeof body.message !== "string") {
-      return c.json({ error: "Message is required" }, 400);
-    }
 
     const appreciationID = AppreciationID.from(appreciationIDParam);
     const newMessage = AppreciationMessage.from(body.message);
@@ -104,16 +100,6 @@ export class AppreciationController implements AppreciationControllerInterface {
     );
 
     return responseCreator.fromResult(result).respond(c);
-  }
-
-  async getAllAppreciations(c: Context): Promise<Response> {
-    try {
-      const result = await this.appreciationsQueryService.getAll();
-      return c.json(result);
-    } catch (error) {
-      console.error("Failed to get all appreciations:", error);
-      return c.json({ error: "Internal Server Error" }, 500);
-    }
   }
 }
 
@@ -143,5 +129,14 @@ export class UpdateAppreciationMessageErrorResponseCreator extends HttpErrorResp
       return new UnauthorizedError(error.message, "UnauthorizedUpdateError");
     }
     return new InternalServerError(error.message, "InternalServerError");
+  }
+}
+
+export class AppreciationsQueryServiceErrorResponseCreator extends HttpErrorResponseCreator<AppreciationsQueryServiceError> {
+  protected createHttpError(error: AppreciationsQueryServiceError): HttpError {
+    return new InternalServerError(
+      error.message,
+      "AppreciationsQueryServiceError"
+    );
   }
 }

@@ -61,30 +61,33 @@ describe("AppreciationsQueryService", () => {
     const result = await queryService.getAll();
 
     // Assert
-    expect(result.appreciations).toHaveLength(1);
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value.appreciations).toHaveLength(1);
 
-    const appreciation = result.appreciations[0];
-    expect(appreciation.sender.discordUserName).toBe("sender_user");
-    expect(appreciation.sender.discordAvatar).toBe("sender_avatar_url");
-    expect(appreciation.receivers).toHaveLength(2);
+      const appreciation = result.value.appreciations[0];
+      expect(appreciation.sender.discordUserName).toBe("sender_user");
+      expect(appreciation.sender.discordAvatar).toBe("sender_avatar_url");
+      expect(appreciation.receivers).toHaveLength(2);
 
-    // 受信者の順序は保証されないため、配列から該当するものを探す
-    const receiver1 = appreciation.receivers.find(
-      (r) => r.discordUserName === "receiver1_user"
-    );
-    const receiver2 = appreciation.receivers.find(
-      (r) => r.discordUserName === "receiver2_user"
-    );
+      // 受信者の順序は保証されないため、配列から該当するものを探す
+      const receiver1 = appreciation.receivers.find(
+        (r) => r.discordUserName === "receiver1_user"
+      );
+      const receiver2 = appreciation.receivers.find(
+        (r) => r.discordUserName === "receiver2_user"
+      );
 
-    expect(receiver1).toBeDefined();
-    expect(receiver1!.discordAvatar).toBe("receiver1_avatar_url");
-    expect(receiver2).toBeDefined();
-    expect(receiver2!.discordAvatar).toBe("receiver2_avatar_url");
+      expect(receiver1).toBeDefined();
+      expect(receiver1!.discordAvatar).toBe("receiver1_avatar_url");
+      expect(receiver2).toBeDefined();
+      expect(receiver2!.discordAvatar).toBe("receiver2_avatar_url");
 
-    expect(appreciation.message).toBe("ありがとうございます！");
-    expect(appreciation.pointPerReceiver).toBe(10);
-    expect(appreciation.createdAt).toBeDefined();
-    expect(typeof appreciation.createdAt).toBe("string");
+      expect(appreciation.message).toBe("ありがとうございます！");
+      expect(appreciation.pointPerReceiver).toBe(10);
+      expect(appreciation.createdAt).toBeDefined();
+      expect(typeof appreciation.createdAt).toBe("string");
+    }
   });
 
   it("感謝投稿が存在しない場合は空の配列を返す", async () => {
@@ -92,7 +95,10 @@ describe("AppreciationsQueryService", () => {
     const result = await queryService.getAll();
 
     // Assert
-    expect(result.appreciations).toHaveLength(0);
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value.appreciations).toHaveLength(0);
+    }
   });
 
   it("複数の感謝投稿を作成日時の降順で取得できる", async () => {
@@ -143,10 +149,13 @@ describe("AppreciationsQueryService", () => {
     const result = await queryService.getAll();
 
     // Assert
-    expect(result.appreciations).toHaveLength(2);
-    // 新しい投稿が最初に来る（降順）
-    expect(result.appreciations[0].message).toBe("新しい投稿");
-    expect(result.appreciations[1].message).toBe("古い投稿");
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value.appreciations).toHaveLength(2);
+      // 新しい投稿が最初に来る（降順）
+      expect(result.value.appreciations[0].message).toBe("新しい投稿");
+      expect(result.value.appreciations[1].message).toBe("古い投稿");
+    }
   });
 
   it("単一の受信者を持つ感謝投稿を正しく取得できる", async () => {
@@ -179,12 +188,15 @@ describe("AppreciationsQueryService", () => {
     const result = await queryService.getAll();
 
     // Assert
-    expect(result.appreciations).toHaveLength(1);
-    const appreciation = result.appreciations[0];
-    expect(appreciation.receivers).toHaveLength(1);
-    expect(appreciation.receivers[0].discordUserName).toBe("receiver_user");
-    expect(appreciation.message).toBe("単一受信者テスト");
-    expect(appreciation.pointPerReceiver).toBe(25);
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value.appreciations).toHaveLength(1);
+      const appreciation = result.value.appreciations[0];
+      expect(appreciation.receivers).toHaveLength(1);
+      expect(appreciation.receivers[0].discordUserName).toBe("receiver_user");
+      expect(appreciation.message).toBe("単一受信者テスト");
+      expect(appreciation.pointPerReceiver).toBe(25);
+    }
   });
 
   it("複数の送信者による感謝投稿を正しく取得できる", async () => {
@@ -235,16 +247,19 @@ describe("AppreciationsQueryService", () => {
     const result = await queryService.getAll();
 
     // Assert
-    expect(result.appreciations).toHaveLength(2);
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value.appreciations).toHaveLength(2);
 
-    const senderNames = result.appreciations.map(
-      (a) => a.sender.discordUserName
-    );
-    expect(senderNames).toContain("sender1_user");
-    expect(senderNames).toContain("sender2_user");
+      const senderNames = result.value.appreciations.map(
+        (a) => a.sender.discordUserName
+      );
+      expect(senderNames).toContain("sender1_user");
+      expect(senderNames).toContain("sender2_user");
 
-    const messages = result.appreciations.map((a) => a.message);
-    expect(messages).toContain("送信者1からの感謝");
-    expect(messages).toContain("送信者2からの感謝");
+      const messages = result.value.appreciations.map((a) => a.message);
+      expect(messages).toContain("送信者1からの感謝");
+      expect(messages).toContain("送信者2からの感謝");
+    }
   });
 });
