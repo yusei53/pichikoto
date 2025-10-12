@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   AccessToken,
   DiscordTokens,
@@ -8,6 +8,7 @@ import {
 import { UserID } from "../../../src/domain/user/User";
 
 const MOCK_UUID = "00000000-0000-0000-0000-000000";
+const MOCK_TIMESTAMP = 1728734572000; // 固定のタイムスタンプ (2024-10-12T11:02:52.000Z)
 
 vi.mock("../../src/domain/models/User", () => {
   return {
@@ -26,6 +27,16 @@ describe("DiscordTokensDomainTest", () => {
   const expiresIn = 3600;
   const scope = "read write";
   const tokenType = "Bearer";
+
+  beforeEach(() => {
+    // Date.now()を固定値でモック
+    vi.spyOn(Date, "now").mockReturnValue(MOCK_TIMESTAMP);
+  });
+
+  afterEach(() => {
+    // モックをリセット
+    vi.restoreAllMocks();
+  });
 
   describe("DiscordTokensドメインの作成", () => {
     it("DiscordTokensを作成できること", () => {
