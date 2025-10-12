@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import * as schema from "../../../database/schema";
 import { AppreciationID } from "../../../src/domain/appreciation/Appreciation";
 import {
@@ -24,6 +24,13 @@ import {
 describe("ConsumedPointLogRepository Tests", () => {
   const consumedPointLogRepository = new ConsumedPointLogRepository();
 
+  // 各テスト前にデータベースをクリーンアップ
+  beforeEach(async () => {
+    await deleteFromDatabase(schema.consumedPointLog);
+    await deleteFromDatabase(schema.appreciations);
+    await deleteFromDatabase(schema.user);
+  });
+
   describe("store", () => {
     afterEach(async () => {
       await deleteFromDatabase(schema.consumedPointLog);
@@ -33,15 +40,23 @@ describe("ConsumedPointLogRepository Tests", () => {
 
     it("ポイント消費記録を保存できること", async () => {
       // arrange
+      // 固定のUUIDを使用してテストの安定性を確保
+      const fixedUserUUID = "5fb2a95a-e338-4634-8738-8e44b2445a76";
+      const fixedAppreciationUUID = "2f7e9f3c-88c0-458e-ba55-426f22aa8f4d";
+      const fixedConsumedPointLogUUID = "90222b70-16c3-4bb2-88cc-a4d1c047022a";
+
       const user = createUserTableFixture();
+      user.id = fixedUserUUID;
+
       const appreciation = createAppreciationTableFixture();
+      appreciation.id = fixedAppreciationUUID;
       appreciation.senderId = user.id;
 
       await insertToDatabase(schema.user, user);
       await insertToDatabase(schema.appreciations, appreciation);
 
       const consumedPointLog = ConsumedPointLog.reconstruct(
-        ConsumedPointLogID.from(UUID.new().value),
+        ConsumedPointLogID.from(fixedConsumedPointLogUUID),
         UserID.from(user.id),
         AppreciationID.from(appreciation.id),
         WeekStartDate.fromString("2025-01-06"), // 月曜日
