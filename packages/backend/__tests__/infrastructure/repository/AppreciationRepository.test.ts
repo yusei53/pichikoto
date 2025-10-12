@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import * as schema from "../../../database/schema";
 import {
   Appreciation,
@@ -31,6 +31,13 @@ import {
 
 describe("AppreciationRepository Tests", () => {
   const appreciationRepository = new AppreciationRepository();
+
+  // 各テスト前にデータベースをクリーンアップ
+  beforeEach(async () => {
+    await deleteFromDatabase(schema.appreciationReceivers);
+    await deleteFromDatabase(schema.appreciations);
+    await deleteFromDatabase(schema.user);
+  });
 
   describe("store", () => {
     afterEach(async () => {
