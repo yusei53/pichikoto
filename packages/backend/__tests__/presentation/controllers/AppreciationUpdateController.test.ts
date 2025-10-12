@@ -40,6 +40,7 @@ describe("AppreciationUpdateController Tests", () => {
       {} as any // AppreciationsQueryServiceはダミー
     );
   });
+  });
 
   describe("updateAppreciationMessage", () => {
     /**
