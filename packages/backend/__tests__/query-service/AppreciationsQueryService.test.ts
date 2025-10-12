@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import * as schema from "../../database/schema";
 import { AppreciationsQueryService } from "../../src/query-service/AppreciationsQueryService";
 import {
@@ -14,7 +14,7 @@ import {
 describe("AppreciationsQueryService", () => {
   const queryService = new AppreciationsQueryService();
 
-  afterEach(async () => {
+  beforeEach(async () => {
     await deleteFromDatabase(schema.appreciationReceivers);
     await deleteFromDatabase(schema.appreciations);
     await deleteFromDatabase(schema.user);

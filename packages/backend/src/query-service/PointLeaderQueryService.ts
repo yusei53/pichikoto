@@ -39,7 +39,7 @@ export class PointLeaderQueryService {
   }
 
   /**
-   * 今週のポイント送信上位3人を取得
+   * 今週のポイント送信上位3人を取得（0ポイントのユーザーは除外）
    */
   private async getTopSenders(
     weekStartDate: string
@@ -50,12 +50,12 @@ export class PointLeaderQueryService {
         discordUserName: userSchema.discordUserName,
         discordAvatar: userSchema.discordAvatar,
         totalPoints:
-          sql<number>`COALESCE(SUM(${consumedPointLogSchema.consumedPoints}), 0)`.as(
+          sql<number>`SUM(${consumedPointLogSchema.consumedPoints})`.as(
             "totalPoints"
           )
       })
       .from(userSchema)
-      .leftJoin(
+      .innerJoin(
         consumedPointLogSchema,
         sql`${userSchema.id} = ${consumedPointLogSchema.userId} AND ${consumedPointLogSchema.weekStartDate} = ${weekStartDate}`
       )
@@ -76,7 +76,7 @@ export class PointLeaderQueryService {
   }
 
   /**
-   * 今週のポイント受信上位3人を取得
+   * 今週のポイント受信上位3人を取得（0ポイントのユーザーは除外）
    */
   private async getTopReceivers(
     weekStartDate: string
@@ -87,16 +87,16 @@ export class PointLeaderQueryService {
         discordUserName: userSchema.discordUserName,
         discordAvatar: userSchema.discordAvatar,
         totalPoints:
-          sql<number>`COALESCE(SUM(${appreciationsSchema.pointPerReceiver}), 0)`.as(
+          sql<number>`SUM(${appreciationsSchema.pointPerReceiver})`.as(
             "totalPoints"
           )
       })
       .from(userSchema)
-      .leftJoin(
+      .innerJoin(
         appreciationReceiversSchema,
         sql`${userSchema.id} = ${appreciationReceiversSchema.receiverId}`
       )
-      .leftJoin(
+      .innerJoin(
         appreciationsSchema,
         sql`${appreciationReceiversSchema.appreciationId} = ${appreciationsSchema.id} AND ${appreciationsSchema.createdAt} >= ${this.getWeekStartDateTime(weekStartDate)} AND ${appreciationsSchema.createdAt} < ${this.getWeekEndDateTime(weekStartDate)}`
       )

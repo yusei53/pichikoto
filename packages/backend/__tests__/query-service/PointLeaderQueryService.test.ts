@@ -111,45 +111,30 @@ describe("PointLeaderQueryService", () => {
       // テスト実行
       const result = await pointLeaderQueryService.getWeeklyLeaders();
 
-      // デバッグ用ログ
-      console.log("Top senders:", JSON.stringify(result.topSenders, null, 2));
-      console.log(
-        "Top receivers:",
-        JSON.stringify(result.topReceivers, null, 2)
-      );
+      // 検証：0ポイントのユーザーは除外され、ポイントがあるユーザーのみ返される
+      expect(result.topSenders).toHaveLength(2); // ポイントがある送信者のみ
+      expect(result.topReceivers).toHaveLength(2); // ポイントがある受信者のみ
 
-      // 検証
-      expect(result.topSenders).toHaveLength(3); // 上位3人のみ
-      expect(result.topReceivers).toHaveLength(3);
-
-      // 送信者の確認
-      const sendersWithPoints = result.topSenders.filter(
-        (sender) => sender.totalPoints > 0
-      );
-      expect(sendersWithPoints).toHaveLength(2);
+      // 送信者の確認：全員ポイントを持っている
       expect(
-        sendersWithPoints.some(
+        result.topSenders.some(
           (sender) => sender.id === user1.id && sender.totalPoints === 20
         )
       ).toBe(true);
       expect(
-        sendersWithPoints.some(
+        result.topSenders.some(
           (sender) => sender.id === user2.id && sender.totalPoints === 20
         )
       ).toBe(true);
 
-      // 受信者の確認
-      const receiversWithPoints = result.topReceivers.filter(
-        (receiver) => receiver.totalPoints > 0
-      );
-      expect(receiversWithPoints).toHaveLength(2);
+      // 受信者の確認：全員ポイントを持っている
       expect(
-        receiversWithPoints.some(
+        result.topReceivers.some(
           (receiver) => receiver.id === user3.id && receiver.totalPoints === 30
         )
       ).toBe(true); // 10 + 20
       expect(
-        receiversWithPoints.some(
+        result.topReceivers.some(
           (receiver) => receiver.id === user4.id && receiver.totalPoints === 10
         )
       ).toBe(true);
@@ -160,6 +145,106 @@ describe("PointLeaderQueryService", () => {
 
       expect(result.topSenders).toHaveLength(0);
       expect(result.topReceivers).toHaveLength(0);
+    });
+
+    it("全ユーザーが0ポイントの場合の動作確認", async () => {
+      // ユーザーのみ作成（ポイント関連データは作成しない）
+      const user1 = createUserTableFixture();
+      user1.discordId = "user1";
+
+      const user2 = createUserTableFixture();
+      user2.discordId = "user2";
+
+      const user3 = createUserTableFixture();
+      user3.discordId = "user3";
+
+      await db().insert(userSchema).values([user1, user2, user3]);
+
+      const result = await pointLeaderQueryService.getWeeklyLeaders();
+
+      console.log(
+        "全員0ポイントの場合 - Top senders:",
+        JSON.stringify(result.topSenders, null, 2)
+      );
+      console.log(
+        "全員0ポイントの場合 - Top receivers:",
+        JSON.stringify(result.topReceivers, null, 2)
+      );
+
+      // 0ポイントのユーザーは除外されるため、空の配列が返される
+      expect(result.topSenders).toHaveLength(0);
+      expect(result.topReceivers).toHaveLength(0);
+    });
+
+    it("1人だけポイントがある場合の動作確認", async () => {
+      // ユーザーを作成
+      const user1 = createUserTableFixture();
+      user1.discordId = "user1";
+
+      const user2 = createUserTableFixture();
+      user2.discordId = "user2";
+
+      const user3 = createUserTableFixture();
+      user3.discordId = "user3";
+
+      const user4 = createUserTableFixture();
+      user4.discordId = "user4";
+
+      await db().insert(userSchema).values([user1, user2, user3, user4]);
+
+      // 今週の開始日を取得
+      const now = new Date();
+      const dayOfWeek = now.getUTCDay();
+      const monday = new Date(now);
+      monday.setUTCDate(now.getUTCDate() - ((dayOfWeek + 6) % 7));
+      monday.setUTCHours(0, 0, 0, 0);
+      const weekStartDate = monday.toISOString().split("T")[0];
+
+      // 1つだけ感謝投稿を作成（user1がuser2にポイント送信）
+      const appreciation = createAppreciationTableFixture();
+      appreciation.senderId = user1.id;
+      appreciation.message = "ありがとう";
+      appreciation.pointPerReceiver = 10;
+      appreciation.createdAt = new Date();
+
+      await db().insert(appreciationsSchema).values([appreciation]);
+
+      // 受信者を設定
+      const receiver = createAppreciationReceiverTableFixture(
+        appreciation.id,
+        user2.id
+      );
+      await db().insert(appreciationReceiversSchema).values([receiver]);
+
+      // ポイント消費ログを作成
+      const consumedLog = createConsumedPointLogTableFixtureWith({
+        userId: user1.id,
+        appreciationId: appreciation.id,
+        weekStartDate,
+        consumedPoints: 10
+      });
+      await db().insert(consumedPointLogSchema).values([consumedLog]);
+
+      const result = await pointLeaderQueryService.getWeeklyLeaders();
+
+      console.log(
+        "1人だけポイントがある場合 - Top senders:",
+        JSON.stringify(result.topSenders, null, 2)
+      );
+      console.log(
+        "1人だけポイントがある場合 - Top receivers:",
+        JSON.stringify(result.topReceivers, null, 2)
+      );
+
+      // 送信者：ポイントがある1人のみが返される
+      expect(result.topSenders).toHaveLength(1);
+      expect(result.topSenders[0].id).toBe(user1.id);
+      expect(result.topSenders[0].totalPoints).toBe(10);
+
+      // 受信者：ポイントがある1人のみが返される
+      expect(result.topReceivers).toHaveLength(1);
+      expect(result.topReceivers[0].id).toBe(user2.id);
+      expect(result.topReceivers[0].totalPoints).toBe(10);
     });
   });
 });
