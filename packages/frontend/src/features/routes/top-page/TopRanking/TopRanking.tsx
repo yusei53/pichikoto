@@ -18,7 +18,7 @@ export const TopRanking: React.FC<TopRankingProps> = ({
 }) => {
 	const { getAvatarSize } = useGetAvatarSize();
 	return (
-		<Stack direction={"column"} gap={"16px"}>
+		<Stack direction={"row"} gap={"16px"} alignItems={"center"} p={"16px"}>
 			<Stack direction={"column"} gap={"8px"}>
 				<Stack direction={"row"} gap={"10px"} alignItems={"center"}>
 					<Icon>{titleIcon}</Icon>

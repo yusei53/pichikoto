@@ -7,7 +7,7 @@ const appreciationSchema = z.object({
 	message: z
 		.string()
 		.min(1, { message: "メッセージを入力してください" })
-		.max(1000, { message: "メッセージは1000文字以内にしてください" }),
+		.max(250, { message: "メッセージは250文字以内にしてください" }),
 	points: z.number().min(1, { message: "ポイントを選択してください" }),
 });
 

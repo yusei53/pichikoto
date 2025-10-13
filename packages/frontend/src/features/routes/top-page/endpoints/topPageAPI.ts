@@ -1,4 +1,4 @@
-import { mockAppreciationList } from "~/mock/appreciation/appreciation";
+import { mockAppreciationList } from "~/mock/appreciation";
 import { mockPointLog } from "~/mock/point-log";
 import { mockPointRankings } from "~/mock/point-ranking/point-ranking";
 import type { Appreciation } from "~/model/appreciation";
@@ -11,7 +11,6 @@ export const topPageAPI = {
 		return mockPointLog;
 	},
 	async getAppreciationList(): Promise<Appreciation[]> {
-		// 将来的に実際のAPI呼び出しに置き換え
 		return mockAppreciationList;
 	},
 

@@ -1,13 +1,12 @@
 "use client";
 
 import { Gift, SendHorizontal } from "lucide-react";
-import { Box, Stack } from "styled-system/jsx";
+import { Stack } from "styled-system/jsx";
 import { AppToaster } from "~/components/shared/AppToaster/AppToaster";
 import { Icon } from "~/components/ui/icon";
 import { AppreciationCard } from "~/features/common/AppreciationCard/AppreciationCard";
 import { AppreciationForm } from "~/features/common/AppreciationForm/AppreciationForm";
 import { UserProfile } from "~/features/common/UserProfile/UserProfile";
-import { AppreciationListHeader } from "~/features/common/AppreciationListHeader/AppreciationListHeader";
 import { TopRanking } from "~/features/routes/top-page/TopRanking/TopRanking";
 import type { Appreciation } from "~/model/appreciation";
 import type { PointRanking } from "~/model/point-ranking";
@@ -42,6 +41,18 @@ export const ClientTopPage: React.FC<ClientTopPageProps> = ({
 						avatarUrl={user.discordAvatar}
 						isNotificationEnabled={isNotificationEnabled}
 					/>
+					<AppreciationForm
+						users={allUsers}
+						remainingPoints={remainingPoints}
+					/>
+				</Stack>
+				<Stack
+					direction={"column"}
+					width={"100%"}
+					height={"calc(100vh - 48px)"}
+					overflowY={"auto"}
+				>
+					{/* <AppreciationListHeader onSearchChange={() => { }}> */}
 					<Stack direction={"row"} gap={"24px"}>
 						<TopRanking
 							titleIcon={
@@ -62,20 +73,7 @@ export const ClientTopPage: React.FC<ClientTopPageProps> = ({
 							rankingUsers={receivedPointRanking}
 						/>
 					</Stack>
-					<AppreciationForm
-						users={allUsers}
-						remainingPoints={remainingPoints}
-					/>
-				</Stack>
-				<Stack
-					direction={"column"}
-					width={"100%"}
-					height={"calc(100vh - 48px)"}
-					overflowY={"auto"}
-				>
-					<AppreciationListHeader onSearchChange={() => {}}>
-						<Box fontSize={"md"}>みんなのmomopos</Box>
-					</AppreciationListHeader>
+					{/* </AppreciationListHeader> */}
 					<Stack direction={"column"} gap={"16px"}>
 						{appreciationList.map((appreciation) => (
 							<AppreciationCard

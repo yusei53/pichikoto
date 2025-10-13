@@ -9,7 +9,6 @@ import { AppreciationListHeader } from "~/features/common/AppreciationListHeader
 import { UserProfile } from "~/features/common/UserProfile/UserProfile";
 import { AppreciationLog } from "~/features/routes/user-page/AppreciationLog/AppreciationLog";
 import { AppreciationStatus } from "~/features/routes/user-page/AppreciationStatus/AppreciationStatus";
-import { UserInfo } from "~/features/routes/user-page/UserInfo/UserInfo";
 import { useToggleAppreciation } from "~/features/routes/user-page/useToggleAppreciation";
 import { useToggleProfile } from "~/features/routes/user-page/useToggleProfile";
 import type { Appreciation } from "~/model/appreciation";
@@ -47,7 +46,7 @@ export const UserPageClient: React.FC<UserPageClientProps> = ({
 	return (
 		<>
 			<Stack direction={"row"} gap={"16px"} p={"24px"} overflowY={"hidden"}>
-				<Stack direction={"column"} gap={"24px"} width={"800px"}>
+				<Stack direction={"column"} gap={"8px"} width={"800px"}>
 					<UserProfile
 						userID={user.userID}
 						userName={user.discordUserName}
@@ -59,19 +58,28 @@ export const UserPageClient: React.FC<UserPageClientProps> = ({
 						defaultValue={selectedProfileOption}
 						onValueChange={(e) => onSelectProfileOption(e.value)}
 					/>
-					<Stack direction={"row"} gap={"24px"}>
-						<AppreciationStatus title="今月" sendPoint={0} receivedPoint={0} />
-						<AppreciationStatus title="累計" sendPoint={0} receivedPoint={0} />
-					</Stack>
 					{selectedProfileOption === "profile" ? (
-						<Stack direction={"row"} gap={"24px"}>
-							<UserInfo user={user} />
-							<AppreciationLog
-								targetUsr={user}
-								sendUserList={sendUserList}
-								receivedUserList={receivedUserList}
-							/>
-						</Stack>
+						<>
+							<Stack direction={"row"} gap={"24px"}>
+								<AppreciationStatus
+									title="今月"
+									sendPoint={0}
+									receivedPoint={0}
+								/>
+								<AppreciationStatus
+									title="累計"
+									sendPoint={0}
+									receivedPoint={0}
+								/>
+							</Stack>
+							<Stack direction={"row"} gap={"24px"}>
+								<AppreciationLog
+									targetUsr={user}
+									sendUserList={sendUserList}
+									receivedUserList={receivedUserList}
+								/>
+							</Stack>
+						</>
 					) : (
 						<AppreciationForm users={allUsers} remainingPoints={0} />
 					)}
@@ -82,7 +90,7 @@ export const UserPageClient: React.FC<UserPageClientProps> = ({
 					height={"calc(100vh - 48px)"}
 					overflowY={"auto"}
 				>
-					<AppreciationListHeader onSearchChange={() => { }}>
+					<AppreciationListHeader>
 						<AppTabs
 							options={appreciationOptions}
 							defaultValue={selectedAppreciationOption}

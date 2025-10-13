@@ -41,11 +41,11 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 					boxShadow: "none",
 					border: "2px solid",
 					borderColor: "border",
-					py: "24px",
+					pt: "24px",
 				})}
 			>
 				<Card.Body>
-					<Stack direction={"column"} gap={"16px"}>
+					<Stack direction={"column"} gap={"8px"}>
 						<Combobox.Root
 							multiple
 							collection={usersCollection}
@@ -90,7 +90,7 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 								</Combobox.Content>
 							</Combobox.Positioner>
 						</Combobox.Root>
-						<Stack direction={"row"} alignItems={"center"} gap={"16px"}>
+						<Stack direction={"row"} alignItems={"center"} gap={"8px"}>
 							{currentSendUsers.map((user) => (
 								<Stack
 									direction={"column"}
@@ -106,18 +106,18 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 						<Divider />
 						<Field.Root invalid={!!errors.message}>
 							<Field.Input asChild>
-								<Textarea minH={"200px"} {...register("message")} />
+								<Textarea minH={"175px"} {...register("message")} />
 							</Field.Input>
 							<Field.ErrorText>{errors.message?.message}</Field.ErrorText>
 						</Field.Root>
 						<Divider />
-						<Stack direction={"column"} gap={"16px"}>
+						<Stack direction={"column"} gap={"8px"}>
 							<Stack direction={"column"} gap={"4px"}>
 								<Stack direction={"row"} alignItems={"center"} gap={"16px"}>
 									<Box>今週残ポイント</Box>
 									<Box ml={"auto"}>{remainingPoints}pt</Box>
 								</Stack>
-								<Divider mb={"16px"} />
+								<Divider mb={"8px"} />
 								<Combobox.Root
 									collection={pointsCollection}
 									onValueChange={onPointsChange}
@@ -157,7 +157,7 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 					<Stack
 						direction={"row"}
 						alignItems={"center"}
-						gap={"16px"}
+						gap={"8px"}
 						mr={"auto"}
 					>
 						<Box
