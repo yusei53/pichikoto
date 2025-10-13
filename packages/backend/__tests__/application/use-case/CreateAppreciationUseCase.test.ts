@@ -16,22 +16,14 @@ import {
   ValidateWeeklyLimitError,
   type WeeklyPointLimitDomainServiceInterface
 } from "../../../src/domain/appreciation/WeeklyPointLimitDomainService";
-import {
-  ConsumedPointLog,
-  ConsumedPointLogID,
-  ConsumedPoints,
-  WeekStartDate
-} from "../../../src/domain/consumed-point-log/ConsumedPointLog";
 import { UserID } from "../../../src/domain/user/User";
 import { AppreciationRepository } from "../../../src/infrastructure/repositories/AppreciationRepository";
-import { ConsumedPointLogRepository } from "../../../src/infrastructure/repositories/ConsumedPointLogRepository";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { UUID } from "../../../src/utils/UUID";
 import {
   assertEqualAppreciationReceiversTable,
   assertEqualAppreciationTable
 } from "../../testing/table_assert/AssertEqualAppreciationTable";
-import { assertEqualConsumedPointLogTable } from "../../testing/table_assert/AssertEqualConsumedPointLogTable";
 import { expectOk } from "../../testing/utils/AssertResult";
 import {
   getTypedMultipleRecords,
@@ -52,7 +44,6 @@ const MOCK_POINT_PER_RECEIVER = 10;
 describe("CreateAppreciationUseCase Tests", () => {
   // 実際のリポジトリ（テスト用データベースに接続）
   const appreciationRepository = new AppreciationRepository();
-  const consumedPointLogRepository = new ConsumedPointLogRepository();
 
   // モックドメインサービス
   const mockWeeklyPointLimitDomainService = {
@@ -62,7 +53,6 @@ describe("CreateAppreciationUseCase Tests", () => {
   const createAppreciationUseCase: CreateAppreciationUseCaseInterface =
     new CreateAppreciationUseCase(
       appreciationRepository,
-      consumedPointLogRepository,
       mockWeeklyPointLimitDomainService as WeeklyPointLimitDomainServiceInterface
     );
 
@@ -83,15 +73,7 @@ describe("CreateAppreciationUseCase Tests", () => {
       })(UUID.from(MOCK_APPRECIATION_ID))
     );
 
-    const MOCK_CONSUMED_POINT_LOG_ID = UUID.new().value;
-    vi.spyOn(ConsumedPointLogID, "new").mockReturnValue(
-      new (class {
-        constructor(public readonly value: UUID) {}
-      })(UUID.from(MOCK_CONSUMED_POINT_LOG_ID))
-    );
-
     // データベースのクリア（外部キー制約の順序に注意）
-    await deleteFromDatabase(schema.consumedPointLog);
     await deleteFromDatabase(schema.appreciationReceivers);
     await deleteFromDatabase(schema.appreciations);
     await deleteFromDatabase(schema.user);
@@ -137,7 +119,6 @@ describe("CreateAppreciationUseCase Tests", () => {
     vi.clearAllMocks();
 
     // データベースのクリア（外部キー制約の順序に注意）
-    await deleteFromDatabase(schema.consumedPointLog);
     await deleteFromDatabase(schema.appreciationReceivers);
     await deleteFromDatabase(schema.appreciations);
     await deleteFromDatabase(schema.user);
@@ -175,15 +156,6 @@ describe("CreateAppreciationUseCase Tests", () => {
         CreatedAt.new()
       );
 
-      const consumedPointLog = ConsumedPointLog.reconstruct(
-        ConsumedPointLogID.new(),
-        senderID,
-        appreciation.appreciationID,
-        WeekStartDate.new(),
-        ConsumedPoints.from(pointPerReceiver.value * 2),
-        CreatedAt.new()
-      );
-
       // Act
       const result = await createAppreciationUseCase.execute(
         senderID,
@@ -206,14 +178,6 @@ describe("CreateAppreciationUseCase Tests", () => {
       assertEqualAppreciationReceiversTable(
         appreciation,
         actualReceiverRecords
-      );
-
-      const consumedPointLogRecord = await getTypedSingleRecord(
-        schema.consumedPointLog
-      );
-      assertEqualConsumedPointLogTable(
-        consumedPointLog,
-        consumedPointLogRecord!
       );
     });
 
@@ -314,15 +278,6 @@ describe("CreateAppreciationUseCase Tests", () => {
         CreatedAt.new()
       );
 
-      const consumedPointLog = ConsumedPointLog.reconstruct(
-        ConsumedPointLogID.new(),
-        senderID,
-        appreciation.appreciationID,
-        WeekStartDate.new(),
-        ConsumedPoints.from(highPointPerReceiver.value),
-        CreatedAt.new()
-      );
-
       // Act
       const result = await createAppreciationUseCase.execute(
         senderID,
@@ -345,14 +300,6 @@ describe("CreateAppreciationUseCase Tests", () => {
       assertEqualAppreciationReceiversTable(
         appreciation,
         actualReceiverRecords
-      );
-
-      const consumedPointLogRecord = await getTypedSingleRecord(
-        schema.consumedPointLog
-      );
-      assertEqualConsumedPointLogTable(
-        consumedPointLog,
-        consumedPointLogRecord!
       );
     });
 
@@ -397,15 +344,6 @@ describe("CreateAppreciationUseCase Tests", () => {
         CreatedAt.new()
       );
 
-      const consumedPointLog = ConsumedPointLog.reconstruct(
-        ConsumedPointLogID.new(),
-        senderID,
-        appreciation.appreciationID,
-        WeekStartDate.new(),
-        ConsumedPoints.from(pointFor6People.value * 6),
-        CreatedAt.new()
-      );
-
       // Act
       const result = await createAppreciationUseCase.execute(
         senderID,
@@ -428,14 +366,6 @@ describe("CreateAppreciationUseCase Tests", () => {
       assertEqualAppreciationReceiversTable(
         appreciation,
         actualReceiverRecords
-      );
-
-      const consumedPointLogRecord = await getTypedSingleRecord(
-        schema.consumedPointLog
-      );
-      assertEqualConsumedPointLogTable(
-        consumedPointLog,
-        consumedPointLogRecord!
       );
     });
   });

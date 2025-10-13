@@ -24,7 +24,6 @@ async function seedDatabase() {
 
     // 既存データの削除（開発環境のみ）
     console.log("🧹 Cleaning existing data...");
-    await database.delete(schema.consumedPointLog);
     await database.delete(schema.appreciationReceivers);
     await database.delete(schema.appreciations);
     await database.delete(schema.oauthState);
@@ -73,7 +72,6 @@ async function seedDatabase() {
       appreciations,
       5
     );
-    await database.insert(schema.consumedPointLog).values(consumedPointLogs);
     console.log(`✅ Inserted ${consumedPointLogs.length} consumed point logs`);
 
     console.log("🎉 Database seeding completed successfully!");
