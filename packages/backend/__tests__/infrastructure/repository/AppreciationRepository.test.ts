@@ -342,4 +342,278 @@ describe("AppreciationRepository Tests", () => {
       expect(remainingRelatedReceivers).toHaveLength(1);
     });
   });
+
+  describe("calculateWeeklyPointConsumption", () => {
+    const setupUsersAndAppreciations = async () => {
+      // ユーザーを作成
+      const senderUser = createUserTableFixture();
+      const otherSenderUser = createUserTableFixture();
+      const receiverUser1 = createUserTableFixture();
+      const receiverUser2 = createUserTableFixture();
+      const receiverUser3 = createUserTableFixture();
+
+      await insertToDatabase(schema.user, senderUser);
+      await insertToDatabase(schema.user, otherSenderUser);
+      await insertToDatabase(schema.user, receiverUser1);
+      await insertToDatabase(schema.user, receiverUser2);
+      await insertToDatabase(schema.user, receiverUser3);
+
+      return {
+        senderUser,
+        otherSenderUser,
+        receiverUsers: [receiverUser1, receiverUser2, receiverUser3]
+      };
+    };
+
+    afterEach(async () => {
+      await deleteFromDatabase(schema.appreciationReceivers);
+      await deleteFromDatabase(schema.appreciations);
+      await deleteFromDatabase(schema.user);
+    });
+
+    it("指定期間内にポイント消費がない場合は0を返すこと", async () => {
+      // arrange
+      const { senderUser } = await setupUsersAndAppreciations();
+      const weekStartDate = "2024-01-01T00:00:00.000Z";
+      const weekEndDate = "2024-01-07T23:59:59.999Z";
+
+      // act
+      const result =
+        await appreciationRepository.calculateWeeklyPointConsumption(
+          UserID.from(senderUser.id),
+          weekStartDate,
+          weekEndDate
+        );
+
+      // assert
+      expect(result).toBe(0);
+    });
+
+    it("指定期間内に単一の感謝がある場合、正しいポイント消費量を返すこと", async () => {
+      // arrange
+      const { senderUser, receiverUsers } = await setupUsersAndAppreciations();
+      const weekStartDate = "2024-01-01T00:00:00.000Z";
+      const weekEndDate = "2024-01-07T23:59:59.999Z";
+
+      // 期間内の感謝を作成（単一受信者、10ポイント）
+      const appreciationRecord = createAppreciationTableFixture();
+      appreciationRecord.senderId = senderUser.id;
+      appreciationRecord.pointPerReceiver = 10;
+      appreciationRecord.createdAt = new Date("2024-01-03T12:00:00.000Z");
+      await insertToDatabase(schema.appreciations, appreciationRecord);
+
+      const receiverRecord = createMultipleAppreciationReceiversFixture(
+        appreciationRecord.id,
+        [receiverUsers[0].id]
+      )[0];
+      await insertToDatabase(schema.appreciationReceivers, receiverRecord);
+
+      // act
+      const result =
+        await appreciationRepository.calculateWeeklyPointConsumption(
+          UserID.from(senderUser.id),
+          weekStartDate,
+          weekEndDate
+        );
+
+      // assert
+      expect(result).toBe(10);
+    });
+
+    it("指定期間内に複数の感謝がある場合、正しいポイント消費量を返すこと", async () => {
+      // arrange
+      const { senderUser, receiverUsers } = await setupUsersAndAppreciations();
+      const weekStartDate = "2024-01-01T00:00:00.000Z";
+      const weekEndDate = "2024-01-07T23:59:59.999Z";
+
+      // 1つ目の感謝（2受信者、各15ポイント = 30ポイント）
+      const appreciation1 = createAppreciationTableFixture();
+      appreciation1.senderId = senderUser.id;
+      appreciation1.pointPerReceiver = 15;
+      appreciation1.createdAt = new Date("2024-01-02T10:00:00.000Z");
+      await insertToDatabase(schema.appreciations, appreciation1);
+
+      const receivers1 = createMultipleAppreciationReceiversFixture(
+        appreciation1.id,
+        [receiverUsers[0].id, receiverUsers[1].id]
+      );
+      for (const receiver of receivers1) {
+        await insertToDatabase(schema.appreciationReceivers, receiver);
+      }
+
+      // 2つ目の感謝（1受信者、20ポイント）
+      const appreciation2 = createAppreciationTableFixture();
+      appreciation2.senderId = senderUser.id;
+      appreciation2.pointPerReceiver = 20;
+      appreciation2.createdAt = new Date("2024-01-05T14:00:00.000Z");
+      await insertToDatabase(schema.appreciations, appreciation2);
+
+      const receivers2 = createMultipleAppreciationReceiversFixture(
+        appreciation2.id,
+        [receiverUsers[2].id]
+      );
+      for (const receiver of receivers2) {
+        await insertToDatabase(schema.appreciationReceivers, receiver);
+      }
+
+      // act
+      const result =
+        await appreciationRepository.calculateWeeklyPointConsumption(
+          UserID.from(senderUser.id),
+          weekStartDate,
+          weekEndDate
+        );
+
+      // assert
+      expect(result).toBe(50); // 30 + 20 = 50
+    });
+
+    it("指定期間外の感謝は計算に含まれないこと", async () => {
+      // arrange
+      const { senderUser, receiverUsers } = await setupUsersAndAppreciations();
+      const weekStartDate = "2024-01-01T00:00:00.000Z";
+      const weekEndDate = "2024-01-07T23:59:59.999Z";
+
+      // 期間内の感謝
+      const appreciationInRange = createAppreciationTableFixture();
+      appreciationInRange.senderId = senderUser.id;
+      appreciationInRange.pointPerReceiver = 10;
+      appreciationInRange.createdAt = new Date("2024-01-03T12:00:00.000Z");
+      await insertToDatabase(schema.appreciations, appreciationInRange);
+
+      const receiverInRange = createMultipleAppreciationReceiversFixture(
+        appreciationInRange.id,
+        [receiverUsers[0].id]
+      )[0];
+      await insertToDatabase(schema.appreciationReceivers, receiverInRange);
+
+      // 期間前の感謝
+      const appreciationBefore = createAppreciationTableFixture();
+      appreciationBefore.senderId = senderUser.id;
+      appreciationBefore.pointPerReceiver = 25;
+      appreciationBefore.createdAt = new Date("2023-12-31T23:59:59.999Z");
+      await insertToDatabase(schema.appreciations, appreciationBefore);
+
+      const receiverBefore = createMultipleAppreciationReceiversFixture(
+        appreciationBefore.id,
+        [receiverUsers[1].id]
+      )[0];
+      await insertToDatabase(schema.appreciationReceivers, receiverBefore);
+
+      // 期間後の感謝
+      const appreciationAfter = createAppreciationTableFixture();
+      appreciationAfter.senderId = senderUser.id;
+      appreciationAfter.pointPerReceiver = 30;
+      appreciationAfter.createdAt = new Date("2024-01-08T00:00:00.000Z");
+      await insertToDatabase(schema.appreciations, appreciationAfter);
+
+      const receiverAfter = createMultipleAppreciationReceiversFixture(
+        appreciationAfter.id,
+        [receiverUsers[2].id]
+      )[0];
+      await insertToDatabase(schema.appreciationReceivers, receiverAfter);
+
+      // act
+      const result =
+        await appreciationRepository.calculateWeeklyPointConsumption(
+          UserID.from(senderUser.id),
+          weekStartDate,
+          weekEndDate
+        );
+
+      // assert
+      expect(result).toBe(10); // 期間内の感謝のみ
+    });
+
+    it("他のユーザーの感謝は計算に含まれないこと", async () => {
+      // arrange
+      const { senderUser, otherSenderUser, receiverUsers } =
+        await setupUsersAndAppreciations();
+      const weekStartDate = "2024-01-01T00:00:00.000Z";
+      const weekEndDate = "2024-01-07T23:59:59.999Z";
+
+      // 対象ユーザーの感謝
+      const targetUserAppreciation = createAppreciationTableFixture();
+      targetUserAppreciation.senderId = senderUser.id;
+      targetUserAppreciation.pointPerReceiver = 15;
+      targetUserAppreciation.createdAt = new Date("2024-01-03T12:00:00.000Z");
+      await insertToDatabase(schema.appreciations, targetUserAppreciation);
+
+      const targetUserReceiver = createMultipleAppreciationReceiversFixture(
+        targetUserAppreciation.id,
+        [receiverUsers[0].id]
+      )[0];
+      await insertToDatabase(schema.appreciationReceivers, targetUserReceiver);
+
+      // 他のユーザーの感謝
+      const otherUserAppreciation = createAppreciationTableFixture();
+      otherUserAppreciation.senderId = otherSenderUser.id;
+      otherUserAppreciation.pointPerReceiver = 50;
+      otherUserAppreciation.createdAt = new Date("2024-01-04T12:00:00.000Z");
+      await insertToDatabase(schema.appreciations, otherUserAppreciation);
+
+      const otherUserReceiver = createMultipleAppreciationReceiversFixture(
+        otherUserAppreciation.id,
+        [receiverUsers[1].id, receiverUsers[2].id]
+      );
+      for (const receiver of otherUserReceiver) {
+        await insertToDatabase(schema.appreciationReceivers, receiver);
+      }
+
+      // act
+      const result =
+        await appreciationRepository.calculateWeeklyPointConsumption(
+          UserID.from(senderUser.id),
+          weekStartDate,
+          weekEndDate
+        );
+
+      // assert
+      expect(result).toBe(15); // 対象ユーザーの感謝のみ
+    });
+
+    it("期間の境界値で正しく動作すること", async () => {
+      // arrange
+      const { senderUser, receiverUsers } = await setupUsersAndAppreciations();
+      const weekStartDate = "2024-01-01T00:00:00.000Z";
+      const weekEndDate = "2024-01-07T23:59:59.999Z";
+
+      // 期間開始時刻ちょうどの感謝
+      const appreciationAtStart = createAppreciationTableFixture();
+      appreciationAtStart.senderId = senderUser.id;
+      appreciationAtStart.pointPerReceiver = 10;
+      appreciationAtStart.createdAt = new Date("2024-01-01T00:00:00.000Z");
+      await insertToDatabase(schema.appreciations, appreciationAtStart);
+
+      const receiverAtStart = createMultipleAppreciationReceiversFixture(
+        appreciationAtStart.id,
+        [receiverUsers[0].id]
+      )[0];
+      await insertToDatabase(schema.appreciationReceivers, receiverAtStart);
+
+      // 期間終了時刻ちょうどの感謝
+      const appreciationAtEnd = createAppreciationTableFixture();
+      appreciationAtEnd.senderId = senderUser.id;
+      appreciationAtEnd.pointPerReceiver = 20;
+      appreciationAtEnd.createdAt = new Date("2024-01-07T23:59:59.999Z");
+      await insertToDatabase(schema.appreciations, appreciationAtEnd);
+
+      const receiverAtEnd = createMultipleAppreciationReceiversFixture(
+        appreciationAtEnd.id,
+        [receiverUsers[1].id]
+      )[0];
+      await insertToDatabase(schema.appreciationReceivers, receiverAtEnd);
+
+      // act
+      const result =
+        await appreciationRepository.calculateWeeklyPointConsumption(
+          UserID.from(senderUser.id),
+          weekStartDate,
+          weekEndDate
+        );
+
+      // assert
+      expect(result).toBe(30); // 10 + 20 = 30
+    });
+  });
 });

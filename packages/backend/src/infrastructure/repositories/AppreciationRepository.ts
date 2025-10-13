@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, between, eq, sum } from "drizzle-orm";
 import { db } from "../../../database/client";
 import {
   appreciationReceivers as appreciationReceiversSchema,
@@ -18,6 +18,11 @@ import { UUID } from "../../utils/UUID";
 export interface AppreciationRepositoryInterface {
   store(appreciation: Appreciation): Promise<void>;
   findBy(appreciationId: AppreciationID): Promise<Appreciation | null>;
+  calculateWeeklyPointConsumption(
+    userId: UserID,
+    weekStartDate: string,
+    weekEndDate: string
+  ): Promise<number>;
   delete(appreciationId: AppreciationID): Promise<void>;
 }
 
@@ -68,6 +73,39 @@ export class AppreciationRepository implements AppreciationRepositoryInterface {
       await this.findReceiversByAppreciationID(appreciationId);
 
     return this.toAppreciation(appreciationRecord, receiverRecords);
+  }
+
+  async calculateWeeklyPointConsumption(
+    userId: UserID,
+    weekStartDate: string,
+    weekEndDate: string
+  ): Promise<number> {
+    const [result] = await db()
+      .select({
+        totalConsumption: sum(
+          // pointPerReceiver * 受信者数を計算
+          // JOINにより各受信者分のpointPerReceiverが合計される
+          appreciationsSchema.pointPerReceiver
+        )
+      })
+      .from(appreciationsSchema)
+      .innerJoin(
+        appreciationReceiversSchema,
+        eq(appreciationsSchema.id, appreciationReceiversSchema.appreciationId)
+      )
+      .where(
+        and(
+          eq(appreciationsSchema.senderId, userId.value.value),
+          between(
+            appreciationsSchema.createdAt,
+            new Date(weekStartDate),
+            new Date(weekEndDate)
+          )
+        )
+      );
+
+    // sumの結果はstring | nullなので、numberに変換
+    return Number(result.totalConsumption || 0);
   }
 
   async delete(appreciationId: AppreciationID): Promise<void> {

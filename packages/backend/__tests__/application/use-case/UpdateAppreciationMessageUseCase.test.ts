@@ -53,7 +53,6 @@ describe("UpdateAppreciationMessageUseCase Tests", () => {
 
   beforeEach(async () => {
     // データベースのクリア（外部キー制約の順序に注意）
-    await deleteFromDatabase(schema.consumedPointLog);
     await deleteFromDatabase(schema.appreciationReceivers);
     await deleteFromDatabase(schema.appreciations);
     await deleteFromDatabase(schema.user);
@@ -134,7 +133,6 @@ describe("UpdateAppreciationMessageUseCase Tests", () => {
 
   afterEach(async () => {
     // データベースのクリア（外部キー制約の順序に注意）
-    await deleteFromDatabase(schema.consumedPointLog);
     await deleteFromDatabase(schema.appreciationReceivers);
     await deleteFromDatabase(schema.appreciations);
     await deleteFromDatabase(schema.user);

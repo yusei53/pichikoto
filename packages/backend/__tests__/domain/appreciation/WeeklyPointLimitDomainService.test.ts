@@ -1,25 +1,19 @@
 import { describe, expect, it, vi } from "vitest";
-import { AppreciationID } from "../../../src/domain/appreciation/Appreciation";
+import { NewTotalConsumptionPoints } from "../../../src/domain/appreciation/Appreciation";
 import {
   ValidateWeeklyLimitError,
   WeeklyPointLimitDomainService
 } from "../../../src/domain/appreciation/WeeklyPointLimitDomainService";
-import {
-  ConsumedPointLog,
-  ConsumedPointLogID,
-  ConsumedPoints,
-  WeekStartDate
-} from "../../../src/domain/consumed-point-log/ConsumedPointLog";
 import { UserID } from "../../../src/domain/user/User";
-import type { ConsumedPointLogRepositoryInterface } from "../../../src/infrastructure/repositories/ConsumedPointLogRepository";
-import { CreatedAt } from "../../../src/utils/CreatedAt";
+import type { AppreciationRepositoryInterface } from "../../../src/infrastructure/repositories/AppreciationRepository";
 import { expectErr, expectOk } from "../../testing/utils/AssertResult";
 
 describe("WeeklyPointLimitDomainService Tests", () => {
-  const createMockRepository = (): ConsumedPointLogRepositoryInterface => ({
+  const createMockRepository = (): AppreciationRepositoryInterface => ({
     store: vi.fn(),
     findBy: vi.fn(),
-    findByUserAndWeek: vi.fn()
+    calculateWeeklyPointConsumption: vi.fn(),
+    delete: vi.fn()
   });
 
   describe("validateWeeklyLimit", () => {
@@ -29,41 +23,14 @@ describe("WeeklyPointLimitDomainService Tests", () => {
       const service = new WeeklyPointLimitDomainService(mockRepository);
 
       const userID = UserID.new();
-      const weekStartDate = WeekStartDate.fromString("2025-01-06");
 
-      // 既存の消費記録（合計200ポイント）
-      const existingLogs = [
-        ConsumedPointLog.reconstruct(
-          ConsumedPointLogID.new(),
-          userID,
-          AppreciationID.new(),
-          weekStartDate,
-          ConsumedPoints.from(100),
-          CreatedAt.new()
-        ),
-        ConsumedPointLog.reconstruct(
-          ConsumedPointLogID.new(),
-          userID,
-          AppreciationID.new(),
-          weekStartDate,
-          ConsumedPoints.from(100),
-          CreatedAt.new()
-        )
-      ];
+      vi.mocked(
+        mockRepository.calculateWeeklyPointConsumption
+      ).mockResolvedValue(200);
 
-      vi.mocked(mockRepository.findByUserAndWeek).mockResolvedValue(
-        existingLogs
-      );
-
-      // 新規消費予定（50ポイント） → 合計250ポイント（制限400以下）
-      const newConsumption = { value: 50 } as any;
-
+      const newConsumption = NewTotalConsumptionPoints.from(50);
       // act
-      const result = await service.validateWeeklyLimit(
-        userID,
-        weekStartDate,
-        newConsumption
-      );
+      const result = await service.validateWeeklyLimit(userID, newConsumption);
 
       // assert
       expectOk(result);
@@ -75,42 +42,16 @@ describe("WeeklyPointLimitDomainService Tests", () => {
       const service = new WeeklyPointLimitDomainService(mockRepository);
 
       const userID = UserID.new();
-      const weekStartDate = WeekStartDate.fromString("2025-01-06");
 
-      // 既存の消費記録（合計240ポイント）
-      const existingLogs = [
-        ConsumedPointLog.reconstruct(
-          ConsumedPointLogID.new(),
-          userID,
-          AppreciationID.new(),
-          weekStartDate,
-          ConsumedPoints.from(120),
-          CreatedAt.new()
-        ),
-        ConsumedPointLog.reconstruct(
-          ConsumedPointLogID.new(),
-          userID,
-          AppreciationID.new(),
-          weekStartDate,
-          ConsumedPoints.from(120),
-          CreatedAt.new()
-        )
-      ];
+      vi.mocked(
+        mockRepository.calculateWeeklyPointConsumption
+      ).mockResolvedValue(300);
 
-      vi.mocked(mockRepository.findByUserAndWeek).mockResolvedValue(
-        existingLogs
-      );
-
-      // 新規消費予定（120ポイント） → 合計360ポイント（制限400以下）
-      // 実際に制限を超過させるには、180ポイントが必要
-      const newConsumption = { value: 180 } as any;
+      // 新規消費予定（120ポイント） → 合計420ポイント（制限400を超過）
+      const newConsumption = NewTotalConsumptionPoints.from(120);
 
       // act
-      const result = await service.validateWeeklyLimit(
-        userID,
-        weekStartDate,
-        newConsumption
-      );
+      const result = await service.validateWeeklyLimit(userID, newConsumption);
 
       // assert
       const actual = expectErr(result);
@@ -126,20 +67,17 @@ describe("WeeklyPointLimitDomainService Tests", () => {
       const service = new WeeklyPointLimitDomainService(mockRepository);
 
       const userID = UserID.new();
-      const weekStartDate = WeekStartDate.fromString("2025-01-06");
 
       // 既存の消費記録なし
-      vi.mocked(mockRepository.findByUserAndWeek).mockResolvedValue([]);
+      vi.mocked(
+        mockRepository.calculateWeeklyPointConsumption
+      ).mockResolvedValue(0);
 
       // 新規消費予定（100ポイント）
-      const newConsumption = { value: 100 } as any;
+      const newConsumption = NewTotalConsumptionPoints.from(100);
 
       // act
-      const result = await service.validateWeeklyLimit(
-        userID,
-        weekStartDate,
-        newConsumption
-      );
+      const result = await service.validateWeeklyLimit(userID, newConsumption);
 
       // assert
       expectOk(result);
