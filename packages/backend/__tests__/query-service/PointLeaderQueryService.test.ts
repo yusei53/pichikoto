@@ -3,7 +3,6 @@ import { db } from "../../database/client";
 import {
   appreciationReceivers as appreciationReceiversSchema,
   appreciations as appreciationsSchema,
-  consumedPointLog as consumedPointLogSchema,
   user as userSchema
 } from "../../database/schema";
 import { PointLeaderQueryService } from "../../src/query-service/PointLeaderQueryService";
@@ -11,7 +10,6 @@ import {
   createAppreciationReceiverTableFixture,
   createAppreciationTableFixture
 } from "../testing/table_fixture/AppreciationTableFixture";
-import { createConsumedPointLogTableFixtureWith } from "../testing/table_fixture/ConsumedPointLogTableFixture";
 import { createUserTableFixture } from "../testing/table_fixture/UserTableFixture";
 
 describe("PointLeaderQueryService", () => {
@@ -23,7 +21,6 @@ describe("PointLeaderQueryService", () => {
 
   beforeEach(async () => {
     await db().delete(appreciationReceiversSchema);
-    await db().delete(consumedPointLogSchema);
     await db().delete(appreciationsSchema);
     await db().delete(userSchema);
   });
@@ -52,7 +49,7 @@ describe("PointLeaderQueryService", () => {
       const monday = new Date(now);
       monday.setUTCDate(now.getUTCDate() - ((dayOfWeek + 6) % 7));
       monday.setUTCHours(0, 0, 0, 0);
-      const weekStartDate = monday.toISOString().split("T")[0];
+      const _weekStartDate = monday.toISOString().split("T")[0];
 
       // 感謝投稿を作成
       const appreciation1 = createAppreciationTableFixture();
@@ -89,24 +86,7 @@ describe("PointLeaderQueryService", () => {
         .insert(appreciationReceiversSchema)
         .values([receiver1, receiver2, receiver3]);
 
-      // ポイント消費ログを作成
-      const consumedLog1 = createConsumedPointLogTableFixtureWith({
-        userId: user1.id,
-        appreciationId: appreciation1.id,
-        weekStartDate,
-        consumedPoints: 20 // 10ポイント × 2人
-      });
-
-      const consumedLog2 = createConsumedPointLogTableFixtureWith({
-        userId: user2.id,
-        appreciationId: appreciation2.id,
-        weekStartDate,
-        consumedPoints: 20 // 20ポイント × 1人
-      });
-
-      await db()
-        .insert(consumedPointLogSchema)
-        .values([consumedLog1, consumedLog2]);
+      // consumedPointLogは削除されたため、この部分は不要
 
       // テスト実行
       const result = await pointLeaderQueryService.getWeeklyLeaders();
@@ -209,7 +189,6 @@ describe("PointLeaderQueryService", () => {
       const monday = new Date(now);
       monday.setUTCDate(now.getUTCDate() - ((dayOfWeek + 6) % 7));
       monday.setUTCHours(0, 0, 0, 0);
-      const weekStartDate = monday.toISOString().split("T")[0];
 
       // 1つだけ感謝投稿を作成（user1がuser2にポイント送信）
       const appreciation = createAppreciationTableFixture();
@@ -227,17 +206,12 @@ describe("PointLeaderQueryService", () => {
       );
       await db().insert(appreciationReceiversSchema).values([receiver]);
 
-      // ポイント消費ログを作成
-      const consumedLog = createConsumedPointLogTableFixtureWith({
-        userId: user1.id,
-        appreciationId: appreciation.id,
-        weekStartDate,
-        consumedPoints: 10
-      });
-      await db().insert(consumedPointLogSchema).values([consumedLog]);
+      // consumedPointLogは削除されたため、この部分は不要
 
+      // テスト実行
       const result = await pointLeaderQueryService.getWeeklyLeaders();
 
+      // 検証
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
         // 送信者：ポイントがある1人のみが返される

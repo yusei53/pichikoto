@@ -6,7 +6,6 @@ import { UpdateAppreciationMessageUseCase } from "../../application/use-case/app
 import { WeeklyPointLimitDomainService } from "../../domain/appreciation/WeeklyPointLimitDomainService";
 import type { Env } from "../../index";
 import { AppreciationRepository } from "../../infrastructure/repositories/AppreciationRepository";
-import { ConsumedPointLogRepository } from "../../infrastructure/repositories/ConsumedPointLogRepository";
 import { AppreciationsQueryService } from "../../query-service/AppreciationsQueryService";
 import { AppreciationController } from "../controllers/appreciation";
 
@@ -15,14 +14,12 @@ const appreciationControllerFactory = (c: Context) => {
   dbClient.init(c);
 
   const appreciationRepository = new AppreciationRepository();
-  const consumedPointLogRepository = new ConsumedPointLogRepository();
   const weeklyPointLimitDomainService = new WeeklyPointLimitDomainService(
-    consumedPointLogRepository
+    appreciationRepository
   );
 
   const createAppreciationUseCase = new CreateAppreciationUseCase(
     appreciationRepository,
-    consumedPointLogRepository,
     weeklyPointLimitDomainService
   );
 

@@ -5,7 +5,6 @@ import { db } from "../../database/client";
 import {
   appreciationReceivers as appreciationReceiversSchema,
   appreciations as appreciationsSchema,
-  consumedPointLog as consumedPointLogSchema,
   user as userSchema
 } from "../../database/schema";
 
@@ -57,20 +56,30 @@ export class PointLeaderQueryService {
   private async getTopSenders(
     weekStartDate: string
   ): Promise<PointLeaderUser[]> {
+    const weekStartDateTime = this.getWeekStartDateTime(weekStartDate);
+    const weekEndDateTime = this.getWeekEndDateTime(weekStartDate);
+
     const result = await db()
       .select({
         id: userSchema.id,
         discordUserName: userSchema.discordUserName,
         discordAvatar: userSchema.discordAvatar,
         totalPoints:
-          sql<number>`SUM(${consumedPointLogSchema.consumedPoints})`.as(
+          sql<number>`SUM(${appreciationsSchema.pointPerReceiver})`.as(
             "totalPoints"
           )
       })
       .from(userSchema)
       .innerJoin(
-        consumedPointLogSchema,
-        sql`${userSchema.id} = ${consumedPointLogSchema.userId} AND ${consumedPointLogSchema.weekStartDate} = ${weekStartDate}`
+        appreciationsSchema,
+        sql`${userSchema.id} = ${appreciationsSchema.senderId}`
+      )
+      .innerJoin(
+        appreciationReceiversSchema,
+        sql`${appreciationsSchema.id} = ${appreciationReceiversSchema.appreciationId}`
+      )
+      .where(
+        sql`${appreciationsSchema.createdAt} >= ${weekStartDateTime} AND ${appreciationsSchema.createdAt} < ${weekEndDateTime}`
       )
       .groupBy(
         userSchema.id,

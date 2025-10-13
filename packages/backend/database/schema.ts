@@ -1,7 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
   check,
-  date,
   integer,
   pgTable,
   text,
@@ -78,28 +77,6 @@ export const appreciationReceivers = pgTable(
     unique("uk_appreciation_receiver").on(
       table.appreciationId,
       table.receiverId
-    )
-  ]
-);
-
-export const consumedPointLog = pgTable(
-  "consumed_point_log",
-  {
-    id: uuid("id").primaryKey(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    appreciationId: uuid("appreciation_id")
-      .notNull()
-      .references(() => appreciations.id, { onDelete: "cascade" }),
-    weekStartDate: date("week_start_date").notNull(),
-    consumedPoints: integer("consumed_points").notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow()
-  },
-  (table) => [
-    check(
-      "chk_consumed_points_range",
-      sql`${table.consumedPoints} >= 1 AND ${table.consumedPoints} <= 120`
     )
   ]
 );

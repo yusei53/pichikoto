@@ -1,0 +1,1 @@
+DROP TABLE "consumed_point_log" CASCADE;
