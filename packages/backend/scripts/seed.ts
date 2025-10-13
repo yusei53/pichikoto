@@ -66,14 +66,6 @@ async function seedDatabase() {
       `✅ Inserted ${appreciationReceivers.length} appreciation receivers`
     );
 
-    // 6. ポイント消費ログデータの投入
-    const consumedPointLogs = generateConsumedPointLogs(
-      users,
-      appreciations,
-      5
-    );
-    console.log(`✅ Inserted ${consumedPointLogs.length} consumed point logs`);
-
     console.log("🎉 Database seeding completed successfully!");
     process.exit(0);
   } catch (error) {
@@ -217,37 +209,6 @@ function generateAppreciationReceivers(appreciations: any[], users: any[]) {
   });
 
   return receivers;
-}
-
-/**
- * ポイント消費ログデータを生成
- */
-function generateConsumedPointLogs(
-  users: any[],
-  appreciations: any[],
-  count: number
-) {
-  const logs = [];
-  const today = new Date();
-
-  for (let i = 0; i < count; i++) {
-    // 週の開始日を計算（月曜日を週の開始とする）
-    const weekStartDate = new Date(today);
-    weekStartDate.setDate(today.getDate() - today.getDay() + 1 - i * 7);
-    weekStartDate.setHours(0, 0, 0, 0);
-
-    logs.push({
-      id: uuidv4(),
-      userId: users[Math.floor(Math.random() * users.length)].id,
-      appreciationId:
-        appreciations[Math.floor(Math.random() * appreciations.length)].id,
-      weekStartDate: weekStartDate.toISOString().split("T")[0], // YYYY-MM-DD形式
-      consumedPoints: Math.floor(Math.random() * 120) + 1, // 1-120のランダム
-      createdAt: new Date()
-    });
-  }
-
-  return logs;
 }
 
 // スクリプトが直接実行された場合のみ実行
