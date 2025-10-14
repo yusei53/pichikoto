@@ -48,12 +48,14 @@ describe("AppreciationController", () => {
             sender: {
               id: "user-1",
               discordUserName: "sender",
+              discordGlobalName: "Sender Display Name",
               discordAvatar: "sender-avatar"
             },
             receivers: [
               {
                 id: "user-2",
                 discordUserName: "receiver",
+                discordGlobalName: "Receiver Display Name",
                 discordAvatar: "receiver-avatar"
               }
             ],
