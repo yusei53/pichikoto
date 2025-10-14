@@ -9,7 +9,7 @@ import { DiscordUserID } from "../../domain/user/User";
 import type {
   UserInfoQueryService,
   UserInfoQueryServiceError
-} from "../../query-service/UserInfoQUeryService";
+} from "../../query-service/UserInfoQueryService";
 import { HttpErrorResponseCreator } from "../../utils/ResponseCreator";
 
 export interface UserControllerInterface {

@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { DbClient } from "../../../database/client";
 import { GetAllUsersUseCase } from "../../application/use-case/user/GetAllUsersUseCase";
 import { UserRepository } from "../../infrastructure/repositories/UserRepository";
-import { UserInfoQueryService } from "../../query-service/UserInfoQUeryService";
+import { UserInfoQueryService } from "../../query-service/UserInfoQueryService";
 import { UserController } from "../controllers/user";
 
 const userControllerFactory = (c: Context) => {

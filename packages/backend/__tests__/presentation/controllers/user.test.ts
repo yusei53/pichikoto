@@ -4,8 +4,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { GetAllUsersUseCase } from "../../../src/application/use-case/user/GetAllUsersUseCase";
 import { DiscordUserID, User } from "../../../src/domain/user/User";
 import { UserController } from "../../../src/presentation/controllers/user";
-import type { UserInfoQueryService } from "../../../src/query-service/UserInfoQUeryService";
-import { UserInfoQueryServiceError } from "../../../src/query-service/UserInfoQUeryService";
+import {
+  UserInfoQueryServiceError,
+  type UserInfoQueryService
+} from "../../../src/query-service/UserInfoQueryService";
 
 describe("UserController", () => {
   let controller: UserController;
