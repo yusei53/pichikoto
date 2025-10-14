@@ -1,9 +1,11 @@
 import type {
 	AllAppreciationsResponse,
 	GetAllUsersResponse,
+	GetWeeklyPointLeadersResponse,
 } from "@pichikoto/http-contracts";
 import type { Appreciation } from "~/model/appreciation";
 import type { User } from "~/model/user";
+import type { PointLeaders } from "./point-leader";
 
 export const toAppreciations = (
 	response: AllAppreciationsResponse
@@ -35,4 +37,23 @@ export const toAllUsers = (response: GetAllUsersResponse): User[] => {
 		discordUserName: user.discordUserName,
 		discordAvatar: user.discordAvatar,
 	}));
+};
+
+export const toPointLeaders = (
+	response: GetWeeklyPointLeadersResponse
+): PointLeaders => {
+	return {
+		topSenders: response.topSenders.map((sender) => ({
+			userID: sender.id,
+			totalPoints: sender.totalPoints,
+			discordUserName: sender.discordUserName,
+			discordAvatar: sender.discordAvatar,
+		})),
+		topReceivers: response.topReceivers.map((receiver) => ({
+			userID: receiver.id,
+			totalPoints: receiver.totalPoints,
+			discordUserName: receiver.discordUserName,
+			discordAvatar: receiver.discordAvatar,
+		})),
+	} satisfies PointLeaders;
 };
