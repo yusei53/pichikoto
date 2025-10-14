@@ -168,7 +168,7 @@ function generateAppreciations(users: any[], count: number) {
   for (let i = 0; i < count; i++) {
     appreciations.push({
       id: uuidv4(),
-      senderId: users[Math.floor(Math.random() * users.length)].id,
+      senderId: users[Math.floor(Math.random() * users.length)].discordUserId,
       message: sampleMessages[i] || `感謝のメッセージ ${i + 1}`,
       pointPerReceiver: Math.floor(Math.random() * 120) + 1, // 1-120のランダム
       createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000) // 過去7日以内
@@ -193,7 +193,7 @@ function generateAppreciationReceivers(appreciations: any[], users: any[]) {
     // 各感謝に対して1-3人のランダムな受信者を設定
     const receiverCount = Math.floor(Math.random() * 3) + 1;
     const selectedUsers = [...users]
-      .filter((user) => user.id !== appreciation.senderId) // 送信者は除外
+      .filter((user) => user.discordUserId !== appreciation.senderId) // 送信者は除外
       .sort(() => 0.5 - Math.random())
       .slice(0, receiverCount);
 
@@ -201,7 +201,7 @@ function generateAppreciationReceivers(appreciations: any[], users: any[]) {
       receivers.push({
         id: uuidv4(),
         appreciationId: appreciation.id,
-        receiverId: user.id,
+        receiverId: user.discordUserId,
         createdAt: new Date()
       });
     });
