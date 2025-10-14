@@ -2,13 +2,13 @@ import { Crown } from "lucide-react";
 import { Box, Divider, Stack } from "styled-system/jsx";
 import { Avatar } from "~/components/ui/avatar";
 import { Icon } from "~/components/ui/icon";
-import type { PointRanking } from "~/model/point-ranking";
+import type { PointLeaderUser } from "~/model/point-leader";
 import { useGetAvatarSize } from "./useGetAvatarSize";
 
 type TopRankingProps = {
 	titleIcon: React.ReactNode;
 	title: string;
-	rankingUsers: PointRanking[];
+	rankingUsers: PointLeaderUser[];
 };
 
 export const TopRanking: React.FC<TopRankingProps> = ({
@@ -40,10 +40,10 @@ export const TopRanking: React.FC<TopRankingProps> = ({
 							<Crown />
 						</Icon>
 						<Box>
-							<Avatar size={getAvatarSize(index)} src={user.avatarUrl} />
+							<Avatar size={getAvatarSize(index)} src={user.discordAvatar} />
 						</Box>
 						<Box mt={"auto"} fontWeight={"bold"}>
-							{user.point}pt
+							{user.totalPoints}pt
 						</Box>
 					</Stack>
 				))}

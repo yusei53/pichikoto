@@ -55,6 +55,9 @@ export const AppreciationCard: React.FC<AppreciationCardProps> = ({
 						<Popover.Trigger
 							onMouseEnter={onTriggerEnter}
 							onMouseLeave={onTriggerLeave}
+							className={css({
+								outline: "none",
+							})}
 						>
 							<Stack direction={"row"} alignItems={"center"} gap={"16px"}>
 								{displayReceivedUsers.map((user) => (
@@ -97,7 +100,11 @@ export const AppreciationCard: React.FC<AppreciationCardProps> = ({
 							<Popover.Arrow>
 								<Popover.ArrowTip />
 							</Popover.Arrow>
-							<Popover.Content>
+							<Popover.Content
+								className={css({
+									outline: "none",
+								})}
+							>
 								<Stack direction={"column"} gap={"16px"} p={"8px"}>
 									{appreciation.receivers.map((user) => (
 										<Stack

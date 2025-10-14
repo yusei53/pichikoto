@@ -3,12 +3,10 @@ import type {
 	GetAllUsersResponse,
 } from "@pichikoto/http-contracts";
 import { apiClient } from "~/lib/api-client-class";
-import { mockPointRankings } from "~/mock/point-ranking/point-ranking";
 import { mockUser } from "~/mock/user";
 import { mockUsers } from "~/mock/user/user";
 import type { Appreciation } from "~/model/appreciation";
 import { toAllUsers, toAppreciations } from "~/model/mapper";
-import type { PointRanking } from "~/model/point-ranking";
 import type { User } from "~/model/user";
 
 export const userPageAPI = {
@@ -46,13 +44,5 @@ export const userPageAPI = {
 			},
 		});
 		return toAllUsers(result);
-	},
-
-	async getReceivedPointRankings(): Promise<PointRanking[]> {
-		return mockPointRankings;
-	},
-
-	async getSendPointRankings(): Promise<PointRanking[]> {
-		return mockPointRankings;
 	},
 };

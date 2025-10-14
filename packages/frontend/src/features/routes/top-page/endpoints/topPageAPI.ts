@@ -1,21 +1,19 @@
 import type {
 	AllAppreciationsResponse,
 	GetAllUsersResponse,
+	GetWeeklyPointLeadersResponse,
 } from "@pichikoto/http-contracts";
 import { apiClient } from "~/lib/api-client-class";
-import { mockPointLog } from "~/mock/point-log";
-import { mockPointRankings } from "~/mock/point-ranking/point-ranking";
 import type { Appreciation } from "~/model/appreciation";
-import type { PointLog } from "~/model/point-log";
-import type { PointRanking } from "~/model/point-ranking";
+import type { PointLeaders } from "~/model/point-leader";
 import type { User } from "~/model/user";
-import { toAllUsers, toAppreciations } from "../../../../model/mapper";
+import {
+	toAllUsers,
+	toAppreciations,
+	toPointLeaders,
+} from "../../../../model/mapper";
 
 export const topPageAPI = {
-	async getPointLog(): Promise<PointLog> {
-		// 将来的に実際のAPI呼び出しに置き換え
-		return mockPointLog;
-	},
 	async getAppreciationList(): Promise<Appreciation[]> {
 		const result = await apiClient.request<AllAppreciationsResponse>(
 			"/appreciations",
@@ -38,11 +36,17 @@ export const topPageAPI = {
 		});
 		return toAllUsers(result);
 	},
-	async getReceivedPointRankings(): Promise<PointRanking[]> {
-		return mockPointRankings;
-	},
-
-	async getSendPointRankings(): Promise<PointRanking[]> {
-		return mockPointRankings;
+	async getPointLeaders(): Promise<PointLeaders> {
+		const result = await apiClient.request<GetWeeklyPointLeadersResponse>(
+			"/point-leaders/weekly",
+			{
+				method: "GET",
+				next: {
+					tags: ["point-leaders"],
+				},
+			}
+		);
+		console.log(result);
+		return toPointLeaders(result);
 	},
 };

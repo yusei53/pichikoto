@@ -8,8 +8,7 @@ export const dynamic = "force-dynamic";
 const TopPage = async () => {
 	const appreciationList = await topPageAPI.getAppreciationList();
 	const allUsers = await topPageAPI.getAllUsers();
-	const receivedPointRanking = await topPageAPI.getReceivedPointRankings();
-	const sendPointRanking = await topPageAPI.getSendPointRankings();
+	const pointLeaders = await topPageAPI.getPointLeaders();
 	return (
 		<ClientTopPage
 			user={mockUser}
@@ -17,8 +16,8 @@ const TopPage = async () => {
 			isNotificationEnabled={false}
 			remainingPoints={100}
 			allUsers={allUsers}
-			sendPointRanking={sendPointRanking}
-			receivedPointRanking={receivedPointRanking}
+			sendPointRanking={pointLeaders.topSenders}
+			receivedPointRanking={pointLeaders.topReceivers}
 			appreciationList={appreciationList}
 		/>
 	);

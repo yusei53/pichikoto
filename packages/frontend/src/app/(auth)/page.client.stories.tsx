@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { mockAppreciationList } from "~/mock/appreciation/appreciation";
-import { mockPointRankings } from "~/mock/point-ranking/point-ranking";
 import { mockUser } from "~/mock/user";
 import { mockUsers } from "~/mock/user/user";
 import { ClientTopPage } from "./page.client";
@@ -21,7 +20,21 @@ export const Default: Story = {
 		appreciationList: mockAppreciationList,
 		remainingPoints: 100,
 		allUsers: mockUsers,
-		receivedPointRanking: mockPointRankings,
-		sendPointRanking: mockPointRankings,
+		receivedPointRanking: [
+			{
+				userID: "user1",
+				discordUserName: "user1",
+				discordAvatar: "https://example.com/avatar1.jpg",
+				totalPoints: 1500,
+			},
+		],
+		sendPointRanking: [
+			{
+				userID: "user1",
+				discordUserName: "user1",
+				discordAvatar: "https://example.com/avatar1.jpg",
+				totalPoints: 1500,
+			},
+		],
 	},
 };

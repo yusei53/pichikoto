@@ -1,3 +1,4 @@
+import type { GetWeeklyPointLeadersResponse } from "@pichikoto/http-contracts";
 import { sql } from "drizzle-orm";
 import type { Result } from "neverthrow";
 import { err, ok } from "neverthrow";
@@ -15,17 +16,12 @@ export interface PointLeaderUser {
   totalPoints: number;
 }
 
-export interface WeeklyPointLeadersResponse {
-  topSenders: PointLeaderUser[];
-  topReceivers: PointLeaderUser[];
-}
-
 export class PointLeaderQueryService {
   /**
    * 今週のポイント送信・受信上位3人ずつを取得
    */
   async getWeeklyLeaders(): Promise<
-    Result<WeeklyPointLeadersResponse, PointLeaderQueryServiceError>
+    Result<GetWeeklyPointLeadersResponse, PointLeaderQueryServiceError>
   > {
     try {
       const weekStartDate = this.getCurrentWeekStartDate();

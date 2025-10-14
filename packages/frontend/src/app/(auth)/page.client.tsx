@@ -9,7 +9,7 @@ import { AppreciationForm } from "~/features/common/AppreciationForm/Appreciatio
 import { UserProfile } from "~/features/common/UserProfile/UserProfile";
 import { TopRanking } from "~/features/routes/top-page/TopRanking/TopRanking";
 import type { Appreciation } from "~/model/appreciation";
-import type { PointRanking } from "~/model/point-ranking";
+import type { PointLeaderUser } from "~/model/point-leader";
 import type { User } from "~/model/user";
 
 type ClientTopPageProps = {
@@ -17,8 +17,8 @@ type ClientTopPageProps = {
 	remainingPoints: number;
 	allUsers: User[];
 	appreciationList: Appreciation[];
-	receivedPointRanking: PointRanking[];
-	sendPointRanking: PointRanking[];
+	receivedPointRanking: PointLeaderUser[];
+	sendPointRanking: PointLeaderUser[];
 	isNotificationEnabled: boolean;
 };
 

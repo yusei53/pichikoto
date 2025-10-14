@@ -21,18 +21,21 @@ export const Default: Story = {
 		rankingUsers: [
 			{
 				userID: "user1",
-				avatarUrl: "https://example.com/avatar1.jpg",
-				point: 1500,
+				discordUserName: "user1",
+				discordAvatar: "https://example.com/avatar1.jpg",
+				totalPoints: 1500,
 			},
 			{
 				userID: "user2",
-				avatarUrl: "https://example.com/avatar1.jpg",
-				point: 1200,
+				discordUserName: "user2",
+				discordAvatar: "https://example.com/avatar1.jpg",
+				totalPoints: 1200,
 			},
 			{
 				userID: "user3",
-				avatarUrl: "https://example.com/avatar1.jpg",
-				point: 1000,
+				discordUserName: "user3",
+				discordAvatar: "https://example.com/avatar1.jpg",
+				totalPoints: 1000,
 			},
 		],
 	},
