@@ -9,7 +9,7 @@ import {
   ReceiverIDs
 } from "../../../src/domain/appreciation/Appreciation";
 import { CreateAppreciationError } from "../../../src/domain/appreciation/AppreciationError";
-import { UserID } from "../../../src/domain/user/User";
+import { DiscordUserID } from "../../../src/domain/user/User";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { UUID } from "../../../src/utils/UUID";
 import { expectErr, expectOk } from "../../testing/utils/AssertResult";
@@ -34,10 +34,10 @@ afterEach(() => {
 });
 
 describe("AppreciationDomainTest", () => {
-  const senderID = UserID.new();
-  const receiverID1 = UserID.new();
-  const receiverID2 = UserID.new();
-  const receiverID3 = UserID.new();
+  const senderID = DiscordUserID.new();
+  const receiverID1 = DiscordUserID.new();
+  const receiverID2 = DiscordUserID.new();
+  const receiverID3 = DiscordUserID.new();
   const message = AppreciationMessage.from("いつもお疲れ様です！");
   const pointPerReceiver = PointPerReceiver.from(30);
 
@@ -97,7 +97,7 @@ describe("AppreciationDomainTest", () => {
     });
 
     it("受信者が6人を超える場合はZodErrorがスローされること", () => {
-      const tooManyReceivers = [...Array(7)].map(() => UserID.new());
+      const tooManyReceivers = [...Array(7)].map(() => DiscordUserID.new());
       const fn = () => ReceiverIDs.from(tooManyReceivers);
 
       expect(fn).toThrow(ZodError);

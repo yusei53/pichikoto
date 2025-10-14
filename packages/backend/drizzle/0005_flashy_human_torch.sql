@@ -1,1 +1,0 @@
-ALTER TABLE "oauth_state" ADD COLUMN "code_verifier" text;

@@ -1,7 +1,7 @@
 import type { CallbackResponse } from "@pichikoto/http-contracts";
 import type { Context } from "hono";
 import { DiscordTokens } from "../../../domain/discord-tokens/DiscordTokens";
-import { DiscordID, User } from "../../../domain/user/User";
+import { DiscordUserID, User } from "../../../domain/user/User";
 import type { DiscordTokensRepositoryInterface } from "../../../infrastructure/repositories/DiscordTokensRepository";
 import type { UserRepositoryInterface } from "../../../infrastructure/repositories/UserRepository";
 import { handleResult } from "../../../utils/ResultHelper";
@@ -72,12 +72,12 @@ export class DiscordAuthCallbackUseCase
     }
 
     const existsUser = await this.userRepository.findBy(
-      DiscordID.from(discordUserResource.id)
+      DiscordUserID.from(discordUserResource.id)
     );
 
     if (existsUser) {
       const discordTokens = await this.discordTokensRepository.findBy(
-        existsUser.userID
+        existsUser.discordUserID
       );
       if (discordTokens === null) {
         throw new DiscordAuthCallbackUseCaseError(
@@ -87,7 +87,7 @@ export class DiscordAuthCallbackUseCase
 
       const jwtResult = await this.jwtGenerateService.execute(
         c,
-        existsUser.userID.value.value
+        existsUser.discordUserID.value
       );
       if (jwtResult.isErr()) {
         throw new DiscordAuthCallbackUseCaseError(jwtResult.error);
@@ -97,14 +97,14 @@ export class DiscordAuthCallbackUseCase
     }
 
     const user = User.create(
-      DiscordID.from(discordUserResource.id),
+      DiscordUserID.from(discordUserResource.id),
       discordUserResource.username,
       discordUserResource.avatar
     );
     await this.userRepository.save(user);
 
     const discordTokens = DiscordTokens.create(
-      user.userID,
+      user.discordUserID,
       discordToken.access_token,
       discordToken.refresh_token,
       discordToken.expires_in,
@@ -115,7 +115,7 @@ export class DiscordAuthCallbackUseCase
 
     const jwtResult = await this.jwtGenerateService.execute(
       c,
-      user.userID.value.value
+      user.discordUserID.value
     );
     if (jwtResult.isErr()) {
       throw new DiscordAuthCallbackUseCaseError(jwtResult.error);

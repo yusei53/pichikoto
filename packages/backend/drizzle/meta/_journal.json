@@ -5,71 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1755991026216,
-      "tag": "0000_green_nomad",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1756214337412,
-      "tag": "0001_nebulous_cable",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1756342808633,
-      "tag": "0002_sloppy_tiger_shark",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1756359086842,
-      "tag": "0003_workable_talon",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1756360910651,
-      "tag": "0004_zippy_sunset_bain",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1756601825615,
-      "tag": "0005_flashy_human_torch",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1757215953291,
-      "tag": "0006_salty_abomination",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1758455437295,
-      "tag": "0007_worthless_reaper",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1758534788664,
-      "tag": "0008_greedy_miss_america",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1760346463443,
-      "tag": "0009_hard_thunderball",
+      "when": 1760408879031,
+      "tag": "0000_busy_vulcan",
       "breakpoints": true
     }
   ]

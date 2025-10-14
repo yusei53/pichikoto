@@ -13,7 +13,7 @@ import type {
 } from "../../../src/application/services/discord-auth/DiscordUserService";
 import type { JwtGenerateServiceInterface } from "../../../src/application/services/jwt/JwtGenerateService";
 import { DiscordAuthCallbackUseCase } from "../../../src/application/use-case/discord-auth/DiscordAuthCallbackUseCase";
-import { DiscordID } from "../../../src/domain/user/User";
+import { DiscordUserID } from "../../../src/domain/user/User";
 import { DiscordTokensRepository } from "../../../src/infrastructure/repositories/DiscordTokensRepository";
 import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";
 import { createDiscordTokensTableFixture } from "../../testing/table_fixture/DiscordTokensTableFixture";
@@ -167,10 +167,12 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
     it("既存ユーザーの場合、正常にJWTトークンが発行されること", async () => {
       // Arrange
       userFixture = createUserTableFixture();
-      userFixture.discordId = MOCK_DISCORD_USER_ID;
+      userFixture.discordUserId = MOCK_DISCORD_USER_ID;
       await insertToDatabase(schema.user, userFixture);
 
-      discordTokensFixture = createDiscordTokensTableFixture(userFixture.id);
+      discordTokensFixture = createDiscordTokensTableFixture(
+        userFixture.discordUserId
+      );
       await insertToDatabase(schema.discordTokens, discordTokensFixture);
 
       const expected = {
@@ -190,7 +192,7 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
       expect(result).toMatchObject(expected);
 
       const persistedUser = await userRepository.findBy(
-        DiscordID.from(MOCK_DISCORD_USER_ID)
+        DiscordUserID.from(MOCK_DISCORD_USER_ID)
       );
       expect(persistedUser).not.toBeNull();
       expect(persistedUser?.discordUserName).toBe(userFixture.discordUserName);
@@ -232,14 +234,14 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
       expect(result).toMatchObject(expected);
 
       const savedUser = await userRepository.findBy(
-        DiscordID.from(MOCK_DISCORD_USER_ID)
+        DiscordUserID.from(MOCK_DISCORD_USER_ID)
       );
       expect(savedUser).not.toBeNull();
       expect(savedUser?.discordUserName).toBe(MOCK_USERNAME);
       expect(savedUser?.discordAvatar).toBe(MOCK_AVATAR);
 
       const savedTokens = savedUser
-        ? await discordTokensRepository.findBy(savedUser.userID)
+        ? await discordTokensRepository.findBy(savedUser.discordUserID)
         : null;
       expect(savedTokens).not.toBeNull();
     });
@@ -398,7 +400,7 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
     it("既存ユーザーのDiscordTokensが見つからない場合、エラーが発生すること", async () => {
       // Arrange
       userFixture = createUserTableFixture();
-      userFixture.discordId = MOCK_DISCORD_USER_ID;
+      userFixture.discordUserId = MOCK_DISCORD_USER_ID;
       await insertToDatabase(schema.user, userFixture);
       // DiscordTokensは保存しない
 

@@ -11,7 +11,7 @@ import {
   PointPerReceiver,
   ReceiverIDs
 } from "../../domain/appreciation/Appreciation";
-import { UserID } from "../../domain/user/User";
+import { DiscordUserID } from "../../domain/user/User";
 import { CreatedAt } from "../../utils/CreatedAt";
 import { UUID } from "../../utils/UUID";
 
@@ -19,7 +19,7 @@ export interface AppreciationRepositoryInterface {
   store(appreciation: Appreciation): Promise<void>;
   findBy(appreciationId: AppreciationID): Promise<Appreciation | null>;
   calculateWeeklyPointConsumption(
-    userId: UserID,
+    discordUserId: DiscordUserID,
     weekStartDate: string,
     weekEndDate: string
   ): Promise<number>;
@@ -38,7 +38,7 @@ export class AppreciationRepository implements AppreciationRepositoryInterface {
       .insert(appreciationsSchema)
       .values({
         id: appreciation.appreciationID.value.value,
-        senderId: appreciation.senderID.value.value,
+        senderId: appreciation.senderID.value,
         message: appreciation.message.value,
         pointPerReceiver: appreciation.pointPerReceiver.value,
         createdAt: new Date(appreciation.createdAt.value)
@@ -56,7 +56,7 @@ export class AppreciationRepository implements AppreciationRepositoryInterface {
         (receiverId) => ({
           id: UUID.new().value,
           appreciationId: appreciation.appreciationID.value.value,
-          receiverId: receiverId.value.value,
+          receiverId: receiverId.value,
           createdAt: new Date(appreciation.createdAt.value)
         })
       );
@@ -76,7 +76,7 @@ export class AppreciationRepository implements AppreciationRepositoryInterface {
   }
 
   async calculateWeeklyPointConsumption(
-    userId: UserID,
+    discordUserId: DiscordUserID,
     weekStartDate: string,
     weekEndDate: string
   ): Promise<number> {
@@ -95,7 +95,7 @@ export class AppreciationRepository implements AppreciationRepositoryInterface {
       )
       .where(
         and(
-          eq(appreciationsSchema.senderId, userId.value.value),
+          eq(appreciationsSchema.senderId, discordUserId.value),
           between(
             appreciationsSchema.createdAt,
             new Date(weekStartDate),
@@ -155,12 +155,12 @@ export class AppreciationRepository implements AppreciationRepositoryInterface {
     receiverRecords: ReceiverRecord[]
   ): Appreciation {
     const receiverIDs = ReceiverIDs.from(
-      receiverRecords.map((receiver) => UserID.from(receiver.receiverId))
+      receiverRecords.map((receiver) => DiscordUserID.from(receiver.receiverId))
     );
 
     return Appreciation.reconstruct(
       AppreciationID.from(appreciationRecord.id),
-      UserID.from(appreciationRecord.senderId),
+      DiscordUserID.from(appreciationRecord.senderId),
       receiverIDs,
       AppreciationMessage.from(appreciationRecord.message),
       PointPerReceiver.from(appreciationRecord.pointPerReceiver),

@@ -14,11 +14,10 @@ export class UserController implements UserControllerInterface {
 
     const response: GetAllUsersResponse = {
       users: users.map((user) => ({
-        userID: user.userID.value.value,
-        discordID: user.discordID.value,
+        discordUserID: user.discordUserID.value,
         discordUserName: user.discordUserName,
-        discordAvatar: user.discordAvatar,
-      })),
+        discordAvatar: user.discordAvatar
+      }))
     };
 
     return c.json(response);

@@ -1,6 +1,6 @@
 import { err, ok, type Result } from "neverthrow";
 import { z } from "zod";
-import type { UserID } from "../../domain/user/User";
+import type { DiscordUserID } from "../../domain/user/User";
 import { CreatedAt } from "../../utils/CreatedAt";
 import { UUID } from "../../utils/UUID";
 import { CreateAppreciationError } from "./AppreciationError";
@@ -13,7 +13,7 @@ const MAX_POINTS_PER_APPRECIATION = 120;
 export class Appreciation {
   private constructor(
     readonly appreciationID: AppreciationID,
-    readonly senderID: UserID,
+    readonly senderID: DiscordUserID,
     readonly receiverIDs: ReceiverIDs,
     readonly message: AppreciationMessage,
     readonly pointPerReceiver: PointPerReceiver,
@@ -21,16 +21,14 @@ export class Appreciation {
   ) {}
 
   static create(
-    senderID: UserID,
+    senderID: DiscordUserID,
     receiverIDs: ReceiverIDs,
     message: AppreciationMessage,
     pointPerReceiver: PointPerReceiver
   ): Result<Appreciation, CreateAppreciationError> {
     // 送信者が受信者に含まれていないかチェック
-    const uniqueReceiverIDs = new Set(
-      receiverIDs.value.map((id) => id.value.value)
-    );
-    if (uniqueReceiverIDs.has(senderID.value.value)) {
+    const uniqueReceiverIDs = new Set(receiverIDs.value.map((id) => id.value));
+    if (uniqueReceiverIDs.has(senderID.value)) {
       return err(CreateAppreciationError.senderInReceivers(senderID));
     }
 
@@ -54,7 +52,7 @@ export class Appreciation {
 
   static reconstruct(
     appreciationID: AppreciationID,
-    senderID: UserID,
+    senderID: DiscordUserID,
     receiverIDs: ReceiverIDs,
     message: AppreciationMessage,
     pointPerReceiver: PointPerReceiver,
@@ -117,9 +115,7 @@ const ReceiversSchema = z
   .max(MAX_RECEIVERS, `受信者は${MAX_RECEIVERS}人以下である必要があります`)
   .refine(
     (receiverIDs) => {
-      const uniqueReceiverIDs = new Set(
-        receiverIDs.map((id) => id.value.value)
-      );
+      const uniqueReceiverIDs = new Set(receiverIDs.map((id) => id.value));
       return uniqueReceiverIDs.size === receiverIDs.length;
     },
     {
@@ -131,9 +127,9 @@ const ReceiversSchema = z
  * 受信者リストを表す値オブジェクト
  */
 export class ReceiverIDs {
-  private constructor(readonly value: readonly UserID[]) {}
+  private constructor(readonly value: readonly DiscordUserID[]) {}
 
-  static from(receiverIDs: UserID[]): ReceiverIDs {
+  static from(receiverIDs: DiscordUserID[]): ReceiverIDs {
     const validatedValue = ReceiversSchema.parse(receiverIDs);
     return new ReceiverIDs(Object.freeze([...validatedValue]));
   }

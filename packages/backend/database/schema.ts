@@ -10,17 +10,16 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
-  id: uuid("id").primaryKey(),
-  discordId: text("discord_id").notNull().unique(),
+  discordUserId: text("discord_user_id").primaryKey(),
   discordUserName: text("discord_user_name").notNull(),
   discordAvatar: text("discord_avatar").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow()
 });
 
 export const discordTokens = pgTable("discord_tokens", {
-  userId: uuid("user_id")
+  discordUserId: text("discord_user_id")
     .primaryKey()
-    .references(() => user.id, { onDelete: "cascade" }),
+    .references(() => user.discordUserId, { onDelete: "cascade" }),
   accessToken: text("access_token").notNull(),
   refreshToken: text("refresh_token").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
@@ -42,9 +41,9 @@ export const appreciations = pgTable(
   "appreciations",
   {
     id: uuid("id").primaryKey(),
-    senderId: uuid("sender_id")
+    senderId: text("sender_id")
       .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+      .references(() => user.discordUserId, { onDelete: "cascade" }),
     message: text("message").notNull(),
     pointPerReceiver: integer("point_per_receiver").notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow()
@@ -68,9 +67,9 @@ export const appreciationReceivers = pgTable(
     appreciationId: uuid("appreciation_id")
       .notNull()
       .references(() => appreciations.id, { onDelete: "cascade" }),
-    receiverId: uuid("receiver_id")
+    receiverId: text("receiver_id")
       .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+      .references(() => user.discordUserId, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").notNull().defaultNow()
   },
   (table) => [

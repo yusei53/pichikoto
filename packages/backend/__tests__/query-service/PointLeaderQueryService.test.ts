@@ -29,16 +29,16 @@ describe("PointLeaderQueryService", () => {
     it("今週のポイント送信・受信上位3人ずつを正しく取得できる", async () => {
       // テストデータの準備
       const user1 = createUserTableFixture();
-      user1.discordId = "user1";
+      user1.discordUserId = "user1";
 
       const user2 = createUserTableFixture();
-      user2.discordId = "user2";
+      user2.discordUserId = "user2";
 
       const user3 = createUserTableFixture();
-      user3.discordId = "user3";
+      user3.discordUserId = "user3";
 
       const user4 = createUserTableFixture();
-      user4.discordId = "user4";
+      user4.discordUserId = "user4";
 
       // ユーザーを挿入
       await db().insert(userSchema).values([user1, user2, user3, user4]);
@@ -53,13 +53,13 @@ describe("PointLeaderQueryService", () => {
 
       // 感謝投稿を作成
       const appreciation1 = createAppreciationTableFixture();
-      appreciation1.senderId = user1.id;
+      appreciation1.senderId = user1.discordUserId;
       appreciation1.message = "ありがとう1";
       appreciation1.pointPerReceiver = 10;
       appreciation1.createdAt = new Date();
 
       const appreciation2 = createAppreciationTableFixture();
-      appreciation2.senderId = user2.id;
+      appreciation2.senderId = user2.discordUserId;
       appreciation2.message = "ありがとう2";
       appreciation2.pointPerReceiver = 20;
       appreciation2.createdAt = new Date();
@@ -71,15 +71,15 @@ describe("PointLeaderQueryService", () => {
       // 受信者を設定
       const receiver1 = createAppreciationReceiverTableFixture(
         appreciation1.id,
-        user3.id
+        user3.discordUserId
       );
       const receiver2 = createAppreciationReceiverTableFixture(
         appreciation1.id,
-        user4.id
+        user4.discordUserId
       );
       const receiver3 = createAppreciationReceiverTableFixture(
         appreciation2.id,
-        user3.id
+        user3.discordUserId
       );
 
       await db()
@@ -100,12 +100,14 @@ describe("PointLeaderQueryService", () => {
         // 送信者の確認：全員ポイントを持っている
         expect(
           result.value.topSenders.some(
-            (sender) => sender.id === user1.id && sender.totalPoints === 20
+            (sender) =>
+              sender.id === user1.discordUserId && sender.totalPoints === 20
           )
         ).toBe(true);
         expect(
           result.value.topSenders.some(
-            (sender) => sender.id === user2.id && sender.totalPoints === 20
+            (sender) =>
+              sender.id === user2.discordUserId && sender.totalPoints === 20
           )
         ).toBe(true);
 
@@ -113,13 +115,13 @@ describe("PointLeaderQueryService", () => {
         expect(
           result.value.topReceivers.some(
             (receiver) =>
-              receiver.id === user3.id && receiver.totalPoints === 30
+              receiver.id === user3.discordUserId && receiver.totalPoints === 30
           )
         ).toBe(true); // 10 + 20
         expect(
           result.value.topReceivers.some(
             (receiver) =>
-              receiver.id === user4.id && receiver.totalPoints === 10
+              receiver.id === user4.discordUserId && receiver.totalPoints === 10
           )
         ).toBe(true);
       }
@@ -138,13 +140,13 @@ describe("PointLeaderQueryService", () => {
     it("全ユーザーが0ポイントの場合の動作確認", async () => {
       // ユーザーのみ作成（ポイント関連データは作成しない）
       const user1 = createUserTableFixture();
-      user1.discordId = "user1";
+      user1.discordUserId = "user1";
 
       const user2 = createUserTableFixture();
-      user2.discordId = "user2";
+      user2.discordUserId = "user2";
 
       const user3 = createUserTableFixture();
-      user3.discordId = "user3";
+      user3.discordUserId = "user3";
 
       await db().insert(userSchema).values([user1, user2, user3]);
 
@@ -170,16 +172,16 @@ describe("PointLeaderQueryService", () => {
     it("1人だけポイントがある場合の動作確認", async () => {
       // ユーザーを作成
       const user1 = createUserTableFixture();
-      user1.discordId = "user1";
+      user1.discordUserId = "user1";
 
       const user2 = createUserTableFixture();
-      user2.discordId = "user2";
+      user2.discordUserId = "user2";
 
       const user3 = createUserTableFixture();
-      user3.discordId = "user3";
+      user3.discordUserId = "user3";
 
       const user4 = createUserTableFixture();
-      user4.discordId = "user4";
+      user4.discordUserId = "user4";
 
       await db().insert(userSchema).values([user1, user2, user3, user4]);
 
@@ -192,7 +194,7 @@ describe("PointLeaderQueryService", () => {
 
       // 1つだけ感謝投稿を作成（user1がuser2にポイント送信）
       const appreciation = createAppreciationTableFixture();
-      appreciation.senderId = user1.id;
+      appreciation.senderId = user1.discordUserId;
       appreciation.message = "ありがとう";
       appreciation.pointPerReceiver = 10;
       appreciation.createdAt = new Date();
@@ -202,7 +204,7 @@ describe("PointLeaderQueryService", () => {
       // 受信者を設定
       const receiver = createAppreciationReceiverTableFixture(
         appreciation.id,
-        user2.id
+        user2.discordUserId
       );
       await db().insert(appreciationReceiversSchema).values([receiver]);
 
@@ -216,12 +218,12 @@ describe("PointLeaderQueryService", () => {
       if (result.isOk()) {
         // 送信者：ポイントがある1人のみが返される
         expect(result.value.topSenders).toHaveLength(1);
-        expect(result.value.topSenders[0].id).toBe(user1.id);
+        expect(result.value.topSenders[0].id).toBe(user1.discordUserId);
         expect(result.value.topSenders[0].totalPoints).toBe(10);
 
         // 受信者：ポイントがある1人のみが返される
         expect(result.value.topReceivers).toHaveLength(1);
-        expect(result.value.topReceivers[0].id).toBe(user2.id);
+        expect(result.value.topReceivers[0].id).toBe(user2.discordUserId);
         expect(result.value.topReceivers[0].totalPoints).toBe(10);
       }
     });

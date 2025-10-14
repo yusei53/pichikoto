@@ -29,7 +29,7 @@ import {
   PointPerReceiver,
   ReceiverIDs
 } from "../../domain/appreciation/Appreciation";
-import { UserID } from "../../domain/user/User";
+import { DiscordUserID } from "../../domain/user/User";
 import type {
   AppreciationsQueryService,
   AppreciationsQueryServiceError
@@ -62,19 +62,19 @@ export class AppreciationController implements AppreciationControllerInterface {
     const req = await toCreateAppreciationRequest(c.req.raw);
 
     // JWTから送信者IDを取得（認証ミドルウェアで設定されることを想定）
-    const senderID = c.get("userID");
+    const senderID = c.get("discordUserID");
     if (!senderID) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
     const receiverIDs = ReceiverIDs.from(
-      req.body.receiverIDs.map((id: string) => UserID.from(id))
+      req.body.receiverIDs.map((id: string) => DiscordUserID.from(id))
     );
     const message = AppreciationMessage.from(req.body.message);
     const pointPerReceiver = PointPerReceiver.from(req.body.pointPerReceiver);
 
     const result = await this.createAppreciationUseCase.execute(
-      UserID.from(senderID),
+      DiscordUserID.from(senderID),
       receiverIDs,
       message,
       pointPerReceiver
@@ -86,7 +86,7 @@ export class AppreciationController implements AppreciationControllerInterface {
   async updateAppreciationMessage(c: Context): Promise<Response> {
     const responseCreator = new UpdateAppreciationMessageErrorResponseCreator();
 
-    const senderID = c.get("userID");
+    const senderID = c.get("discordUserID");
     const appreciationIDParam = c.req.param("id");
     const body = await c.req.json();
 
@@ -95,7 +95,7 @@ export class AppreciationController implements AppreciationControllerInterface {
 
     const result = await this.updateAppreciationMessageUseCase.execute(
       appreciationID,
-      UserID.from(senderID),
+      DiscordUserID.from(senderID),
       newMessage
     );
 

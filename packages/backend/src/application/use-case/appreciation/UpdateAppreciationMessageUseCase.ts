@@ -3,14 +3,14 @@ import type {
   AppreciationID,
   AppreciationMessage
 } from "../../../domain/appreciation/Appreciation";
-import type { UserID } from "../../../domain/user/User";
+import type { DiscordUserID } from "../../../domain/user/User";
 import type { AppreciationRepositoryInterface } from "../../../infrastructure/repositories/AppreciationRepository";
 import { UseCaseError } from "../../../utils/Error";
 
 export interface UpdateAppreciationMessageUseCaseInterface {
   execute(
     appreciationID: AppreciationID,
-    senderID: UserID,
+    senderID: DiscordUserID,
     newMessage: AppreciationMessage
   ): Promise<Result<void, UpdateAppreciationMessageUseCaseError>>;
 }
@@ -24,7 +24,7 @@ export class UpdateAppreciationMessageUseCase
 
   async execute(
     appreciationID: AppreciationID,
-    senderID: UserID,
+    senderID: DiscordUserID,
     newMessage: AppreciationMessage
   ): Promise<Result<void, UpdateAppreciationMessageUseCaseError>> {
     // 既存の感謝を取得
@@ -35,7 +35,7 @@ export class UpdateAppreciationMessageUseCase
     }
 
     // 送信者が一致するかチェック
-    if (appreciation.senderID.value.value !== senderID.value.value) {
+    if (appreciation.senderID.value !== senderID.value) {
       return err(new UnauthorizedUpdateError(senderID, appreciationID));
     }
 
@@ -60,9 +60,9 @@ export class AppreciationNotFoundError extends UpdateAppreciationMessageUseCaseE
 }
 
 export class UnauthorizedUpdateError extends UpdateAppreciationMessageUseCaseError {
-  constructor(senderID: UserID, appreciationID: AppreciationID) {
+  constructor(senderID: DiscordUserID, appreciationID: AppreciationID) {
     super(
-      `User ${senderID.value.value} is not authorized to update appreciation ${appreciationID.value.value}`
+      `User ${senderID.value} is not authorized to update appreciation ${appreciationID.value.value}`
     );
   }
 }
