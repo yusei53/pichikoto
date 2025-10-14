@@ -46,6 +46,7 @@ export const topPageAPI = {
 				},
 			}
 		);
+		console.log(result);
 		return toPointLeaders(result);
 	},
 };
