@@ -12,6 +12,7 @@ describe("DiscordUserService Tests", () => {
   const MOCK_ACCESS_TOKEN = "test_access_token";
   const MOCK_USER_ID = "123456789012345678";
   const MOCK_USERNAME = "test_user";
+  const MOCK_GLOBAL_NAME = "ゆせ";
   const MOCK_AVATAR = "avatar_hash";
 
   const service = new DiscordUserService();
@@ -20,6 +21,7 @@ describe("DiscordUserService Tests", () => {
     const mockUserResource: DiscordUserResource = {
       id: MOCK_USER_ID,
       username: MOCK_USERNAME,
+      global_name: MOCK_GLOBAL_NAME,
       avatar: MOCK_AVATAR
     };
 

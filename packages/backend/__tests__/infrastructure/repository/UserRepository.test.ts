@@ -3,7 +3,10 @@ import * as schema from "../../../database/schema";
 import { DiscordUserID, User } from "../../../src/domain/user/User";
 import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";
 import { assertEqualUserTable } from "../../testing/table_assert/AssertEqualUserTable";
-import { createUserTableFixture } from "../../testing/table_fixture/UserTableFixture";
+import {
+  createUserTableFixture,
+  createUserTableFixtureWithNullGlobalName
+} from "../../testing/table_fixture/UserTableFixture";
 import { getTypedSingleRecord } from "../../testing/utils/DatabaseAssertHelpers";
 import {
   deleteFromDatabase,
@@ -31,6 +34,7 @@ describe("UserRepository Tests", () => {
       const user = User.reconstruct(
         DiscordUserID.from(user2.discordUserId),
         user2.discordUserName,
+        user2.discordGlobalName,
         user2.discordAvatar
       );
 
@@ -64,6 +68,25 @@ describe("UserRepository Tests", () => {
       const user = User.reconstruct(
         DiscordUserID.from(userRecord.discordUserId),
         userRecord.discordUserName,
+        userRecord.discordGlobalName,
+        userRecord.discordAvatar
+      );
+
+      // act
+      await userRepository.save(user);
+
+      // assert
+      const actualRecord = await getTypedSingleRecord(schema.user);
+      assertEqualUserTable(user, actualRecord!);
+    });
+
+    it("discordGlobalNameがnullのユーザーを保存できること", async () => {
+      // arrange
+      const userRecord = createUserTableFixtureWithNullGlobalName();
+      const user = User.reconstruct(
+        DiscordUserID.from(userRecord.discordUserId),
+        userRecord.discordUserName,
+        userRecord.discordGlobalName,
         userRecord.discordAvatar
       );
 
