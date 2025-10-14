@@ -6,7 +6,7 @@ import {
   ExpiresAt,
   RefreshToken
 } from "../../../src/domain/discord-tokens/DiscordTokens";
-import { UserID } from "../../../src/domain/user/User";
+import { DiscordUserID } from "../../../src/domain/user/User";
 import { DiscordTokensRepository } from "../../../src/infrastructure/repositories/DiscordTokensRepository";
 import { assertEqualDiscordTokensTable } from "../../testing/table_assert/AssertEqualDiscordTokensTable";
 import {
@@ -31,10 +31,14 @@ describe("DiscordTokensRepository Tests", () => {
       const user2 = createUserTableFixture();
       await insertToDatabase(schema.user, user2);
 
-      const discordTokens1 = createDiscordTokensTableFixture(user1.id);
+      const discordTokens1 = createDiscordTokensTableFixture(
+        user1.discordUserId
+      );
       await insertToDatabase(schema.discordTokens, discordTokens1);
 
-      const discordTokens2 = createExpiredDiscordTokensTableFixture(user2.id);
+      const discordTokens2 = createExpiredDiscordTokensTableFixture(
+        user2.discordUserId
+      );
       await insertToDatabase(schema.discordTokens, discordTokens2);
 
       return { discordTokens1, discordTokens2 };
@@ -50,7 +54,7 @@ describe("DiscordTokensRepository Tests", () => {
       // arrange
       const { discordTokens1 } = await setupDiscordTokens();
       const discordTokens = DiscordTokens.reconstruct(
-        UserID.from(discordTokens1.userId),
+        DiscordUserID.from(discordTokens1.discordUserId),
         AccessToken.from(discordTokens1.accessToken),
         RefreshToken.from(discordTokens1.refreshToken),
         ExpiresAt.from(discordTokens1.expiresAt),
@@ -59,7 +63,9 @@ describe("DiscordTokensRepository Tests", () => {
       );
 
       // act
-      const actual = await discordTokensRepository.findBy(discordTokens.userId);
+      const actual = await discordTokensRepository.findBy(
+        discordTokens.discordUserId
+      );
 
       // assert
       expect(actual).toEqual(discordTokens);
@@ -69,7 +75,7 @@ describe("DiscordTokensRepository Tests", () => {
       // arrange
       const { discordTokens2 } = await setupDiscordTokens();
       const discordTokens = DiscordTokens.reconstruct(
-        UserID.from(discordTokens2.userId),
+        DiscordUserID.from(discordTokens2.discordUserId),
         AccessToken.from(discordTokens2.accessToken),
         RefreshToken.from(discordTokens2.refreshToken),
         ExpiresAt.from(discordTokens2.expiresAt),
@@ -78,7 +84,9 @@ describe("DiscordTokensRepository Tests", () => {
       );
 
       // act
-      const actual = await discordTokensRepository.findBy(discordTokens.userId);
+      const actual = await discordTokensRepository.findBy(
+        discordTokens.discordUserId
+      );
 
       // assert
       expect(actual).toEqual(discordTokens);
@@ -86,7 +94,7 @@ describe("DiscordTokensRepository Tests", () => {
 
     it("存在しないユーザーIDの場合はnullを返すこと", async () => {
       // arrange
-      const nonExistentUserID = UserID.new();
+      const nonExistentUserID = DiscordUserID.new();
 
       // act
       const actual = await discordTokensRepository.findBy(nonExistentUserID);
@@ -108,9 +116,11 @@ describe("DiscordTokensRepository Tests", () => {
       const user = createUserTableFixture();
       await insertToDatabase(schema.user, user);
 
-      const discordTokensRecord = createDiscordTokensTableFixture(user.id);
+      const discordTokensRecord = createDiscordTokensTableFixture(
+        user.discordUserId
+      );
       const discordTokens = DiscordTokens.reconstruct(
-        UserID.from(discordTokensRecord.userId),
+        DiscordUserID.from(discordTokensRecord.discordUserId),
         AccessToken.from(discordTokensRecord.accessToken),
         RefreshToken.from(discordTokensRecord.refreshToken),
         ExpiresAt.from(discordTokensRecord.expiresAt),

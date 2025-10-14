@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import * as schema from "../../../database/schema";
-import { DiscordID, User, UserID } from "../../../src/domain/user/User";
+import { DiscordUserID, User } from "../../../src/domain/user/User";
 import { UserRepository } from "../../../src/infrastructure/repositories/UserRepository";
 import { assertEqualUserTable } from "../../testing/table_assert/AssertEqualUserTable";
 import { createUserTableFixture } from "../../testing/table_fixture/UserTableFixture";
@@ -29,14 +29,13 @@ describe("UserRepository Tests", () => {
       // arrange
       const { user2 } = await setupUsers();
       const user = User.reconstruct(
-        UserID.from(user2.id),
-        DiscordID.from(user2.discordId),
+        DiscordUserID.from(user2.discordUserId),
         user2.discordUserName,
         user2.discordAvatar
       );
 
       // act
-      const actual = await userRepository.findBy(user.discordID);
+      const actual = await userRepository.findBy(user.discordUserID);
 
       // assert
       expect(actual).toEqual(user);
@@ -44,7 +43,7 @@ describe("UserRepository Tests", () => {
 
     it("存在しないユーザーの場合はnullを返すこと", async () => {
       // arrange
-      const nonExistentDiscordID = DiscordID.from("000000000");
+      const nonExistentDiscordID = DiscordUserID.from("000000000");
 
       // act
       const actual = await userRepository.findBy(nonExistentDiscordID);
@@ -63,8 +62,7 @@ describe("UserRepository Tests", () => {
       // arrange
       const userRecord = createUserTableFixture();
       const user = User.reconstruct(
-        UserID.from(userRecord.id),
-        DiscordID.from(userRecord.discordId),
+        DiscordUserID.from(userRecord.discordUserId),
         userRecord.discordUserName,
         userRecord.discordAvatar
       );

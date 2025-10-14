@@ -16,7 +16,7 @@ import {
   ValidateWeeklyLimitError,
   type WeeklyPointLimitDomainServiceInterface
 } from "../../../src/domain/appreciation/WeeklyPointLimitDomainService";
-import { UserID } from "../../../src/domain/user/User";
+import { DiscordUserID } from "../../../src/domain/user/User";
 import { AppreciationRepository } from "../../../src/infrastructure/repositories/AppreciationRepository";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { UUID } from "../../../src/utils/UUID";
@@ -34,10 +34,10 @@ import {
   insertToDatabase
 } from "../../testing/utils/GenericTableHelper";
 
-// モック定数（有効なUUID形式）
-const MOCK_SENDER_ID = UUID.new().value;
-const MOCK_RECEIVER_ID_1 = UUID.new().value;
-const MOCK_RECEIVER_ID_2 = UUID.new().value;
+// モック定数（有効なDiscord ID形式）
+const MOCK_SENDER_ID = "123456789012345678";
+const MOCK_RECEIVER_ID_1 = "234567890123456789";
+const MOCK_RECEIVER_ID_2 = "345678901234567890";
 const MOCK_MESSAGE = "いつもお疲れ様です！";
 const MOCK_POINT_PER_RECEIVER = 10;
 
@@ -57,7 +57,7 @@ describe("CreateAppreciationUseCase Tests", () => {
     );
 
   // 共通のテストデータ
-  let senderID: UserID;
+  let senderID: DiscordUserID;
   let receiverIDs: ReceiverIDs;
   let message: AppreciationMessage;
   let pointPerReceiver: PointPerReceiver;
@@ -80,31 +80,28 @@ describe("CreateAppreciationUseCase Tests", () => {
 
     // テスト用ユーザーデータの作成
     await insertToDatabase(schema.user, {
-      id: MOCK_SENDER_ID,
-      discordId: "sender_discord_id",
+      discordUserId: MOCK_SENDER_ID,
       discordUserName: "送信者テストユーザー",
       discordAvatar: "avatar_url"
     });
 
     await insertToDatabase(schema.user, {
-      id: MOCK_RECEIVER_ID_1,
-      discordId: "receiver1_discord_id",
+      discordUserId: MOCK_RECEIVER_ID_1,
       discordUserName: "受信者1テストユーザー",
       discordAvatar: "avatar_url"
     });
 
     await insertToDatabase(schema.user, {
-      id: MOCK_RECEIVER_ID_2,
-      discordId: "receiver2_discord_id",
+      discordUserId: MOCK_RECEIVER_ID_2,
       discordUserName: "受信者2テストユーザー",
       discordAvatar: "avatar_url"
     });
 
     // テストデータの準備
-    senderID = UserID.from(MOCK_SENDER_ID);
+    senderID = DiscordUserID.from(MOCK_SENDER_ID);
     receiverIDs = ReceiverIDs.from([
-      UserID.from(MOCK_RECEIVER_ID_1),
-      UserID.from(MOCK_RECEIVER_ID_2)
+      DiscordUserID.from(MOCK_RECEIVER_ID_1),
+      DiscordUserID.from(MOCK_RECEIVER_ID_2)
     ]);
     message = AppreciationMessage.from(MOCK_MESSAGE);
     pointPerReceiver = PointPerReceiver.from(MOCK_POINT_PER_RECEIVER);
@@ -189,8 +186,8 @@ describe("CreateAppreciationUseCase Tests", () => {
     it("異常ケース：送信者が受信者リストに含まれている場合、AppreciationDomainErrorが発生すること", async () => {
       // Arrange
       const invalidReceiverIDs = ReceiverIDs.from([
-        UserID.from(MOCK_SENDER_ID), // 送信者と同じID
-        UserID.from(MOCK_RECEIVER_ID_1)
+        DiscordUserID.from(MOCK_SENDER_ID), // 送信者と同じID
+        DiscordUserID.from(MOCK_RECEIVER_ID_1)
       ]);
 
       // Act & Assert
@@ -265,7 +262,7 @@ describe("CreateAppreciationUseCase Tests", () => {
     it("正常ケース：単一受信者への感謝が正常に作成されること", async () => {
       // Arrange
       const singleReceiverIDs = ReceiverIDs.from([
-        UserID.from(MOCK_RECEIVER_ID_1)
+        DiscordUserID.from(MOCK_RECEIVER_ID_1)
       ]);
       const highPointPerReceiver = PointPerReceiver.from(50);
 
@@ -312,26 +309,25 @@ describe("CreateAppreciationUseCase Tests", () => {
       // Arrange
       // 追加の6人のユーザーIDを生成してDBに挿入
       const additionalUserIds = [
-        UUID.new().value,
-        UUID.new().value,
-        UUID.new().value,
-        UUID.new().value,
-        UUID.new().value,
-        UUID.new().value
+        "456789012345678901",
+        "567890123456789012",
+        "678901234567890123",
+        "789012345678901234",
+        "890123456789012345",
+        "901234567890123456"
       ];
 
       // 追加ユーザーをDBに挿入
       for (let i = 0; i < additionalUserIds.length; i++) {
         await insertToDatabase(schema.user, {
-          id: additionalUserIds[i],
-          discordId: `additional_user_${i}_discord_id`,
+          discordUserId: additionalUserIds[i],
           discordUserName: `追加ユーザー${i + 1}`,
           discordAvatar: "avatar_url"
         });
       }
 
       const maxReceiverIDs = ReceiverIDs.from(
-        additionalUserIds.map((id) => UserID.from(id))
+        additionalUserIds.map((id) => DiscordUserID.from(id))
       );
       const pointFor6People = PointPerReceiver.from(20); // 20 × 6 = 120（制限内）
 

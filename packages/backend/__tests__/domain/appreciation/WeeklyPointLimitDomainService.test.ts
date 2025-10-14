@@ -4,7 +4,7 @@ import {
   ValidateWeeklyLimitError,
   WeeklyPointLimitDomainService
 } from "../../../src/domain/appreciation/WeeklyPointLimitDomainService";
-import { UserID } from "../../../src/domain/user/User";
+import { DiscordUserID } from "../../../src/domain/user/User";
 import type { AppreciationRepositoryInterface } from "../../../src/infrastructure/repositories/AppreciationRepository";
 import { expectErr, expectOk } from "../../testing/utils/AssertResult";
 
@@ -22,7 +22,7 @@ describe("WeeklyPointLimitDomainService Tests", () => {
       const mockRepository = createMockRepository();
       const service = new WeeklyPointLimitDomainService(mockRepository);
 
-      const userID = UserID.new();
+      const userID = DiscordUserID.new();
 
       vi.mocked(
         mockRepository.calculateWeeklyPointConsumption
@@ -41,7 +41,7 @@ describe("WeeklyPointLimitDomainService Tests", () => {
       const mockRepository = createMockRepository();
       const service = new WeeklyPointLimitDomainService(mockRepository);
 
-      const userID = UserID.new();
+      const userID = DiscordUserID.new();
 
       vi.mocked(
         mockRepository.calculateWeeklyPointConsumption
@@ -66,7 +66,7 @@ describe("WeeklyPointLimitDomainService Tests", () => {
       const mockRepository = createMockRepository();
       const service = new WeeklyPointLimitDomainService(mockRepository);
 
-      const userID = UserID.new();
+      const userID = DiscordUserID.new();
 
       // 既存の消費記録なし
       vi.mocked(

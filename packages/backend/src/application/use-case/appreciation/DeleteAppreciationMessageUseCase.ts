@@ -1,13 +1,13 @@
 import { err, ok, type Result } from "neverthrow";
 import type { AppreciationID } from "../../../domain/appreciation/Appreciation";
-import type { UserID } from "../../../domain/user/User";
+import type { DiscordUserID } from "../../../domain/user/User";
 import type { AppreciationRepositoryInterface } from "../../../infrastructure/repositories/AppreciationRepository";
 import { UseCaseError } from "../../../utils/Error";
 
 export interface DeleteAppreciationMessageUseCaseInterface {
   execute(
     appreciationID: AppreciationID,
-    senderID: UserID
+    senderID: DiscordUserID
   ): Promise<Result<void, DeleteAppreciationMessageUseCaseError>>;
 }
 
@@ -20,7 +20,7 @@ export class DeleteAppreciationMessageUseCase
 
   async execute(
     appreciationID: AppreciationID,
-    senderID: UserID
+    senderID: DiscordUserID
   ): Promise<Result<void, DeleteAppreciationMessageUseCaseError>> {
     // 既存の感謝を取得
     const appreciation =
@@ -30,7 +30,7 @@ export class DeleteAppreciationMessageUseCase
     }
 
     // 送信者が一致するかチェック
-    if (appreciation.senderID.value.value !== senderID.value.value) {
+    if (appreciation.senderID.value !== senderID.value) {
       return err(new UnauthorizedDeleteError(senderID, appreciationID));
     }
 
@@ -52,9 +52,9 @@ export class AppreciationNotFoundError extends DeleteAppreciationMessageUseCaseE
 }
 
 export class UnauthorizedDeleteError extends DeleteAppreciationMessageUseCaseError {
-  constructor(senderID: UserID, appreciationID: AppreciationID) {
+  constructor(senderID: DiscordUserID, appreciationID: AppreciationID) {
     super(
-      `User ${senderID.value.value} is not authorized to delete appreciation ${appreciationID.value.value}`
+      `User ${senderID.value} is not authorized to delete appreciation ${appreciationID.value.value}`
     );
   }
 }

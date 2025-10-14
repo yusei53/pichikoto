@@ -13,7 +13,7 @@ export const assertEqualAppreciationTable = (
 ): void => {
   const expectedRecord = {
     id: expectedAppreciation.appreciationID.value.value,
-    senderId: expectedAppreciation.senderID.value.value,
+    senderId: expectedAppreciation.senderID.value,
     message: expectedAppreciation.message.value,
     pointPerReceiver: expectedAppreciation.pointPerReceiver.value,
     createdAt: actualRecord.createdAt // 日時は挿入時に生成されるため、実際の値を使用
@@ -33,7 +33,7 @@ export const assertEqualAppreciationReceiversTable = (
 ): void => {
   // 受信者IDのリストを抽出
   const expectedReceiverIds = expectedAppreciation.receiverIDs.value.map(
-    (receiverId) => receiverId.value.value
+    (receiverId) => receiverId.value
   );
   const actualReceiverIds = actualRecords.map((record) => record.receiverId);
 

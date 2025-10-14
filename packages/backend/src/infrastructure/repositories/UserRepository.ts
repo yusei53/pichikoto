@@ -1,17 +1,17 @@
 import { eq } from "drizzle-orm";
 import { db } from "../../../database/client";
 import { user as userSchema } from "../../../database/schema";
-import { DiscordID, User, UserID } from "../../domain/user/User";
+import { DiscordUserID, User } from "../../domain/user/User";
 
 export interface UserRepositoryInterface {
-  findBy(discordID: DiscordID): Promise<User | null>;
+  findBy(discordUserID: DiscordUserID): Promise<User | null>;
   getAll(): Promise<User[]>;
   save(user: User): Promise<void>;
 }
 
 export class UserRepository implements UserRepositoryInterface {
-  async findBy(discordID: DiscordID): Promise<User | null> {
-    const userRecord = await this.findByDiscordID(discordID);
+  async findBy(discordUserID: DiscordUserID): Promise<User | null> {
+    const userRecord = await this.findByDiscordUserID(discordUserID);
     if (!userRecord) return null;
     return this.toUser(userRecord);
   }
@@ -19,18 +19,17 @@ export class UserRepository implements UserRepositoryInterface {
     const userRecords = await db().query.user.findMany();
     return userRecords.map(this.toUser);
   }
-  private async findByDiscordID(
-    discordID: DiscordID
+  private async findByDiscordUserID(
+    discordUserID: DiscordUserID
   ): Promise<UserRecord | null> {
     const user = await db().query.user.findFirst({
-      where: eq(userSchema.discordId, discordID.value)
+      where: eq(userSchema.discordUserId, discordUserID.value)
     });
 
     if (!user) return null;
 
     return {
-      id: user.id,
-      discordId: user.discordId,
+      discordUserId: user.discordUserId,
       discordUserName: user.discordUserName,
       discordAvatar: user.discordAvatar
     };
@@ -38,8 +37,7 @@ export class UserRepository implements UserRepositoryInterface {
 
   private toUser(userRecord: UserRecord): User {
     return User.reconstruct(
-      UserID.from(userRecord.id),
-      DiscordID.from(userRecord.discordId),
+      DiscordUserID.from(userRecord.discordUserId),
       userRecord.discordUserName,
       userRecord.discordAvatar
     );
@@ -47,8 +45,7 @@ export class UserRepository implements UserRepositoryInterface {
 
   async save(user: User): Promise<void> {
     await db().insert(userSchema).values({
-      id: user.userID.value.value,
-      discordId: user.discordID.value,
+      discordUserId: user.discordUserID.value,
       discordUserName: user.discordUserName,
       discordAvatar: user.discordAvatar
     });
@@ -56,8 +53,7 @@ export class UserRepository implements UserRepositoryInterface {
 }
 
 type UserRecord = {
-  id: string;
-  discordId: string;
+  discordUserId: string;
   discordUserName: string;
   discordAvatar: string;
 };

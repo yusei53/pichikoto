@@ -25,7 +25,10 @@ export class AppreciationsQueryService {
           senderDiscordAvatar: userSchema.discordAvatar
         })
         .from(appreciationsSchema)
-        .innerJoin(userSchema, eq(appreciationsSchema.senderId, userSchema.id))
+        .innerJoin(
+          userSchema,
+          eq(appreciationsSchema.senderId, userSchema.discordUserId)
+        )
         .orderBy(desc(appreciationsSchema.createdAt));
 
       // 各感謝投稿の受信者情報を取得
@@ -33,14 +36,17 @@ export class AppreciationsQueryService {
         appreciationsWithSender.map(async (appreciation) => {
           const receivers = await db()
             .select({
-              id: userSchema.id,
+              id: userSchema.discordUserId,
               discordUserName: userSchema.discordUserName,
               discordAvatar: userSchema.discordAvatar
             })
             .from(appreciationReceiversSchema)
             .innerJoin(
               userSchema,
-              eq(appreciationReceiversSchema.receiverId, userSchema.id)
+              eq(
+                appreciationReceiversSchema.receiverId,
+                userSchema.discordUserId
+              )
             )
             .where(
               eq(appreciationReceiversSchema.appreciationId, appreciation.id)

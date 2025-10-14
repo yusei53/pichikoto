@@ -104,8 +104,7 @@ function generateUsers(count: number) {
 
   for (let i = 0; i < count; i++) {
     users.push({
-      id: uuidv4(),
-      discordId: `${123456789 + i}`,
+      discordUserId: `${123456789 + i}`,
       discordUserName: sampleNames[i] || `ユーザー${i + 1}`,
       discordAvatar:
         sampleAvatars[i] ||
@@ -122,7 +121,7 @@ function generateUsers(count: number) {
  */
 function generateDiscordTokens(users: any[]) {
   return users.map((user) => ({
-    userId: user.id,
+    discordUserId: user.discordUserId,
     accessToken: `access_token_${Math.random().toString(36).substring(2)}`,
     refreshToken: `refresh_token_${Math.random().toString(36).substring(2)}`,
     expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7日後

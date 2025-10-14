@@ -13,14 +13,13 @@ import {
 } from "../../../src/domain/appreciation/Appreciation";
 import { CreateAppreciationError } from "../../../src/domain/appreciation/AppreciationError";
 import { ValidateWeeklyLimitError } from "../../../src/domain/appreciation/WeeklyPointLimitDomainService";
-import { UserID } from "../../../src/domain/user/User";
+import { DiscordUserID } from "../../../src/domain/user/User";
 import { AppreciationController } from "../../../src/presentation/controllers/appreciation";
-import { UUID } from "../../../src/utils/UUID";
 
 // モック定数
-const MOCK_SENDER_ID = UUID.new().value;
-const MOCK_RECEIVER_ID_1 = UUID.new().value;
-const MOCK_RECEIVER_ID_2 = UUID.new().value;
+const MOCK_SENDER_ID = DiscordUserID.new().value;
+const MOCK_RECEIVER_ID_1 = DiscordUserID.new().value;
+const MOCK_RECEIVER_ID_2 = DiscordUserID.new().value;
 const MOCK_MESSAGE = "いつもお疲れ様です！";
 const MOCK_POINT_PER_RECEIVER = 10;
 
@@ -98,10 +97,10 @@ describe("AppreciationController Tests", () => {
       expect(
         vi.mocked(mockCreateAppreciationUseCase.execute)
       ).toHaveBeenCalledWith(
-        UserID.from(MOCK_SENDER_ID),
+        DiscordUserID.from(MOCK_SENDER_ID),
         ReceiverIDs.from([
-          UserID.from(MOCK_RECEIVER_ID_1),
-          UserID.from(MOCK_RECEIVER_ID_2)
+          DiscordUserID.from(MOCK_RECEIVER_ID_1),
+          DiscordUserID.from(MOCK_RECEIVER_ID_2)
         ]),
         AppreciationMessage.from(MOCK_MESSAGE),
         PointPerReceiver.from(MOCK_POINT_PER_RECEIVER)
@@ -337,8 +336,8 @@ describe("AppreciationController Tests", () => {
       expect(
         vi.mocked(mockCreateAppreciationUseCase.execute)
       ).toHaveBeenCalledWith(
-        UserID.from(MOCK_SENDER_ID),
-        ReceiverIDs.from([UserID.from(MOCK_RECEIVER_ID_1)]),
+        DiscordUserID.from(MOCK_SENDER_ID),
+        ReceiverIDs.from([DiscordUserID.from(MOCK_RECEIVER_ID_1)]),
         AppreciationMessage.from(MOCK_MESSAGE),
         PointPerReceiver.from(MOCK_POINT_PER_RECEIVER)
       );
@@ -355,10 +354,10 @@ describe("AppreciationController Tests", () => {
       const receiverIds = [
         MOCK_RECEIVER_ID_1,
         MOCK_RECEIVER_ID_2,
-        UUID.new().value,
-        UUID.new().value,
-        UUID.new().value,
-        UUID.new().value
+        DiscordUserID.new().value,
+        DiscordUserID.new().value,
+        DiscordUserID.new().value,
+        DiscordUserID.new().value
       ];
 
       const mockContext = {
@@ -391,8 +390,8 @@ describe("AppreciationController Tests", () => {
       expect(
         vi.mocked(mockCreateAppreciationUseCase.execute)
       ).toHaveBeenCalledWith(
-        UserID.from(MOCK_SENDER_ID),
-        ReceiverIDs.from(receiverIds.map((id) => UserID.from(id))),
+        DiscordUserID.from(MOCK_SENDER_ID),
+        ReceiverIDs.from(receiverIds.map((id) => DiscordUserID.from(id))),
         AppreciationMessage.from(MOCK_MESSAGE),
         PointPerReceiver.from(MOCK_POINT_PER_RECEIVER)
       );

@@ -61,7 +61,7 @@ export class PointLeaderQueryService {
 
     const result = await db()
       .select({
-        id: userSchema.id,
+        id: userSchema.discordUserId,
         discordUserName: userSchema.discordUserName,
         discordAvatar: userSchema.discordAvatar,
         totalPoints:
@@ -72,7 +72,7 @@ export class PointLeaderQueryService {
       .from(userSchema)
       .innerJoin(
         appreciationsSchema,
-        sql`${userSchema.id} = ${appreciationsSchema.senderId}`
+        sql`${userSchema.discordUserId} = ${appreciationsSchema.senderId}`
       )
       .innerJoin(
         appreciationReceiversSchema,
@@ -82,7 +82,7 @@ export class PointLeaderQueryService {
         sql`${appreciationsSchema.createdAt} >= ${weekStartDateTime} AND ${appreciationsSchema.createdAt} < ${weekEndDateTime}`
       )
       .groupBy(
-        userSchema.id,
+        userSchema.discordUserId,
         userSchema.discordUserName,
         userSchema.discordAvatar
       )
@@ -105,7 +105,7 @@ export class PointLeaderQueryService {
   ): Promise<PointLeaderUser[]> {
     const result = await db()
       .select({
-        id: userSchema.id,
+        discordUserId: userSchema.discordUserId,
         discordUserName: userSchema.discordUserName,
         discordAvatar: userSchema.discordAvatar,
         totalPoints:
@@ -116,14 +116,14 @@ export class PointLeaderQueryService {
       .from(userSchema)
       .innerJoin(
         appreciationReceiversSchema,
-        sql`${userSchema.id} = ${appreciationReceiversSchema.receiverId}`
+        sql`${userSchema.discordUserId} = ${appreciationReceiversSchema.receiverId}`
       )
       .innerJoin(
         appreciationsSchema,
         sql`${appreciationReceiversSchema.appreciationId} = ${appreciationsSchema.id} AND ${appreciationsSchema.createdAt} >= ${this.getWeekStartDateTime(weekStartDate)} AND ${appreciationsSchema.createdAt} < ${this.getWeekEndDateTime(weekStartDate)}`
       )
       .groupBy(
-        userSchema.id,
+        userSchema.discordUserId,
         userSchema.discordUserName,
         userSchema.discordAvatar
       )
@@ -131,7 +131,7 @@ export class PointLeaderQueryService {
       .limit(3);
 
     return result.map((row) => ({
-      id: row.id,
+      id: row.discordUserId,
       discordUserName: row.discordUserName,
       discordAvatar: row.discordAvatar,
       totalPoints: Number(row.totalPoints)

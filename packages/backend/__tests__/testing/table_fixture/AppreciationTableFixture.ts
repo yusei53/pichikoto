@@ -2,6 +2,7 @@ import type {
   appreciationReceivers,
   appreciations
 } from "../../../database/schema";
+import { DiscordUserID } from "../../../src/domain/user/User";
 import { UUID } from "../../../src/utils/UUID";
 
 /**
@@ -10,7 +11,7 @@ import { UUID } from "../../../src/utils/UUID";
 export const createAppreciationTableFixture = () => {
   return {
     id: UUID.new().value,
-    senderId: UUID.new().value,
+    senderId: DiscordUserID.new().value,
     message: "テスト用の感謝メッセージです。いつもありがとうございます！",
     pointPerReceiver: 10,
     createdAt: new Date()

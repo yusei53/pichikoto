@@ -1,7 +1,7 @@
 import { err, ok, type Result } from "neverthrow";
 import type { AppreciationRepositoryInterface } from "../../infrastructure/repositories/AppreciationRepository";
 import { DomainError } from "../../utils/Error";
-import type { UserID } from "../user/User";
+import type { DiscordUserID } from "../user/User";
 import type { NewTotalConsumptionPoints } from "./Appreciation";
 
 /**
@@ -12,7 +12,7 @@ import type { NewTotalConsumptionPoints } from "./Appreciation";
  */
 export interface WeeklyPointLimitDomainServiceInterface {
   validateWeeklyLimit(
-    userID: UserID,
+    discordUserID: DiscordUserID,
     newConsumption: NewTotalConsumptionPoints
   ): Promise<Result<void, ValidateWeeklyLimitError>>;
 }
@@ -30,7 +30,7 @@ export class WeeklyPointLimitDomainService
   ) {}
 
   async validateWeeklyLimit(
-    userID: UserID,
+    discordUserID: DiscordUserID,
     newConsumption: NewTotalConsumptionPoints
   ): Promise<Result<void, ValidateWeeklyLimitError>> {
     const weekStartDate = this.getCurrentWeekStartDate();
@@ -38,7 +38,7 @@ export class WeeklyPointLimitDomainService
 
     // appreciationsテーブルから今週のポイント消費量を計算
     const totalAlreadyConsumed = await this.calculateWeeklyConsumption(
-      userID,
+      discordUserID,
       weekStartDate,
       weekEndDate
     );
@@ -83,12 +83,12 @@ export class WeeklyPointLimitDomainService
    * JOINクエリで効率的に集計計算
    */
   private async calculateWeeklyConsumption(
-    userID: UserID,
+    discordUserID: DiscordUserID,
     weekStartDate: string,
     weekEndDate: string
   ): Promise<number> {
     return await this.appreciationRepository.calculateWeeklyPointConsumption(
-      userID,
+      discordUserID,
       weekStartDate,
       weekEndDate
     );

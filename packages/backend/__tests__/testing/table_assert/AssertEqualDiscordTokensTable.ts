@@ -12,7 +12,7 @@ export const assertEqualDiscordTokensTable = (
   actualRecord: typeof schema.discordTokens.$inferSelect
 ): void => {
   const expectedRecord = {
-    userId: expectedDiscordTokens.userId.value.value,
+    discordUserId: expectedDiscordTokens.discordUserId.value,
     accessToken: expectedDiscordTokens.accessToken.value,
     refreshToken: expectedDiscordTokens.refreshToken.value,
     expiresAt: expectedDiscordTokens.expiresAt.value,

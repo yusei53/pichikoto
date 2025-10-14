@@ -3,8 +3,7 @@ export type GetAllUsersResponse = {
 };
 
 export type UserResponse = {
-  userID: string;
-  discordID: string;
+  discordUserID: string;
   discordUserName: string;
   discordAvatar: string;
 };

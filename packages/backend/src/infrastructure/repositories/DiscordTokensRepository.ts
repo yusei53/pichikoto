@@ -7,33 +7,33 @@ import {
   ExpiresAt,
   RefreshToken
 } from "../../domain/discord-tokens/DiscordTokens";
-import { UserID } from "../../domain/user/User";
+import { DiscordUserID } from "../../domain/user/User";
 
 export interface DiscordTokensRepositoryInterface {
-  findBy(userID: UserID): Promise<DiscordTokens | null>;
+  findBy(discordUserID: DiscordUserID): Promise<DiscordTokens | null>;
   save(discordTokens: DiscordTokens): Promise<void>;
 }
 
 export class DiscordTokensRepository
   implements DiscordTokensRepositoryInterface
 {
-  async findBy(userID: UserID): Promise<DiscordTokens | null> {
-    const discordTokensRecord = await this.findByUserID(userID);
+  async findBy(discordUserID: DiscordUserID): Promise<DiscordTokens | null> {
+    const discordTokensRecord = await this.findByDiscordUserID(discordUserID);
     if (!discordTokensRecord) return null;
     return this.toDiscordTokens(discordTokensRecord);
   }
 
-  private async findByUserID(
-    userID: UserID
+  private async findByDiscordUserID(
+    discordUserID: DiscordUserID
   ): Promise<DiscordTokensRecord | null> {
     const discordTokens = await db().query.discordTokens.findFirst({
-      where: eq(discordTokensSchema.userId, userID.value.value)
+      where: eq(discordTokensSchema.discordUserId, discordUserID.value)
     });
 
     if (!discordTokens) return null;
 
     return {
-      userId: discordTokens.userId,
+      discordUserId: discordTokens.discordUserId,
       accessToken: discordTokens.accessToken,
       refreshToken: discordTokens.refreshToken,
       expiresAt: discordTokens.expiresAt,
@@ -47,7 +47,7 @@ export class DiscordTokensRepository
     discordTokensRecord: DiscordTokensRecord
   ): DiscordTokens {
     return DiscordTokens.reconstruct(
-      UserID.from(discordTokensRecord.userId),
+      DiscordUserID.from(discordTokensRecord.discordUserId),
       AccessToken.from(discordTokensRecord.accessToken),
       RefreshToken.from(discordTokensRecord.refreshToken),
       ExpiresAt.from(discordTokensRecord.expiresAt),
@@ -58,7 +58,7 @@ export class DiscordTokensRepository
 
   async save(discordTokens: DiscordTokens): Promise<void> {
     await db().insert(discordTokensSchema).values({
-      userId: discordTokens.userId.value.value,
+      discordUserId: discordTokens.discordUserId.value,
       accessToken: discordTokens.accessToken.value,
       refreshToken: discordTokens.refreshToken.value,
       expiresAt: discordTokens.expiresAt.value,
@@ -69,7 +69,7 @@ export class DiscordTokensRepository
 }
 
 type DiscordTokensRecord = {
-  userId: string;
+  discordUserId: string;
   accessToken: string;
   refreshToken: string;
   expiresAt: Date;
