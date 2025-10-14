@@ -16,6 +16,7 @@ export class UserController implements UserControllerInterface {
       users: users.map((user) => ({
         discordUserID: user.discordUserID.value,
         discordUserName: user.discordUserName,
+        discordGlobalName: user.discordGlobalName,
         discordAvatar: user.discordAvatar
       }))
     };
