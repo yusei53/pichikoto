@@ -26,11 +26,11 @@ export class JwtRefreshTokenUseCase implements JwtRefreshTokenUseCaseInterface {
     if (payload.isErr()) {
       throw new JwtRefreshTokenUseCaseError(payload.error);
     }
-    const userID = payload.value.jwtPayload.sub;
+    const discordUserID = payload.value.jwtPayload.sub;
 
     const newAccessToken = await sign(
       {
-        sub: userID,
+        sub: discordUserID,
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30 // 30日後
       },
       c.env.JWT_SECRET
@@ -38,7 +38,7 @@ export class JwtRefreshTokenUseCase implements JwtRefreshTokenUseCaseInterface {
 
     const newRefreshToken = await sign(
       {
-        sub: userID,
+        sub: discordUserID,
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 365 // 1年後
       },
       c.env.JWT_SECRET

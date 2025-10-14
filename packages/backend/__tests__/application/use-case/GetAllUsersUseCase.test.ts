@@ -1,8 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GetAllUsersUseCase } from "../../../src/application/use-case/user/GetAllUsersUseCase";
-import { DiscordID, User, UserID } from "../../../src/domain/user/User";
+import { DiscordUserID, User } from "../../../src/domain/user/User";
 import type { UserRepositoryInterface } from "../../../src/infrastructure/repositories/UserRepository";
-import { UUID } from "../../../src/utils/UUID";
 
 describe("GetAllUsersUseCase Tests", () => {
   // モックリポジトリ
@@ -45,20 +44,17 @@ describe("GetAllUsersUseCase Tests", () => {
       // Arrange
       const mockUsers = [
         User.reconstruct(
-          UserID.from(UUID.new().value),
-          DiscordID.from("123456789012345678"),
+          DiscordUserID.from(DiscordUserID.new().value),
           "テストユーザー1",
           "avatar1.png"
         ),
         User.reconstruct(
-          UserID.from(UUID.new().value),
-          DiscordID.from("987654321098765432"),
+          DiscordUserID.from(DiscordUserID.new().value),
           "テストユーザー2",
           "avatar2.png"
         ),
         User.reconstruct(
-          UserID.from(UUID.new().value),
-          DiscordID.from("111222333444555666"),
+          DiscordUserID.from(DiscordUserID.new().value),
           "テストユーザー3",
           "avatar3.png"
         )
@@ -126,8 +122,7 @@ describe("GetAllUsersUseCase Tests", () => {
     it("正常ケース：単一ユーザーが存在する場合、1要素の配列が返却されること", async () => {
       // Arrange
       const singleUser = User.reconstruct(
-        UserID.from(UUID.new().value),
-        DiscordID.from("555666777888999000"),
+        DiscordUserID.from(DiscordUserID.new().value),
         "単独ユーザー",
         "single_avatar.png"
       );

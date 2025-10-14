@@ -6,14 +6,14 @@ import type {
 } from "../../../domain/appreciation/Appreciation";
 import { Appreciation } from "../../../domain/appreciation/Appreciation";
 import type { WeeklyPointLimitDomainServiceInterface } from "../../../domain/appreciation/WeeklyPointLimitDomainService";
-import type { UserID } from "../../../domain/user/User";
+import type { DiscordUserID } from "../../../domain/user/User";
 import type { AppreciationRepositoryInterface } from "../../../infrastructure/repositories/AppreciationRepository";
 import { UseCaseError } from "../../../utils/Error";
 import { handleResult } from "../../../utils/ResultHelper";
 
 export interface CreateAppreciationUseCaseInterface {
   execute(
-    senderID: UserID,
+    senderID: DiscordUserID,
     receiverIDs: ReceiverIDs,
     message: AppreciationMessage,
     pointPerReceiver: PointPerReceiver
@@ -29,7 +29,7 @@ export class CreateAppreciationUseCase
   ) {}
 
   async execute(
-    senderID: UserID,
+    senderID: DiscordUserID,
     receiverIDs: ReceiverIDs,
     message: AppreciationMessage,
     pointPerReceiver: PointPerReceiver

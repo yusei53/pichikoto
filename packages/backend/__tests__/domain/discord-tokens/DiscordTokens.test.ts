@@ -5,7 +5,7 @@ import {
   ExpiresAt,
   RefreshToken
 } from "../../../src/domain/discord-tokens/DiscordTokens";
-import { UserID } from "../../../src/domain/user/User";
+import { DiscordUserID } from "../../../src/domain/user/User";
 
 const MOCK_UUID = "00000000-0000-0000-0000-000000";
 const MOCK_TIMESTAMP = 1728734572000; // 固定のタイムスタンプ (2024-10-12T11:02:52.000Z)
@@ -21,7 +21,7 @@ vi.mock("../../src/domain/models/User", () => {
 });
 
 describe("DiscordTokensDomainTest", () => {
-  const userId = UserID.new();
+  const userId = DiscordUserID.new();
   const accessTokenValue = "test_access_token";
   const refreshTokenValue = "test_refresh_token";
   const expiresIn = 3600;

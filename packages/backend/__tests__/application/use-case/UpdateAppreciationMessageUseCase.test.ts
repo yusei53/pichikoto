@@ -13,7 +13,7 @@ import {
   PointPerReceiver,
   ReceiverIDs
 } from "../../../src/domain/appreciation/Appreciation";
-import { UserID } from "../../../src/domain/user/User";
+import { DiscordUserID } from "../../../src/domain/user/User";
 import { AppreciationRepository } from "../../../src/infrastructure/repositories/AppreciationRepository";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { UUID } from "../../../src/utils/UUID";
@@ -25,11 +25,11 @@ import {
 } from "../../testing/utils/GenericTableHelper";
 
 // モック定数（有効なUUID形式）
-const MOCK_SENDER_ID = UUID.new().value;
-const MOCK_RECEIVER_ID_1 = UUID.new().value;
-const MOCK_RECEIVER_ID_2 = UUID.new().value;
+const MOCK_SENDER_ID = DiscordUserID.new().value;
+const MOCK_RECEIVER_ID_1 = DiscordUserID.new().value;
+const MOCK_RECEIVER_ID_2 = DiscordUserID.new().value;
 const MOCK_APPRECIATION_ID = UUID.new().value;
-const MOCK_OTHER_USER_ID = UUID.new().value;
+const MOCK_OTHER_USER_ID = DiscordUserID.new().value;
 const MOCK_ORIGINAL_MESSAGE = "元のメッセージです";
 const MOCK_NEW_MESSAGE = "更新されたメッセージです";
 const MOCK_POINT_PER_RECEIVER = 10;
@@ -42,13 +42,13 @@ describe("UpdateAppreciationMessageUseCase Tests", () => {
     new UpdateAppreciationMessageUseCase(appreciationRepository);
 
   // 共通のテストデータ
-  let senderID: UserID;
+  let senderID: DiscordUserID;
   let receiverIDs: ReceiverIDs;
   let appreciationID: AppreciationID;
   let originalMessage: AppreciationMessage;
   let newMessage: AppreciationMessage;
   let pointPerReceiver: PointPerReceiver;
-  let otherUserID: UserID;
+  let otherUserID: DiscordUserID;
   let testAppreciation: Appreciation;
 
   beforeEach(async () => {
@@ -59,44 +59,40 @@ describe("UpdateAppreciationMessageUseCase Tests", () => {
 
     // テスト用ユーザーデータの作成
     await insertToDatabase(schema.user, {
-      id: MOCK_SENDER_ID,
-      discordId: "sender_discord_id",
+      discordUserId: MOCK_SENDER_ID,
       discordUserName: "送信者テストユーザー",
       discordAvatar: "avatar_url"
     });
 
     await insertToDatabase(schema.user, {
-      id: MOCK_RECEIVER_ID_1,
-      discordId: "receiver1_discord_id",
+      discordUserId: MOCK_RECEIVER_ID_1,
       discordUserName: "受信者1テストユーザー",
       discordAvatar: "avatar_url"
     });
 
     await insertToDatabase(schema.user, {
-      id: MOCK_RECEIVER_ID_2,
-      discordId: "receiver2_discord_id",
+      discordUserId: MOCK_RECEIVER_ID_2,
       discordUserName: "受信者2テストユーザー",
       discordAvatar: "avatar_url"
     });
 
     await insertToDatabase(schema.user, {
-      id: MOCK_OTHER_USER_ID,
-      discordId: "other_user_discord_id",
+      discordUserId: MOCK_OTHER_USER_ID,
       discordUserName: "他のユーザー",
       discordAvatar: "avatar_url"
     });
 
     // テストデータの準備
-    senderID = UserID.from(MOCK_SENDER_ID);
+    senderID = DiscordUserID.from(MOCK_SENDER_ID);
     receiverIDs = ReceiverIDs.from([
-      UserID.from(MOCK_RECEIVER_ID_1),
-      UserID.from(MOCK_RECEIVER_ID_2)
+      DiscordUserID.from(MOCK_RECEIVER_ID_1),
+      DiscordUserID.from(MOCK_RECEIVER_ID_2)
     ]);
     appreciationID = AppreciationID.from(MOCK_APPRECIATION_ID);
     originalMessage = AppreciationMessage.from(MOCK_ORIGINAL_MESSAGE);
     newMessage = AppreciationMessage.from(MOCK_NEW_MESSAGE);
     pointPerReceiver = PointPerReceiver.from(MOCK_POINT_PER_RECEIVER);
-    otherUserID = UserID.from(MOCK_OTHER_USER_ID);
+    otherUserID = DiscordUserID.from(MOCK_OTHER_USER_ID);
 
     // テスト用の感謝データを作成
     testAppreciation = Appreciation.reconstruct(
@@ -218,7 +214,7 @@ describe("UpdateAppreciationMessageUseCase Tests", () => {
       if (result.isErr()) {
         expect(result.error).toBeInstanceOf(UnauthorizedUpdateError);
         expect(result.error.message).toContain(
-          `User ${otherUserID.value.value} is not authorized to update appreciation ${appreciationID.value.value}`
+          `User ${otherUserID.value} is not authorized to update appreciation ${appreciationID.value.value}`
         );
       }
     });

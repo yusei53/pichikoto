@@ -12,8 +12,7 @@ export const assertEqualUserTable = (
   actualRecord: typeof schema.user.$inferSelect
 ): void => {
   const expectedRecord = {
-    id: expectedUser.userID.value.value,
-    discordId: expectedUser.discordID.value,
+    discordUserId: expectedUser.discordUserID.value,
     discordUserName: expectedUser.discordUserName,
     discordAvatar: expectedUser.discordAvatar,
     createdAt: actualRecord.createdAt

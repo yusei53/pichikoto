@@ -21,7 +21,7 @@ export const createDiscordTokensTableFixture = (userID: string) => {
   const expiresAt = new Date(Date.now() + 3600 * 1000); // 1時間後
 
   return {
-    userId: userID,
+    discordUserId: userID,
     accessToken: generateUniqueToken("test_access_token"),
     refreshToken: generateUniqueToken("test_refresh_token"),
     expiresAt,
@@ -38,7 +38,7 @@ export const createExpiredDiscordTokensTableFixture = (userID: string) => {
   const expiresAt = new Date(Date.now() - 3600 * 1000); // 1時間前（期限切れ）
 
   return {
-    userId: userID,
+    discordUserId: userID,
     accessToken: generateUniqueToken("test_access_token"),
     refreshToken: generateUniqueToken("test_refresh_token"),
     expiresAt,

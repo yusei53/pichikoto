@@ -9,12 +9,12 @@ import {
   AppreciationID,
   AppreciationMessage
 } from "../../../src/domain/appreciation/Appreciation";
-import { UserID } from "../../../src/domain/user/User";
+import { DiscordUserID } from "../../../src/domain/user/User";
 import { AppreciationController } from "../../../src/presentation/controllers/appreciation";
 import { UUID } from "../../../src/utils/UUID";
 
 // モック定数
-const MOCK_SENDER_ID = UUID.new().value;
+const MOCK_SENDER_ID = DiscordUserID.new().value;
 const MOCK_NEW_MESSAGE = "ありがとうございます！";
 const MOCK_APPRECIATION_ID = UUID.new().value;
 
@@ -84,7 +84,7 @@ describe("AppreciationUpdateController Tests", () => {
         vi.mocked(mockUpdateAppreciationMessageUseCase.execute)
       ).toHaveBeenCalledWith(
         AppreciationID.from(MOCK_APPRECIATION_ID),
-        UserID.from(MOCK_SENDER_ID),
+        DiscordUserID.from(MOCK_SENDER_ID),
         AppreciationMessage.from(MOCK_NEW_MESSAGE)
       );
       expect(mockContext.text).toHaveBeenCalledWith("", 200);

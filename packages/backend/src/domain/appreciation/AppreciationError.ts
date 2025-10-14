@@ -1,4 +1,4 @@
-import type { UserID } from "../../domain/user/User";
+import type { DiscordUserID } from "../../domain/user/User";
 import { DomainError } from "../../utils/Error";
 
 /**
@@ -9,9 +9,11 @@ export class CreateAppreciationError extends DomainError {
   /**
    * 送信者が受信者リストに含まれている場合のエラーを作成
    */
-  static senderInReceivers(userID: UserID): CreateAppreciationError {
+  static senderInReceivers(
+    discordUserID: DiscordUserID
+  ): CreateAppreciationError {
     return new CreateAppreciationError(
-      `送信者が受信者リストに含まれています。送信者: ${userID.value.value}`
+      `送信者が受信者リストに含まれています。送信者: ${discordUserID.value}`
     );
   }
 

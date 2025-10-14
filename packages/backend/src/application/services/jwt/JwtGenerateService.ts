@@ -11,28 +11,28 @@ export type JwtGenerateResult = {
 export interface JwtGenerateServiceInterface {
   execute(
     c: Context,
-    userId: string
+    discordUserId: string
   ): Promise<Result<JwtGenerateResult, JwtGenerateServiceError>>;
 }
 
 export class JwtGenerateService implements JwtGenerateServiceInterface {
   async execute(
     c: Context,
-    userId: string
+    discordUserId: string
   ): Promise<Result<JwtGenerateResult, JwtGenerateServiceError>> {
     try {
       const secret = c.env.JWT_SECRET;
 
       const accessToken = await sign(
         {
-          sub: userId,
+          sub: discordUserId,
           exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30 // 30日後
         },
         secret
       );
       const refreshToken = await sign(
         {
-          sub: userId,
+          sub: discordUserId,
           exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 365 // 1年後
         },
         secret

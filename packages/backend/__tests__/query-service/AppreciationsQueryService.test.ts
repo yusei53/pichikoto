@@ -44,14 +44,14 @@ describe("AppreciationsQueryService", () => {
     await insertToDatabase(schema.user, receiverUser2);
 
     const appreciationRecord = createAppreciationTableFixture();
-    appreciationRecord.senderId = senderUser.id;
+    appreciationRecord.senderId = senderUser.discordUserId;
     appreciationRecord.message = "ありがとうございます！";
     appreciationRecord.pointPerReceiver = 10;
     await insertToDatabase(schema.appreciations, appreciationRecord);
 
     const receiverRecords = createMultipleAppreciationReceiversFixture(
       appreciationRecord.id,
-      [receiverUser1.id, receiverUser2.id]
+      [receiverUser1.discordUserId, receiverUser2.discordUserId]
     );
     for (const receiverRecord of receiverRecords) {
       await insertToDatabase(schema.appreciationReceivers, receiverRecord);
@@ -119,7 +119,7 @@ describe("AppreciationsQueryService", () => {
 
     // 古い投稿
     const oldAppreciationRecord = createAppreciationTableFixture();
-    oldAppreciationRecord.senderId = senderUser.id;
+    oldAppreciationRecord.senderId = senderUser.discordUserId;
     oldAppreciationRecord.message = "古い投稿";
     oldAppreciationRecord.pointPerReceiver = 5;
     oldAppreciationRecord.createdAt = new Date("2024-01-01T00:00:00Z");
@@ -127,13 +127,13 @@ describe("AppreciationsQueryService", () => {
 
     const oldReceiverRecord = createMultipleAppreciationReceiversFixture(
       oldAppreciationRecord.id,
-      [receiverUser.id]
+      [receiverUser.discordUserId]
     )[0];
     await insertToDatabase(schema.appreciationReceivers, oldReceiverRecord);
 
     // 新しい投稿
     const newAppreciationRecord = createAppreciationTableFixture();
-    newAppreciationRecord.senderId = senderUser.id;
+    newAppreciationRecord.senderId = senderUser.discordUserId;
     newAppreciationRecord.message = "新しい投稿";
     newAppreciationRecord.pointPerReceiver = 15;
     newAppreciationRecord.createdAt = new Date("2024-01-02T00:00:00Z");
@@ -141,7 +141,7 @@ describe("AppreciationsQueryService", () => {
 
     const newReceiverRecord = createMultipleAppreciationReceiversFixture(
       newAppreciationRecord.id,
-      [receiverUser.id]
+      [receiverUser.discordUserId]
     )[0];
     await insertToDatabase(schema.appreciationReceivers, newReceiverRecord);
 
@@ -173,14 +173,14 @@ describe("AppreciationsQueryService", () => {
     await insertToDatabase(schema.user, receiverUser);
 
     const appreciationRecord = createAppreciationTableFixture();
-    appreciationRecord.senderId = senderUser.id;
+    appreciationRecord.senderId = senderUser.discordUserId;
     appreciationRecord.message = "単一受信者テスト";
     appreciationRecord.pointPerReceiver = 25;
     await insertToDatabase(schema.appreciations, appreciationRecord);
 
     const receiverRecord = createMultipleAppreciationReceiversFixture(
       appreciationRecord.id,
-      [receiverUser.id]
+      [receiverUser.discordUserId]
     )[0];
     await insertToDatabase(schema.appreciationReceivers, receiverRecord);
 
@@ -221,25 +221,25 @@ describe("AppreciationsQueryService", () => {
 
     // 送信者1からの感謝
     const appreciation1Record = createAppreciationTableFixture();
-    appreciation1Record.senderId = senderUser1.id;
+    appreciation1Record.senderId = senderUser1.discordUserId;
     appreciation1Record.message = "送信者1からの感謝";
     await insertToDatabase(schema.appreciations, appreciation1Record);
 
     const receiver1Record = createMultipleAppreciationReceiversFixture(
       appreciation1Record.id,
-      [receiverUser.id]
+      [receiverUser.discordUserId]
     )[0];
     await insertToDatabase(schema.appreciationReceivers, receiver1Record);
 
     // 送信者2からの感謝
     const appreciation2Record = createAppreciationTableFixture();
-    appreciation2Record.senderId = senderUser2.id;
+    appreciation2Record.senderId = senderUser2.discordUserId;
     appreciation2Record.message = "送信者2からの感謝";
     await insertToDatabase(schema.appreciations, appreciation2Record);
 
     const receiver2Record = createMultipleAppreciationReceiversFixture(
       appreciation2Record.id,
-      [receiverUser.id]
+      [receiverUser.discordUserId]
     )[0];
     await insertToDatabase(schema.appreciationReceivers, receiver2Record);
 

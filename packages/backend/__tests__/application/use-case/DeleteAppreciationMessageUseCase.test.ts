@@ -11,7 +11,7 @@ import {
   AppreciationMessage,
   PointPerReceiver
 } from "../../../src/domain/appreciation/Appreciation";
-import { UserID } from "../../../src/domain/user/User";
+import { DiscordUserID } from "../../../src/domain/user/User";
 import { AppreciationRepository } from "../../../src/infrastructure/repositories/AppreciationRepository";
 import { CreatedAt } from "../../../src/utils/CreatedAt";
 import { UUID } from "../../../src/utils/UUID";
@@ -23,11 +23,11 @@ import {
 } from "../../testing/utils/GenericTableHelper";
 
 // モック定数（有効なUUID形式）
-const MOCK_SENDER_ID = UUID.new().value;
-const MOCK_RECEIVER_ID_1 = UUID.new().value;
-const MOCK_RECEIVER_ID_2 = UUID.new().value;
+const MOCK_SENDER_ID = DiscordUserID.new().value;
+const MOCK_RECEIVER_ID_1 = DiscordUserID.new().value;
+const MOCK_RECEIVER_ID_2 = DiscordUserID.new().value;
 const MOCK_APPRECIATION_ID = UUID.new().value;
-const MOCK_OTHER_USER_ID = UUID.new().value;
+const MOCK_OTHER_USER_ID = DiscordUserID.new().value;
 const MOCK_MESSAGE = "テストメッセージです";
 const MOCK_POINT_PER_RECEIVER = 10;
 
@@ -39,7 +39,7 @@ describe("DeleteAppreciationMessageUseCase Tests", () => {
     new DeleteAppreciationMessageUseCase(appreciationRepository);
 
   // 共通のテストデータ
-  let senderID: UserID;
+  let senderID: DiscordUserID;
   let appreciationID: AppreciationID;
   let message: AppreciationMessage;
   let pointPerReceiver: PointPerReceiver;
@@ -47,7 +47,7 @@ describe("DeleteAppreciationMessageUseCase Tests", () => {
 
   beforeEach(async () => {
     // テストデータの初期化
-    senderID = UserID.from(MOCK_SENDER_ID);
+    senderID = DiscordUserID.from(MOCK_SENDER_ID);
     appreciationID = AppreciationID.from(MOCK_APPRECIATION_ID);
     message = AppreciationMessage.from(MOCK_MESSAGE);
     pointPerReceiver = PointPerReceiver.from(MOCK_POINT_PER_RECEIVER);
@@ -55,29 +55,25 @@ describe("DeleteAppreciationMessageUseCase Tests", () => {
 
     // テスト用のユーザーデータを挿入
     await insertToDatabase(schema.user, {
-      id: senderID.value.value,
-      discordId: "123456789",
+      discordUserId: senderID.value,
       discordUserName: "テスト送信者",
       discordAvatar: "avatar_url"
     });
 
     await insertToDatabase(schema.user, {
-      id: MOCK_RECEIVER_ID_1,
-      discordId: "987654321",
+      discordUserId: MOCK_RECEIVER_ID_1,
       discordUserName: "テスト受信者1",
       discordAvatar: "avatar_url1"
     });
 
     await insertToDatabase(schema.user, {
-      id: MOCK_RECEIVER_ID_2,
-      discordId: "111222333",
+      discordUserId: MOCK_RECEIVER_ID_2,
       discordUserName: "テスト受信者2",
       discordAvatar: "avatar_url2"
     });
 
     await insertToDatabase(schema.user, {
-      id: MOCK_OTHER_USER_ID,
-      discordId: "444555666",
+      discordUserId: MOCK_OTHER_USER_ID,
       discordUserName: "他のユーザー",
       discordAvatar: "avatar_url3"
     });
@@ -95,7 +91,7 @@ describe("DeleteAppreciationMessageUseCase Tests", () => {
       // テスト用の感謝データを挿入
       await insertToDatabase(schema.appreciations, {
         id: appreciationID.value.value,
-        senderId: senderID.value.value,
+        senderId: senderID.value,
         message: message.value,
         pointPerReceiver: pointPerReceiver.value,
         createdAt: new Date(createdAt.value)
@@ -176,7 +172,7 @@ describe("DeleteAppreciationMessageUseCase Tests", () => {
       if (result.isErr()) {
         expect(result.error).toBeInstanceOf(UnauthorizedDeleteError);
         expect(result.error.message).toContain(
-          `User ${senderID.value.value} is not authorized to delete appreciation ${appreciationID.value.value}`
+          `User ${senderID.value} is not authorized to delete appreciation ${appreciationID.value.value}`
         );
       }
 
@@ -191,7 +187,7 @@ describe("DeleteAppreciationMessageUseCase Tests", () => {
       // テスト用の感謝データを挿入
       await insertToDatabase(schema.appreciations, {
         id: appreciationID.value.value,
-        senderId: senderID.value.value,
+        senderId: senderID.value,
         message: message.value,
         pointPerReceiver: pointPerReceiver.value,
         createdAt: new Date(createdAt.value)

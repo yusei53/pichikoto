@@ -1,8 +1,8 @@
-import type { UserID } from "../../domain/user/User";
+import type { DiscordUserID } from "../../domain/user/User";
 
 export class DiscordTokens {
   private constructor(
-    readonly userId: UserID,
+    readonly discordUserId: DiscordUserID,
     readonly accessToken: AccessToken,
     readonly refreshToken: RefreshToken,
     readonly expiresAt: ExpiresAt,
@@ -11,7 +11,7 @@ export class DiscordTokens {
   ) {}
 
   static create(
-    userId: UserID,
+    discordUserId: DiscordUserID,
     accessToken: string,
     refreshToken: string,
     expiresIn: number,
@@ -19,7 +19,7 @@ export class DiscordTokens {
     tokenType: string
   ): DiscordTokens {
     return new DiscordTokens(
-      userId,
+      discordUserId,
       AccessToken.from(accessToken),
       RefreshToken.from(refreshToken),
       ExpiresAt.new(expiresIn),
@@ -29,7 +29,7 @@ export class DiscordTokens {
   }
 
   static reconstruct(
-    userId: UserID,
+    discordUserId: DiscordUserID,
     accessToken: AccessToken,
     refreshToken: RefreshToken,
     expiresAt: ExpiresAt,
@@ -37,7 +37,7 @@ export class DiscordTokens {
     tokenType: string
   ): DiscordTokens {
     return new DiscordTokens(
-      userId,
+      discordUserId,
       accessToken,
       refreshToken,
       expiresAt,
