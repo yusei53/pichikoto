@@ -22,6 +22,7 @@ export class AppreciationsQueryService {
           pointPerReceiver: appreciationsSchema.pointPerReceiver,
           createdAt: appreciationsSchema.createdAt,
           senderDiscordUserName: userSchema.discordUserName,
+          senderDiscordGlobalName: userSchema.discordGlobalName,
           senderDiscordAvatar: userSchema.discordAvatar
         })
         .from(appreciationsSchema)
@@ -38,6 +39,7 @@ export class AppreciationsQueryService {
             .select({
               id: userSchema.discordUserId,
               discordUserName: userSchema.discordUserName,
+              discordGlobalName: userSchema.discordGlobalName,
               discordAvatar: userSchema.discordAvatar
             })
             .from(appreciationReceiversSchema)
@@ -57,11 +59,13 @@ export class AppreciationsQueryService {
             sender: {
               id: appreciation.senderId,
               discordUserName: appreciation.senderDiscordUserName,
+              discordGlobalName: appreciation.senderDiscordGlobalName,
               discordAvatar: appreciation.senderDiscordAvatar
             },
             receivers: receivers.map((receiver) => ({
               id: receiver.id,
               discordUserName: receiver.discordUserName,
+              discordGlobalName: receiver.discordGlobalName,
               discordAvatar: receiver.discordAvatar
             })),
             message: appreciation.message,

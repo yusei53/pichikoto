@@ -1,10 +1,11 @@
-export type AppreciationUser = {
+type AppreciationUser = {
   id: string;
   discordUserName: string;
+  discordGlobalName: string | null;
   discordAvatar: string;
 };
 
-export type Appreciation = {
+type Appreciation = {
   id: string;
   sender: AppreciationUser;
   receivers: AppreciationUser[];
