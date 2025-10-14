@@ -1,6 +1,5 @@
 import { userPageAPI } from "~/features/routes/user-page/endpoints/userPageAPI";
 import { useParseParams } from "~/features/routes/user-page/useParseParams";
-import { mockUsers } from "~/mock/user/user";
 import { UserPageClient } from "./page.client";
 
 export default async function Page({
@@ -11,12 +10,12 @@ export default async function Page({
 	const resolvedSearchParams = (await searchParams) ?? {};
 	const currentUser = await userPageAPI.getCurrentUser();
 	const paramUserId = useParseParams(resolvedSearchParams?.["user-id"]);
-	const targetUserId = paramUserId ?? currentUser.userID;
+	const targetUserId = paramUserId ?? currentUser.discordUserID;
 	const targetUser = await userPageAPI.getUserById(targetUserId);
 	const appreciationList = await userPageAPI.getAppreciationList();
-
+	const allUsers = await userPageAPI.getAllUsers();
 	const user = targetUser ?? currentUser;
-	const isOwnUser = user.userID === currentUser.userID;
+	const isOwnUser = user.discordUserID === currentUser.discordUserID;
 
 	return (
 		<UserPageClient
@@ -24,7 +23,7 @@ export default async function Page({
 			isOwnUser={isOwnUser}
 			isNotificationEnabled={false}
 			appreciationList={appreciationList}
-			allUsers={mockUsers}
+			allUsers={allUsers}
 			sendUserList={[]}
 			receivedUserList={[]}
 		/>

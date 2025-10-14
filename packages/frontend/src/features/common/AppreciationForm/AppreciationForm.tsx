@@ -96,7 +96,7 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 									direction={"column"}
 									alignItems={"center"}
 									gap={"4px"}
-									key={user.userID}
+									key={user.discordUserID}
 								>
 									<Avatar size={"sm"} src={user.discordAvatar} />
 									<Box>{user.discordUserName}</Box>

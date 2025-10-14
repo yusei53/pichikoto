@@ -15,8 +15,8 @@ export const Default: Story = {
 		sendUserList: mockUsers,
 		receivedUserList: [
 			...mockUsers,
-			{ ...mockUser, userID: "4" },
-			{ ...mockUser, userID: "5" },
+			{ ...mockUser, discordUserID: "4" },
+			{ ...mockUser, discordUserID: "5" },
 		],
 	},
 };

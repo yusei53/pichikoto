@@ -20,7 +20,7 @@ export const WithFiveReceivedUsers: Story = {
 	args: {
 		appreciation: {
 			...mockAppreciationList[0],
-			receivedUsers: [mockUser, mockUser, mockUser, mockUser, mockUser],
+			receivers: [mockUser, mockUser, mockUser, mockUser, mockUser],
 		},
 	},
 };

@@ -48,7 +48,7 @@ export const UserPageClient: React.FC<UserPageClientProps> = ({
 			<Stack direction={"row"} gap={"16px"} p={"24px"} overflowY={"hidden"}>
 				<Stack direction={"column"} gap={"8px"} width={"800px"}>
 					<UserProfile
-						userID={user.userID}
+						userID={user.discordUserID}
 						userName={user.discordUserName}
 						avatarUrl={user.discordAvatar}
 						isNotificationEnabled={isNotificationEnabled}

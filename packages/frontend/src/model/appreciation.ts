@@ -2,10 +2,9 @@ import type { User } from "./user";
 
 export type Appreciation = {
 	id: string;
-	points: number;
+	pointPerReceiver: number;
 	message: string;
 	createdAt: Date;
-	sendUser: User;
-	receivedUsers: User[];
-	handsClapping: number;
+	sender: User;
+	receivers: User[];
 };
