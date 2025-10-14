@@ -38,6 +38,7 @@ const MOCK_CODE_VERIFIER = "test_code_verifier";
 
 const MOCK_DISCORD_USER_ID = "123456789012345678";
 const MOCK_USERNAME = "test_user";
+const MOCK_GLOBAL_NAME = "ゆせ";
 const MOCK_AVATAR = "avatar_hash";
 
 const mockContext: Context = {
@@ -70,6 +71,7 @@ const mockIdTokenPayload = {
 const mockDiscordUserResource: DiscordUserResource = {
   id: MOCK_DISCORD_USER_ID,
   username: MOCK_USERNAME,
+  global_name: MOCK_GLOBAL_NAME,
   avatar: MOCK_AVATAR
 };
 
@@ -375,6 +377,7 @@ describe("DiscordAuthCallbackUseCase Tests", () => {
       const differentUserResource: DiscordUserResource = {
         id: "different_user_id",
         username: MOCK_USERNAME,
+        global_name: MOCK_GLOBAL_NAME,
         avatar: MOCK_AVATAR
       };
       mockDiscordUserService.getUserResource.mockResolvedValue(

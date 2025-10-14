@@ -99,6 +99,7 @@ export class DiscordAuthCallbackUseCase
     const user = User.create(
       DiscordUserID.from(discordUserResource.id),
       discordUserResource.username,
+      discordUserResource.global_name,
       discordUserResource.avatar
     );
     await this.userRepository.save(user);

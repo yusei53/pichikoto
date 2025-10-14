@@ -6,6 +6,7 @@ import { DiscordUserID } from "../../../src/domain/user/User";
  */
 export const COMMON_DISCORD_INFO = {
   USER_NAME: "TestUserName",
+  GLOBAL_NAME: "TestGlobalName",
   AVATAR:
     "https://cdn.discordapp.com/sample-avatar/123456789/000000000000000000.png"
 } as const;
@@ -17,6 +18,20 @@ export const createUserTableFixture = () => {
   return {
     discordUserId: DiscordUserID.new().value,
     discordUserName: COMMON_DISCORD_INFO.USER_NAME,
+    discordGlobalName: COMMON_DISCORD_INFO.GLOBAL_NAME,
+    discordAvatar: COMMON_DISCORD_INFO.AVATAR,
+    createdAt: new Date()
+  } satisfies typeof user.$inferInsert;
+};
+
+/**
+ * discordGlobalNameがnullのユーザーのfixture
+ */
+export const createUserTableFixtureWithNullGlobalName = () => {
+  return {
+    discordUserId: DiscordUserID.new().value,
+    discordUserName: COMMON_DISCORD_INFO.USER_NAME,
+    discordGlobalName: null,
     discordAvatar: COMMON_DISCORD_INFO.AVATAR,
     createdAt: new Date()
   } satisfies typeof user.$inferInsert;

@@ -14,6 +14,7 @@ export const assertEqualUserTable = (
   const expectedRecord = {
     discordUserId: expectedUser.discordUserID.value,
     discordUserName: expectedUser.discordUserName,
+    discordGlobalName: expectedUser.discordGlobalName,
     discordAvatar: expectedUser.discordAvatar,
     createdAt: actualRecord.createdAt
   };

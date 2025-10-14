@@ -4,23 +4,36 @@ export class User {
   private constructor(
     readonly discordUserID: DiscordUserID,
     readonly discordUserName: string,
+    readonly discordGlobalName: string | null,
     readonly discordAvatar: string
   ) {}
 
   static create(
     discordUserID: DiscordUserID,
     discordUserName: string,
+    discordGlobalName: string | null,
     discordAvatar: string
   ): User {
-    return new User(discordUserID, discordUserName, discordAvatar);
+    return new User(
+      discordUserID,
+      discordUserName,
+      discordGlobalName,
+      discordAvatar
+    );
   }
 
   static reconstruct(
     discordUserID: DiscordUserID,
     discordUserName: string,
+    discordGlobalName: string | null,
     discordAvatar: string
   ): User {
-    return new User(discordUserID, discordUserName, discordAvatar);
+    return new User(
+      discordUserID,
+      discordUserName,
+      discordGlobalName,
+      discordAvatar
+    );
   }
 }
 

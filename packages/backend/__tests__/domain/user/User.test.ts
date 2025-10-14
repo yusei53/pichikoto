@@ -20,6 +20,7 @@ afterEach(() => {
 describe("UserDomainTest", () => {
   const discordID = DiscordUserID.new();
   const discordUserName = "TestUserName";
+  const discordGlobalName = "TestGlobalName";
   const discordAvatar =
     "https://cdn.discordapp.com/sample-avatar/123456789/000000000000000000.png";
 
@@ -28,10 +29,34 @@ describe("UserDomainTest", () => {
       const expected = User.reconstruct(
         discordID,
         discordUserName,
+        discordGlobalName,
         discordAvatar
       );
 
-      const actual = User.create(discordID, discordUserName, discordAvatar);
+      const actual = User.create(
+        discordID,
+        discordUserName,
+        discordGlobalName,
+        discordAvatar
+      );
+
+      expect(actual).toStrictEqual(expected);
+    });
+
+    it("discordGlobalNameがnullのユーザーを作成できること", () => {
+      const expected = User.reconstruct(
+        discordID,
+        discordUserName,
+        null,
+        discordAvatar
+      );
+
+      const actual = User.create(
+        discordID,
+        discordUserName,
+        null,
+        discordAvatar
+      );
 
       expect(actual).toStrictEqual(expected);
     });

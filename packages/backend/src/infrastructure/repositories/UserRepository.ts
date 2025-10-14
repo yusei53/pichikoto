@@ -31,6 +31,7 @@ export class UserRepository implements UserRepositoryInterface {
     return {
       discordUserId: user.discordUserId,
       discordUserName: user.discordUserName,
+      discordGlobalName: user.discordGlobalName,
       discordAvatar: user.discordAvatar
     };
   }
@@ -39,6 +40,7 @@ export class UserRepository implements UserRepositoryInterface {
     return User.reconstruct(
       DiscordUserID.from(userRecord.discordUserId),
       userRecord.discordUserName,
+      userRecord.discordGlobalName,
       userRecord.discordAvatar
     );
   }
@@ -47,6 +49,7 @@ export class UserRepository implements UserRepositoryInterface {
     await db().insert(userSchema).values({
       discordUserId: user.discordUserID.value,
       discordUserName: user.discordUserName,
+      discordGlobalName: user.discordGlobalName,
       discordAvatar: user.discordAvatar
     });
   }
@@ -55,5 +58,6 @@ export class UserRepository implements UserRepositoryInterface {
 type UserRecord = {
   discordUserId: string;
   discordUserName: string;
+  discordGlobalName: string | null;
   discordAvatar: string;
 };

@@ -7,6 +7,7 @@ import { err, ok } from "neverthrow";
 export interface DiscordUserResource {
   id: string;
   username: string;
+  global_name: string | null;
   avatar: string;
 }
 

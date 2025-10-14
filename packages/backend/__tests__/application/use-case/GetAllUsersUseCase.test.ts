@@ -46,16 +46,19 @@ describe("GetAllUsersUseCase Tests", () => {
         User.reconstruct(
           DiscordUserID.from(DiscordUserID.new().value),
           "テストユーザー1",
+          "ゆせ",
           "avatar1.png"
         ),
         User.reconstruct(
           DiscordUserID.from(DiscordUserID.new().value),
           "テストユーザー2",
+          "ゆせ",
           "avatar2.png"
         ),
         User.reconstruct(
           DiscordUserID.from(DiscordUserID.new().value),
           "テストユーザー3",
+          "ゆせ",
           "avatar3.png"
         )
       ];
@@ -124,6 +127,7 @@ describe("GetAllUsersUseCase Tests", () => {
       const singleUser = User.reconstruct(
         DiscordUserID.from(DiscordUserID.new().value),
         "単独ユーザー",
+        "ゆせ",
         "single_avatar.png"
       );
 

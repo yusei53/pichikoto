@@ -12,6 +12,7 @@ import {
 export const user = pgTable("user", {
   discordUserId: text("discord_user_id").primaryKey(),
   discordUserName: text("discord_user_name").notNull(),
+  discordGlobalName: text("discord_global_name"),
   discordAvatar: text("discord_avatar").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow()
 });

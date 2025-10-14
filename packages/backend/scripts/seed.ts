@@ -86,12 +86,20 @@ async function seedDatabase() {
 function generateUsers(count: number) {
   const users = [];
   const sampleNames = [
+    "tanaka_taro",
+    "sato_hanako",
+    "suzuki_ichiro",
+    "takahashi_misaki",
+    "watanabe_kenta",
+    "yamada_aiko"
+  ];
+  const sampleGlobalNames = [
     "田中太郎",
     "佐藤花子",
     "鈴木一郎",
     "高橋美咲",
     "渡辺健太",
-    "山田愛子"
+    null // 最後の1人はnull
   ];
   const sampleAvatars = [
     "https://cdn.discordapp.com/avatars/123456789/avatar1.png",
@@ -106,6 +114,8 @@ function generateUsers(count: number) {
     users.push({
       discordUserId: `${123456789 + i}`,
       discordUserName: sampleNames[i] || `ユーザー${i + 1}`,
+      discordGlobalName:
+        sampleGlobalNames[i] || (i === count - 1 ? null : `user_${i + 1}`),
       discordAvatar:
         sampleAvatars[i] ||
         `https://cdn.discordapp.com/avatars/${123456789 + i}/default.png`,
