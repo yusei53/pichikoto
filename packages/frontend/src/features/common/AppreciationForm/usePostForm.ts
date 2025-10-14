@@ -45,7 +45,7 @@ export const useAppreciationForm = ({
 	const usersCollection = useMemo(() => {
 		return createListCollection({
 			items: users.map((user) => ({
-				value: user.userID,
+				value: user.discordUserID,
 				label: user.discordUserName,
 				avatarUrl: user.discordAvatar,
 			})),
@@ -53,7 +53,7 @@ export const useAppreciationForm = ({
 	}, [users]);
 
 	const currentSendUsers = useMemo(() => {
-		return users.filter((user) => sendUserID.includes(user.userID));
+		return users.filter((user) => sendUserID.includes(user.discordUserID));
 	}, [sendUserID, users]);
 
 	const totalPoints = useMemo(() => {

@@ -47,7 +47,7 @@ export const AppreciationLog: React.FC<AppreciationLogProps> = ({
 						>
 							{sendUserList.map((u) => (
 								<Avatar
-									key={u.userID}
+									key={u.discordUserID}
 									size={"xl"}
 									src={u.discordAvatar}
 									name={u.discordUserName}
@@ -72,7 +72,7 @@ export const AppreciationLog: React.FC<AppreciationLogProps> = ({
 						>
 							{receivedUserList.map((u) => (
 								<Avatar
-									key={u.userID}
+									key={u.discordUserID}
 									size={"xl"}
 									src={u.discordAvatar}
 									name={u.discordUserName}

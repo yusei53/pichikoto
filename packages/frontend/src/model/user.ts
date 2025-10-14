@@ -1,6 +1,5 @@
 export type User = {
-	userID: string;
-	discordID: string;
+	discordUserID: string;
 	discordUserName: string;
 	discordAvatar: string;
 };

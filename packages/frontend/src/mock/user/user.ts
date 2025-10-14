@@ -1,7 +1,7 @@
 import type { User } from "~/model/user";
 
 export const mockUser: User = {
-	userID: "1",
+	discordUserID: "1",
 	discordID: "test-user-name",
 	discordUserName: "test",
 	discordAvatar: "https://github.com/shadcn.png",
@@ -9,6 +9,6 @@ export const mockUser: User = {
 
 export const mockUsers: User[] = [
 	mockUser,
-	{ ...mockUser, userID: "2" },
-	{ ...mockUser, userID: "3" },
+	{ ...mockUser, discordUserID: "2" },
+	{ ...mockUser, discordUserID: "3" },
 ];
