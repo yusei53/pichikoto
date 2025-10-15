@@ -20,7 +20,7 @@
     "typegen": "wrangler types"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.0.1",
+    "@neondatabase/serverless": "^1.0.2",
     "@pichikoto/http-contracts": "workspace:*",
     "@types/pg": "^8.15.5",
     "drizzle-orm": "^0.44.2",
