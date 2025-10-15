@@ -1,3 +1,4 @@
+import type { Context } from "hono";
 import { ok, type Result } from "neverthrow";
 import type {
   AppreciationMessage,
@@ -10,9 +11,11 @@ import type { DiscordUserID } from "../../../domain/user/User";
 import type { AppreciationRepositoryInterface } from "../../../infrastructure/repositories/AppreciationRepository";
 import { UseCaseError } from "../../../utils/Error";
 import { handleResult } from "../../../utils/ResultHelper";
+import type { DiscordNotificationServiceInterface } from "../../services/discord-notification/DiscordNotificationService";
 
 export interface CreateAppreciationUseCaseInterface {
   execute(
+    c: Context,
     senderID: DiscordUserID,
     receiverIDs: ReceiverIDs,
     message: AppreciationMessage,
@@ -25,10 +28,12 @@ export class CreateAppreciationUseCase
 {
   constructor(
     private readonly appreciationRepository: AppreciationRepositoryInterface,
-    private readonly weeklyPointLimitDomainService: WeeklyPointLimitDomainServiceInterface
+    private readonly weeklyPointLimitDomainService: WeeklyPointLimitDomainServiceInterface,
+    private readonly discordNotificationService: DiscordNotificationServiceInterface
   ) {}
 
   async execute(
+    c: Context,
     senderID: DiscordUserID,
     receiverIDs: ReceiverIDs,
     message: AppreciationMessage,
@@ -51,6 +56,22 @@ export class CreateAppreciationUseCase
     );
 
     await this.appreciationRepository.store(appreciation);
+
+    // Discord通知を送信（失敗してもAppreciation作成は成功とする）
+    try {
+      const notificationResult =
+        await this.discordNotificationService.sendAppreciationNotification(
+          c,
+          appreciation
+        );
+
+      if (notificationResult.isErr()) {
+        console.warn("Discord notification failed:", notificationResult.error);
+      }
+    } catch (error) {
+      // 通知送信失敗はログに記録するが、UseCase自体は成功とする
+      console.warn("Discord notification failed:", error);
+    }
 
     return ok();
   }

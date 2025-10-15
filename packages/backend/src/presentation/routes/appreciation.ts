@@ -1,6 +1,7 @@
 import type { Context } from "hono";
 import { Hono } from "hono";
 import { DbClient } from "../../../database/client";
+import { DiscordNotificationService } from "../../application/services/discord-notification/DiscordNotificationService";
 import { CreateAppreciationUseCase } from "../../application/use-case/appreciation/CreateAppreciationUseCase";
 import { UpdateAppreciationMessageUseCase } from "../../application/use-case/appreciation/UpdateAppreciationMessageUseCase";
 import { WeeklyPointLimitDomainService } from "../../domain/appreciation/WeeklyPointLimitDomainService";
@@ -16,13 +17,15 @@ const appreciationControllerFactory = (c: Context) => {
   dbClient.init(c);
 
   const appreciationRepository = new AppreciationRepository();
+  const discordNotificationService = new DiscordNotificationService();
   const weeklyPointLimitDomainService = new WeeklyPointLimitDomainService(
     appreciationRepository
   );
 
   const createAppreciationUseCase = new CreateAppreciationUseCase(
     appreciationRepository,
-    weeklyPointLimitDomainService
+    weeklyPointLimitDomainService,
+    discordNotificationService
   );
 
   const updateAppreciationMessageUseCase = new UpdateAppreciationMessageUseCase(

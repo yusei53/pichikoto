@@ -1,6 +1,8 @@
+import type { Context } from "hono";
 import { err, ok } from "neverthrow";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as schema from "../../../database/schema";
+import type { DiscordNotificationServiceInterface } from "../../../src/application/services/discord-notification/DiscordNotificationService";
 import {
   CreateAppreciationUseCase,
   type CreateAppreciationUseCaseInterface
@@ -45,15 +47,28 @@ describe("CreateAppreciationUseCase Tests", () => {
   // 実際のリポジトリ（テスト用データベースに接続）
   const appreciationRepository = new AppreciationRepository();
 
-  // モックドメインサービス
+  // モックサービス
   const mockWeeklyPointLimitDomainService = {
     validateWeeklyLimit: vi.fn()
   };
 
+  const mockDiscordNotificationService = {
+    sendAppreciationNotification: vi.fn()
+  };
+
+  // モックコンテキスト
+  const mockContext = {
+    env: {
+      DISCORD_WEBHOOK_URL: "https://discord.com/api/webhooks/test",
+      FRONTEND_BASE_URL: "https://frontend.example.com"
+    }
+  } as Context;
+
   const createAppreciationUseCase: CreateAppreciationUseCaseInterface =
     new CreateAppreciationUseCase(
       appreciationRepository,
-      mockWeeklyPointLimitDomainService as WeeklyPointLimitDomainServiceInterface
+      mockWeeklyPointLimitDomainService as WeeklyPointLimitDomainServiceInterface,
+      mockDiscordNotificationService as DiscordNotificationServiceInterface
     );
 
   // 共通のテストデータ
@@ -110,6 +125,9 @@ describe("CreateAppreciationUseCase Tests", () => {
     mockWeeklyPointLimitDomainService.validateWeeklyLimit.mockResolvedValue(
       ok()
     );
+    mockDiscordNotificationService.sendAppreciationNotification.mockResolvedValue(
+      ok()
+    );
   });
 
   afterEach(async () => {
@@ -155,6 +173,7 @@ describe("CreateAppreciationUseCase Tests", () => {
 
       // Act
       const result = await createAppreciationUseCase.execute(
+        mockContext,
         senderID,
         receiverIDs,
         message,
@@ -193,6 +212,7 @@ describe("CreateAppreciationUseCase Tests", () => {
       // Act & Assert
       await expect(
         createAppreciationUseCase.execute(
+          mockContext,
           senderID,
           invalidReceiverIDs,
           message,
@@ -216,6 +236,7 @@ describe("CreateAppreciationUseCase Tests", () => {
       // Act & Assert
       await expect(
         createAppreciationUseCase.execute(
+          mockContext,
           senderID,
           receiverIDs,
           message,
@@ -244,6 +265,7 @@ describe("CreateAppreciationUseCase Tests", () => {
       // Act & Assert
       await expect(
         createAppreciationUseCase.execute(
+          mockContext,
           senderID,
           receiverIDs,
           message,
@@ -277,6 +299,7 @@ describe("CreateAppreciationUseCase Tests", () => {
 
       // Act
       const result = await createAppreciationUseCase.execute(
+        mockContext,
         senderID,
         singleReceiverIDs,
         message,
@@ -342,6 +365,7 @@ describe("CreateAppreciationUseCase Tests", () => {
 
       // Act
       const result = await createAppreciationUseCase.execute(
+        mockContext,
         senderID,
         maxReceiverIDs,
         message,

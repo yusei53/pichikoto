@@ -11,6 +11,7 @@ declare namespace Cloudflare {
 		BASE_URL: string;
 		JWT_SECRET: string;
 		FRONTEND_BASE_URL: string;
+		DISCORD_WEBHOOK_URL: string;
 		TEST_DATABASE_URL: string;
 	}
 }
@@ -19,7 +20,7 @@ type StringifyValues<EnvType extends Record<string, unknown>> = {
 	[Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
 };
 declare namespace NodeJS {
-	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "NODE_ENV" | "DATABASE_URL" | "DISCORD_AUTH_URL" | "DISCORD_CLIENT_ID" | "DISCORD_CLIENT_SECRET" | "BASE_URL" | "JWT_SECRET" | "FRONTEND_BASE_URL" | "TEST_DATABASE_URL">> {}
+	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "NODE_ENV" | "DATABASE_URL" | "DISCORD_AUTH_URL" | "DISCORD_CLIENT_ID" | "DISCORD_CLIENT_SECRET" | "BASE_URL" | "JWT_SECRET" | "FRONTEND_BASE_URL" | "DISCORD_WEBHOOK_URL" | "TEST_DATABASE_URL">> {}
 }
 
 // Begin runtime types

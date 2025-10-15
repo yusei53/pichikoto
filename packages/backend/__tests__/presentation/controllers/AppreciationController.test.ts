@@ -99,6 +99,7 @@ describe("AppreciationController Tests", () => {
       expect(
         vi.mocked(mockCreateAppreciationUseCase.execute)
       ).toHaveBeenCalledWith(
+        mockContext,
         DiscordUserID.from(MOCK_SENDER_ID),
         ReceiverIDs.from([
           DiscordUserID.from(MOCK_RECEIVER_ID_1),
@@ -338,6 +339,7 @@ describe("AppreciationController Tests", () => {
       expect(
         vi.mocked(mockCreateAppreciationUseCase.execute)
       ).toHaveBeenCalledWith(
+        mockContext,
         DiscordUserID.from(MOCK_SENDER_ID),
         ReceiverIDs.from([DiscordUserID.from(MOCK_RECEIVER_ID_1)]),
         AppreciationMessage.from(MOCK_MESSAGE),
@@ -392,6 +394,7 @@ describe("AppreciationController Tests", () => {
       expect(
         vi.mocked(mockCreateAppreciationUseCase.execute)
       ).toHaveBeenCalledWith(
+        mockContext,
         DiscordUserID.from(MOCK_SENDER_ID),
         ReceiverIDs.from(receiverIds.map((id) => DiscordUserID.from(id))),
         AppreciationMessage.from(MOCK_MESSAGE),

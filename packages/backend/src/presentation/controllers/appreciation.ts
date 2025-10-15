@@ -112,6 +112,7 @@ export class AppreciationController implements AppreciationControllerInterface {
     const pointPerReceiver = PointPerReceiver.from(req.body.pointPerReceiver);
 
     const result = await this.createAppreciationUseCase.execute(
+      c,
       DiscordUserID.from(senderID),
       receiverIDs,
       message,
