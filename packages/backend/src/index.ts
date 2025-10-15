@@ -11,6 +11,7 @@ import z from "zod";
 import { appreciation } from "./presentation/routes/appreciation";
 import { auth } from "./presentation/routes/auth";
 import { pointLeaderRoutes } from "./presentation/routes/point-leader";
+import { pointsRoutes } from "./presentation/routes/points";
 import { user } from "./presentation/routes/user";
 
 export type Env = {
@@ -64,6 +65,7 @@ app.onError((err, c) => {
 app.route("/appreciations", appreciation);
 app.route("/auth", auth);
 app.route("/point-leaders", pointLeaderRoutes);
+app.route("/points", pointsRoutes);
 app.route("/users", user);
 
 export default app;
