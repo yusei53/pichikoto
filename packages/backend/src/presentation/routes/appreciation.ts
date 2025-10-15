@@ -7,6 +7,8 @@ import { WeeklyPointLimitDomainService } from "../../domain/appreciation/WeeklyP
 import type { Env } from "../../index";
 import { AppreciationRepository } from "../../infrastructure/repositories/AppreciationRepository";
 import { AppreciationsQueryService } from "../../query-service/AppreciationsQueryService";
+import { ReceivedAppreciationsQueryService } from "../../query-service/ReceivedAppreciationsQueryService";
+import { SentAppreciationsQueryService } from "../../query-service/SentAppreciationsQueryService";
 import { AppreciationController } from "../controllers/appreciation";
 
 const appreciationControllerFactory = (c: Context) => {
@@ -28,11 +30,16 @@ const appreciationControllerFactory = (c: Context) => {
   );
 
   const appreciationsQueryService = new AppreciationsQueryService();
+  const sentAppreciationsQueryService = new SentAppreciationsQueryService();
+  const receivedAppreciationsQueryService =
+    new ReceivedAppreciationsQueryService();
 
   return new AppreciationController(
     createAppreciationUseCase,
     updateAppreciationMessageUseCase,
-    appreciationsQueryService
+    appreciationsQueryService,
+    sentAppreciationsQueryService,
+    receivedAppreciationsQueryService
   );
 };
 
@@ -51,4 +58,14 @@ appreciation.post("/", async (c: Context) => {
 appreciation.put("/:id", async (c: Context) => {
   const controller = appreciationControllerFactory(c);
   return controller.updateAppreciationMessage(c);
+});
+
+appreciation.get("/sent/:discordUserId", async (c: Context) => {
+  const controller = appreciationControllerFactory(c);
+  return controller.getSentAppreciations(c);
+});
+
+appreciation.get("/received/:discordUserId", async (c: Context) => {
+  const controller = appreciationControllerFactory(c);
+  return controller.getReceivedAppreciations(c);
 });

@@ -34,10 +34,20 @@ import type {
   AppreciationsQueryService,
   AppreciationsQueryServiceError
 } from "../../query-service/AppreciationsQueryService";
+import type {
+  ReceivedAppreciationsQueryService,
+  ReceivedAppreciationsQueryServiceError
+} from "../../query-service/ReceivedAppreciationsQueryService";
+import type {
+  SentAppreciationsQueryService,
+  SentAppreciationsQueryServiceError
+} from "../../query-service/SentAppreciationsQueryService";
 import { HttpErrorResponseCreator } from "../../utils/ResponseCreator";
 
 export interface AppreciationControllerInterface {
   getAllAppreciations(c: Context): Promise<Response>;
+  getSentAppreciations(c: Context): Promise<Response>;
+  getReceivedAppreciations(c: Context): Promise<Response>;
   createAppreciation(c: Context): Promise<Response>;
   updateAppreciationMessage(c: Context): Promise<Response>;
 }
@@ -46,12 +56,40 @@ export class AppreciationController implements AppreciationControllerInterface {
   constructor(
     private readonly createAppreciationUseCase: CreateAppreciationUseCaseInterface,
     private readonly updateAppreciationMessageUseCase: UpdateAppreciationMessageUseCaseInterface,
-    private readonly appreciationsQueryService: AppreciationsQueryService
+    private readonly appreciationsQueryService: AppreciationsQueryService,
+    private readonly sentAppreciationsQueryService: SentAppreciationsQueryService,
+    private readonly receivedAppreciationsQueryService: ReceivedAppreciationsQueryService
   ) {}
 
   async getAllAppreciations(c: Context): Promise<Response> {
     const responseCreator = new AppreciationsQueryServiceErrorResponseCreator();
     const result = await this.appreciationsQueryService.getAll();
+
+    return responseCreator.fromResult(result).respond(c);
+  }
+
+  async getSentAppreciations(c: Context): Promise<Response> {
+    const responseCreator =
+      new SentAppreciationsQueryServiceErrorResponseCreator();
+
+    const discordUserId = c.req.param("discordUserId");
+    const result =
+      await this.sentAppreciationsQueryService.getByDiscordUserId(
+        discordUserId
+      );
+
+    return responseCreator.fromResult(result).respond(c);
+  }
+
+  async getReceivedAppreciations(c: Context): Promise<Response> {
+    const responseCreator =
+      new ReceivedAppreciationsQueryServiceErrorResponseCreator();
+
+    const discordUserId = c.req.param("discordUserId");
+    const result =
+      await this.receivedAppreciationsQueryService.getByDiscordUserId(
+        discordUserId
+      );
 
     return responseCreator.fromResult(result).respond(c);
   }
@@ -137,6 +175,28 @@ export class AppreciationsQueryServiceErrorResponseCreator extends HttpErrorResp
     return new InternalServerError(
       error.message,
       "AppreciationsQueryServiceError"
+    );
+  }
+}
+
+export class SentAppreciationsQueryServiceErrorResponseCreator extends HttpErrorResponseCreator<SentAppreciationsQueryServiceError> {
+  protected createHttpError(
+    error: SentAppreciationsQueryServiceError
+  ): HttpError {
+    return new InternalServerError(
+      error.message,
+      "SentAppreciationsQueryServiceError"
+    );
+  }
+}
+
+export class ReceivedAppreciationsQueryServiceErrorResponseCreator extends HttpErrorResponseCreator<ReceivedAppreciationsQueryServiceError> {
+  protected createHttpError(
+    error: ReceivedAppreciationsQueryServiceError
+  ): HttpError {
+    return new InternalServerError(
+      error.message,
+      "ReceivedAppreciationsQueryServiceError"
     );
   }
 }
