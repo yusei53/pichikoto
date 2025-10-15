@@ -34,7 +34,9 @@ describe("AppreciationController", () => {
     controller = new AppreciationController(
       mockCreateUseCase,
       mockUpdateUseCase,
-      mockQueryService
+      mockQueryService,
+      {} as any, // SentAppreciationsQueryService
+      {} as any // ReceivedAppreciationsQueryService
     );
   });
 

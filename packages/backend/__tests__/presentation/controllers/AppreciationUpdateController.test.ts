@@ -37,7 +37,9 @@ describe("AppreciationUpdateController Tests", () => {
     appreciationController = new AppreciationController(
       {} as any, // CreateAppreciationUseCaseはダミー
       mockUpdateAppreciationMessageUseCase,
-      {} as any // AppreciationsQueryServiceはダミー
+      {} as any, // AppreciationsQueryServiceはダミー
+      {} as any, // SentAppreciationsQueryService
+      {} as any // ReceivedAppreciationsQueryService
     );
   });
 

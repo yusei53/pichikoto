@@ -42,7 +42,9 @@ describe("AppreciationController Tests", () => {
     appreciationController = new AppreciationController(
       mockCreateAppreciationUseCase,
       {} as any, // UpdateAppreciationMessageUseCaseは別テストで扱うため、ダミーを渡す
-      {} as any // AppreciationsQueryServiceもダミーを渡す
+      {} as any, // AppreciationsQueryServiceもダミーを渡す
+      {} as any, // SentAppreciationsQueryService
+      {} as any  // ReceivedAppreciationsQueryService
     );
   });
 
