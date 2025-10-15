@@ -5,11 +5,16 @@ import type {
   AppreciationTotalPointQueryService,
   AppreciationTotalPointQueryServiceError
 } from "../../query-service/AppreciationTotalPointQueryService";
+import type {
+  AppreciationUsersQueryService,
+  AppreciationUsersQueryServiceError
+} from "../../query-service/AppreciationUsersQueryService";
 import { HttpErrorResponseCreator } from "../../utils/ResponseCreator";
 
 export class PointsController {
   constructor(
-    private readonly appreciationTotalPointQueryService: AppreciationTotalPointQueryService
+    private readonly appreciationTotalPointQueryService: AppreciationTotalPointQueryService,
+    private readonly appreciationUsersQueryService: AppreciationUsersQueryService
   ) {}
 
   /**
@@ -25,6 +30,19 @@ export class PointsController {
 
     return responseCreator.fromResult(result).respond(c);
   }
+
+  /**
+   * 指定されたDiscord User IDのユーザーの送信先・受信元ユーザー一覧を取得するエンドポイント
+   */
+  async getAppreciationUsers(c: Context): Promise<Response> {
+    const responseCreator =
+      new AppreciationUsersQueryServiceErrorResponseCreator();
+
+    const discordUserId = c.req.param("discordUserId");
+    const result = await this.appreciationUsersQueryService.get(discordUserId);
+
+    return responseCreator.fromResult(result).respond(c);
+  }
 }
 
 export class AppreciationTotalPointQueryServiceErrorResponseCreator extends HttpErrorResponseCreator<AppreciationTotalPointQueryServiceError> {
@@ -34,6 +52,17 @@ export class AppreciationTotalPointQueryServiceErrorResponseCreator extends Http
     return new InternalServerError(
       error.message,
       "AppreciationTotalPointQueryServiceError"
+    );
+  }
+}
+
+export class AppreciationUsersQueryServiceErrorResponseCreator extends HttpErrorResponseCreator<AppreciationUsersQueryServiceError> {
+  protected createHttpError(
+    error: AppreciationUsersQueryServiceError
+  ): HttpError {
+    return new InternalServerError(
+      error.message,
+      "AppreciationUsersQueryServiceError"
     );
   }
 }
