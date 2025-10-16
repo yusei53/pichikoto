@@ -16,7 +16,7 @@ export const LoginCard: React.FC<LoginCardProps> = ({ onLogin }) => {
 					<Box>
 						<HandHeart size={100} />
 					</Box>
-					<Box fontSize={"xx-large"}>momopos</Box>
+					<Box fontSize={"xx-large"}>Hugnote</Box>
 					<Divider />
 					<Box p={"32px"}>
 						<Button variant={"outline"} onClick={onLogin} size={"lg"}>

@@ -11,7 +11,7 @@ type Story = StoryObj<typeof AppreciationListHeader>;
 
 export const Default: Story = {
 	args: {
-		children: <Box fontSize={"md"}>みんなのmomopos</Box>,
+		children: <Box fontSize={"md"}>みんなのHugnote</Box>,
 	},
 };
 {

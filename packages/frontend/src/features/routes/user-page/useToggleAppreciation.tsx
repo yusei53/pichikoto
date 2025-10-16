@@ -11,7 +11,7 @@ export const useToggleAppreciation = () => {
 	const options = useMemo(
 		() => [
 			{
-				label: "送ったmomopos",
+				label: "送ったHugnote",
 				icon: (
 					<Icon color={"blush"}>
 						<SendHorizontal />
@@ -20,7 +20,7 @@ export const useToggleAppreciation = () => {
 				id: "send",
 			},
 			{
-				label: "もらったmomopos",
+				label: "もらったHugnote",
 				icon: (
 					<Icon color={"sage"}>
 						<Gift />
