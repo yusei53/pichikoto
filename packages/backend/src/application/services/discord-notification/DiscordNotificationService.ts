@@ -94,17 +94,17 @@ export class DiscordNotificationService
     const senderMention = `<@${appreciation.senderID.value}>`;
     const receiverMentions = appreciation.receiverIDs.value
       .map((receiverID) => `<@${receiverID.value}>`)
-      .join(", ");
+      .join(" ");
 
     const totalPoints = appreciation.getTotalConsumedPoints().value;
     const appreciationUrl = `${frontendBaseUrl}/appreciation/${appreciation.appreciationID.value.value}`;
 
     return [
       `${senderMention} が、${receiverMentions} に${totalPoints}ポイントとメッセージを送りました！`,
-      `「${appreciation.message.value}」`,
       "",
-      "こちらからも読むことができます。",
-      appreciationUrl
+      `**「${appreciation.message.value}」**`,
+      "",
+      `[こちら](${appreciationUrl})からも読むことができます。`
     ].join("\n");
   }
 }

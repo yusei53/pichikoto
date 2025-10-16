@@ -23,6 +23,7 @@ export type Env = {
   BASE_URL: string;
   JWT_SECRET: string;
   FRONTEND_BASE_URL: string;
+  DISCORD_WEBHOOK_URL: string;
 };
 
 const app = new Hono<{ Bindings: Env }>().basePath("/api");
