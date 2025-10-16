@@ -11,7 +11,7 @@ export const useToggleProfile = () => {
 	const options = useMemo(
 		() => [
 			{
-				label: "momoposを作成",
+				label: "Hugnoteを作成する",
 				icon: (
 					<Icon color={"blush"}>
 						<SendHorizontal />

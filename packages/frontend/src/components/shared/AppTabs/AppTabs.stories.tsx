@@ -15,7 +15,7 @@ export const Default: Story = {
 		options: [
 			{
 				id: "post",
-				label: "momoposを作成",
+				label: "Hugnoteを作成",
 				icon: (
 					<Icon color={"blush"}>
 						<SendHorizontal />
