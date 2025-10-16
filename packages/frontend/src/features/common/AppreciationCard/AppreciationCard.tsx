@@ -33,16 +33,15 @@ export const AppreciationCard: React.FC<AppreciationCardProps> = ({
 					"rgba(0, 0, 0, 0.05) 0px 2px 4px, rgba(0, 0, 0, 0.03) 0px 1px 1px",
 				border: "1px solid",
 				borderColor: "border",
+				position: "relative",
 			})}
 		>
 			<Card.Header>
 				<Stack direction={"row"} alignItems={"center"} gap={"24px"}>
-					<Stack direction={"row"} alignItems={"center"}>
+					<Stack direction={"column"} alignItems={"center"} gap={"4px"}>
 						<Avatar size={"xl"} src={appreciation.sender.discordAvatar} />
-						<Stack gap={"4px"}>
-							{/* <Box>{globalUserName}</Box> */}
-							<Box>{appreciation.sender.discordUserName}</Box>
-						</Stack>
+						{/* <Box>{globalUserName}</Box> */}
+						<Box>{appreciation.sender.discordUserName}</Box>
 					</Stack>
 					<Icon size={"lg"}>
 						<SendHorizontal />
@@ -125,9 +124,11 @@ export const AppreciationCard: React.FC<AppreciationCardProps> = ({
 							</Popover.Content>
 						</Popover.Positioner>
 					</Popover.Root>
-					<Box ml={"auto"}>{formatDate(appreciation.createdAt)}</Box>
 				</Stack>
 			</Card.Header>
+			<Box position="absolute" top="16px" right="24px">
+				{formatDate(appreciation.createdAt)}
+			</Box>
 			<Card.Body>
 				<Box>{appreciation.message}</Box>
 			</Card.Body>
