@@ -96,11 +96,10 @@ export class DiscordNotificationService
       .map((receiverID) => `<@${receiverID.value}>`)
       .join(" ");
 
-    const totalPoints = appreciation.getTotalConsumedPoints().value;
     const appreciationUrl = `${frontendBaseUrl}/appreciation/${appreciation.appreciationID.value.value}`;
 
     return [
-      `${senderMention} が、${receiverMentions} に${totalPoints}ポイントとメッセージを送りました！`,
+      `${senderMention} が、${receiverMentions} に${appreciation.pointPerReceiver.value}ポイントとメッセージを送りました！`,
       "",
       `**「${appreciation.message.value}」**`,
       "",
