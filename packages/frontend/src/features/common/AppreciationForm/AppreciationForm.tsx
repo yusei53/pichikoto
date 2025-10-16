@@ -46,7 +46,7 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 				})}
 			>
 				<Card.Body>
-					<Stack direction={"column"} gap={"8px"}>
+					<Stack direction={"column"} gap={"16px"}>
 						<Combobox.Root
 							multiple
 							collection={usersCollection}
@@ -81,17 +81,17 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 													<Avatar size={"sm"} src={item.avatarUrl} />
 													<Combobox.ItemText>{item.label}</Combobox.ItemText>
 													<Combobox.ItemText>{item.value}</Combobox.ItemText>
+													<Combobox.ItemIndicator>
+														<CheckIcon />
+													</Combobox.ItemIndicator>
 												</Stack>
-												<Combobox.ItemIndicator>
-													<CheckIcon />
-												</Combobox.ItemIndicator>
 											</Combobox.Item>
 										))}
 									</Combobox.ItemGroup>
 								</Combobox.Content>
 							</Combobox.Positioner>
 						</Combobox.Root>
-						<Stack direction={"row"} alignItems={"center"} gap={"8px"}>
+						<Stack direction={"row"} alignItems={"center"} gap={"16px"}>
 							{currentSendUsers.map((user) => (
 								<Stack
 									direction={"column"}
@@ -99,15 +99,27 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 									gap={"4px"}
 									key={user.discordUserID}
 								>
-									<Avatar size={"sm"} src={user.discordAvatar} />
-									<Box>{user.discordUserName}</Box>
+									<Avatar size={"md"} src={user.discordAvatar} />
+									<Box
+										maxWidth="60px"
+										overflow="hidden"
+										textOverflow="ellipsis"
+										whiteSpace="nowrap"
+										fontSize="sm"
+									>
+										{user.discordUserName}
+									</Box>
 								</Stack>
 							))}
 						</Stack>
 						<Divider />
 						<Field.Root invalid={!!errors.message}>
 							<Field.Input asChild>
-								<Textarea minH={"175px"} {...register("message")} />
+								<Textarea
+									minH={"175px"}
+									{...register("message")}
+									placeholder="感謝の気持ちを伝えよう✨"
+								/>
 							</Field.Input>
 							<Field.ErrorText>{errors.message?.message}</Field.ErrorText>
 						</Field.Root>

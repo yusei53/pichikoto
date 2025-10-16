@@ -49,11 +49,11 @@ export const ClientTopPage: React.FC<ClientTopPageProps> = ({
 				<Stack
 					direction={"column"}
 					width={"100%"}
-					height={"calc(100vh - 48px)"}
+					height={"calc(100vh - 40px)"}
 					overflowY={"auto"}
 				>
 					{/* <AppreciationListHeader onSearchChange={() => { }}> */}
-					<Stack direction={"row"} gap={"24px"}>
+					<Stack direction={"row"} gap={"16px"}>
 						<TopRanking
 							titleIcon={
 								<Icon color={"blush"}>
