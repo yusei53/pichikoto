@@ -79,12 +79,12 @@ describe("DiscordNotificationService", () => {
 
       const requestBody = JSON.parse(callArgs[1].body);
       expect(requestBody.content).toContain(
-        "<@123456789012345678> が、<@234567890123456789>, <@345678901234567890> に88ポイントとメッセージを送りました！"
+        "<@123456789012345678> が、<@234567890123456789> <@345678901234567890> に44ポイントとメッセージを送りました！"
       );
-      expect(requestBody.content).toContain("「ありがとうございました！」");
-      expect(requestBody.content).toContain("こちらからも読むことができます。");
+      expect(requestBody.content).toContain("**「ありがとうございました！」**");
+      expect(requestBody.content).toContain("[こちら](");
       expect(requestBody.content).toContain(
-        "https://frontend.example.com/appreciation/"
+        ")からも読むことができます。"
       );
     });
 
@@ -161,11 +161,11 @@ describe("DiscordNotificationService", () => {
       const callArgs = mockFetch.mock.calls[0];
       const requestBody = JSON.parse(callArgs[1].body);
       const expectedMessage = [
-        "<@123456789012345678> が、<@234567890123456789>, <@345678901234567890> に88ポイントとメッセージを送りました！",
-        "「ありがとうございました！」",
+        "<@123456789012345678> が、<@234567890123456789> <@345678901234567890> に44ポイントとメッセージを送りました！",
         "",
-        "こちらからも読むことができます。",
-        `https://frontend.example.com/appreciation/${mockAppreciation.appreciationID.value.value}`
+        "**「ありがとうございました！」**",
+        "",
+        `[こちら](https://frontend.example.com/appreciation/${mockAppreciation.appreciationID.value.value})からも読むことができます。`
       ].join("\n");
 
       expect(requestBody.content).toBe(expectedMessage);
@@ -185,7 +185,7 @@ describe("DiscordNotificationService", () => {
       const callArgs = mockFetch.mock.calls[0];
       const requestBody = JSON.parse(callArgs[1].body);
       expect(requestBody.content).toContain(
-        "<@123456789012345678> が、<@234567890123456789>, <@345678901234567890> に"
+        "<@123456789012345678> が、<@234567890123456789> <@345678901234567890> に"
       );
     });
   });
