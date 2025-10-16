@@ -138,7 +138,10 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 									<Field.Root invalid={!!errors.points}>
 										<Combobox.Control>
 											<Field.Input asChild>
-												<Combobox.Input placeholder="ポイントを選択" asChild>
+												<Combobox.Input
+													placeholder="ポイントを選択（1人あたり）"
+													asChild
+												>
 													<Input />
 												</Combobox.Input>
 											</Field.Input>
@@ -167,32 +170,28 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 					</Stack>
 				</Card.Body>
 				<Card.Footer>
-					<Stack
-						direction={"row"}
-						alignItems={"center"}
-						gap={"8px"}
-						mr={"auto"}
-					>
-						<Box
+					<Stack direction={"row"} mr={"auto"}>
+						{/* <Box
 							border={"1px solid"}
 							borderColor={"border"}
 							borderRadius={"8px"}
 							px={"8px"}
 						>
 							{currentPoints}pt
-						</Box>
+						</Box> */}
 						<Box>
 							合計:{" "}
 							<span
 								className={css({
 									fontWeight: "bold",
-									fontSize: "2xl",
+									fontSize: "3xl",
 								})}
 							>
 								{currentPoints * currentSendUsers.length}pt
 							</span>
 						</Box>
 					</Stack>
+					{/* TODO: disabled */}
 					<Button type="submit" variant="outline">
 						<Icon color="blush">
 							<SendHorizontal />
