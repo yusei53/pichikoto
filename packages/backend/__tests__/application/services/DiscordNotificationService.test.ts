@@ -83,9 +83,7 @@ describe("DiscordNotificationService", () => {
       );
       expect(requestBody.content).toContain("**「ありがとうございました！」**");
       expect(requestBody.content).toContain("[こちら](");
-      expect(requestBody.content).toContain(
-        ")からも読むことができます。"
-      );
+      expect(requestBody.content).toContain(")からも読むことができます。");
     });
 
     it("DISCORD_WEBHOOK_URLが設定されていない場合はエラーを返す", async () => {
