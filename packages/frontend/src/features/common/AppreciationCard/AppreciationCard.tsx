@@ -29,8 +29,9 @@ export const AppreciationCard: React.FC<AppreciationCardProps> = ({
 	return (
 		<Card.Root
 			className={css({
-				boxShadow: "none",
-				border: "2px solid",
+				boxShadow:
+					"rgba(0, 0, 0, 0.05) 0px 2px 4px, rgba(0, 0, 0, 0.03) 0px 1px 1px",
+				border: "1px solid",
 				borderColor: "border",
 			})}
 		>

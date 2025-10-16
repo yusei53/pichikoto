@@ -27,13 +27,18 @@ export default defineConfig({
 			tokens: {
 				colors: {
 					border: {
-						value: "#9A9A9A",
+						value: "#f0f7ff",
 					},
 					sage: {
 						value: "#A8CE8F",
 					},
 					blush: {
 						value: "#FFB6B6",
+					},
+					bg: {
+						canvas: {
+							value: "#ffffff",
+						},
 					},
 				},
 			},
