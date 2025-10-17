@@ -38,9 +38,9 @@ export const MobileNotice: React.FC = () => {
 				>
 					<HandHeart
 						size={80}
-						color="#4A90E2"
+						color="#7BB3F0"
 						style={{
-							filter: "drop-shadow(0 4px 8px rgba(74, 144, 226, 0.3))",
+							filter: "drop-shadow(0 4px 8px rgba(123, 179, 240, 0.2))",
 						}}
 					/>
 				</Box>
@@ -50,15 +50,15 @@ export const MobileNotice: React.FC = () => {
 					<Box
 						fontSize="xl"
 						fontWeight="bold"
-						color="#2C5282"
+						color="#5A7FB8"
 						style={{
-							textShadow: "0 2px 4px rgba(44, 82, 130, 0.2)",
+							textShadow: "0 2px 4px rgba(90, 127, 184, 0.15)",
 						}}
 					>
 						スマホ対応準備中です
 					</Box>
 
-					<Box fontSize="md" color="#4A5568" fontWeight="medium">
+					<Box fontSize="md" color="#6B7280" fontWeight="medium">
 						もう少しお待ちください 🙇‍♂️
 					</Box>
 				</Stack>
@@ -66,7 +66,7 @@ export const MobileNotice: React.FC = () => {
 				{/* かわいい装飾 */}
 				<Stack direction="row" gap="2" alignItems="center">
 					<Box fontSize="lg">✨</Box>
-					<Box fontSize="sm" color="#5A67D8" fontWeight="medium">
+					<Box fontSize="sm" color="#8B9DC3" fontWeight="medium">
 						PC・タブレットでお楽しみください
 					</Box>
 					<Box fontSize="lg">✨</Box>
