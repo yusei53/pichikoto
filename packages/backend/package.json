@@ -23,7 +23,7 @@
     "@neondatabase/serverless": "^1.0.2",
     "@pichikoto/http-contracts": "workspace:*",
     "@types/pg": "^8.15.5",
-    "drizzle-orm": "^0.44.2",
+    "drizzle-orm": "^0.44.6",
     "hono": "^4.9.9",
     "jose": "^6.1.0",
     "neverthrow": "^8.2.0",
