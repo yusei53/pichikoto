@@ -4,14 +4,14 @@ import { Avatar } from "~/components/ui/avatar";
 import { Icon } from "~/components/ui/icon";
 
 type UserProfileProps = {
-	userID: string;
+	globalName: string | null;
 	userName: string;
 	avatarUrl: string;
 	isNotificationEnabled: boolean;
 };
 
 export const UserProfile: React.FC<UserProfileProps> = ({
-	userID,
+	globalName,
 	userName,
 	avatarUrl,
 	isNotificationEnabled,
@@ -24,8 +24,14 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 				</Box>
 				<Box>
 					<Stack direction={"column"} gap={"4px"}>
-						<Box fontWeight={"bold"}>{userName}</Box>
-						<Box fontSize={"md"}>{userID}</Box>
+						{globalName !== null ? (
+							<>
+								<Box fontWeight={"bold"}>{globalName}</Box>
+								<Box fontSize={"md"}>{userName}</Box>
+							</>
+						) : (
+							<Box fontWeight={"bold"}>{userName}</Box>
+						)}
 					</Stack>
 				</Box>
 				{isNotificationEnabled && (
@@ -37,6 +43,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 					</Stack>
 				)}
 			</Stack>
+
 			<Divider />
 		</Stack>
 	);

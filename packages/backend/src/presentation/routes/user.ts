@@ -20,6 +20,13 @@ const userControllerFactory = (c: Context) => {
 export const user = new Hono<{ Bindings: Env }>();
 
 user.get("/", async (c) => {
+  // クエリパラメータにnameがある場合はgetUserInfoを呼ぶ
+  const userName = c.req.query("name");
+  if (userName) {
+    const controller = userControllerFactory(c);
+    return controller.getUserInfo(c);
+  }
+
   const controller = userControllerFactory(c);
   return controller.getAllUsers(c);
 });

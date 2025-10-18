@@ -1,5 +1,5 @@
 import { SendHorizontal } from "lucide-react";
-import { css } from "styled-system/css";
+import Link from "next/link";
 import { Box, Stack } from "styled-system/jsx";
 import { Avatar } from "~/components/ui/avatar";
 import { Card } from "~/components/ui/card";
@@ -9,6 +9,7 @@ import { usePopover } from "~/components/ui/usePopover";
 import { formatDate } from "~/lib/date-helper";
 import type { Appreciation } from "~/model/appreciation";
 import useDisplayReceivedUsers from "./useDisplayReceivedUsers";
+import { css } from "styled-system/css";
 
 type AppreciationCardProps = {
 	appreciation: Appreciation;
@@ -38,14 +39,21 @@ export const AppreciationCard: React.FC<AppreciationCardProps> = ({
 		>
 			<Card.Header>
 				<Stack direction={"row"} alignItems={"center"} gap={"24px"}>
-					<Stack direction={"column"} alignItems={"center"} gap={"4px"}>
-						<Avatar size={"xl"} src={appreciation.sender.discordAvatar} />
-						{appreciation.sender.discordGlobalName !== null ? (
-							<Box>{appreciation.sender.discordGlobalName}</Box>
-						) : (
-							<Box>{appreciation.sender.discordUserName}</Box>
-						)}
-					</Stack>
+					<Link href={`/${appreciation.sender.discordUserName}`}>
+						<Stack
+							direction={"column"}
+							alignItems={"center"}
+							gap={"4px"}
+							cursor="pointer"
+						>
+							<Avatar size={"xl"} src={appreciation.sender.discordAvatar} />
+							{appreciation.sender.discordGlobalName !== null ? (
+								<Box>{appreciation.sender.discordGlobalName}</Box>
+							) : (
+								<Box>{appreciation.sender.discordUserName}</Box>
+							)}
+						</Stack>
+					</Link>
 					<Icon size={"lg"}>
 						<SendHorizontal />
 					</Icon>
@@ -64,19 +72,24 @@ export const AppreciationCard: React.FC<AppreciationCardProps> = ({
 						>
 							<Stack direction={"row"} alignItems={"center"} gap={"16px"}>
 								{displayReceivedUsers.map((user) => (
-									<Stack
-										direction={"column"}
-										alignItems={"center"}
-										gap={"4px"}
+									<Link
+										href={`/${user.discordUserName}`}
 										key={user.discordUserID}
 									>
-										<Avatar size={"xl"} src={user.discordAvatar} />
-										{user.discordGlobalName !== null ? (
-											<Box>{user.discordGlobalName}</Box>
-										) : (
-											<Box>{user.discordUserName}</Box>
-										)}
-									</Stack>
+										<Stack
+											direction={"column"}
+											alignItems={"center"}
+											gap={"4px"}
+											cursor="pointer"
+										>
+											<Avatar size={"xl"} src={user.discordAvatar} />
+											{user.discordGlobalName !== null ? (
+												<Box>{user.discordGlobalName}</Box>
+											) : (
+												<Box>{user.discordUserName}</Box>
+											)}
+										</Stack>
+									</Link>
 								))}
 								{hiddenReceivedUsersCount > 0 && (
 									<Box
@@ -114,21 +127,29 @@ export const AppreciationCard: React.FC<AppreciationCardProps> = ({
 							>
 								<Stack direction={"column"} gap={"16px"} p={"8px"}>
 									{appreciation.receivers.map((user) => (
-										<Stack
-											direction={"row"}
-											alignItems={"center"}
-											gap={"16px"}
+										<Link
+											href={`/${user.discordUserName}`}
 											key={user.discordUserID}
+											className={css({
+												outline: "none",
+											})}
 										>
-											<Avatar size={"xl"} src={user.discordAvatar} />
-											<Stack direction={"column"} gap={"8px"}>
-												{user.discordGlobalName !== null ? (
-													<Box>{user.discordGlobalName}</Box>
-												) : (
-													<Box>{user.discordUserName}</Box>
-												)}
+											<Stack
+												direction={"row"}
+												alignItems={"center"}
+												gap={"16px"}
+												cursor="pointer"
+											>
+												<Avatar size={"xl"} src={user.discordAvatar} />
+												<Stack direction={"column"} gap={"8px"}>
+													{user.discordGlobalName !== null ? (
+														<Box>{user.discordGlobalName}</Box>
+													) : (
+														<Box>{user.discordUserName}</Box>
+													)}
+												</Stack>
 											</Stack>
-										</Stack>
+										</Link>
 									))}
 								</Stack>
 							</Popover.Content>

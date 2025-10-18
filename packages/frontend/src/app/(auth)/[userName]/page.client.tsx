@@ -12,10 +12,10 @@ import { AppreciationStatus } from "~/features/routes/user-page/AppreciationStat
 import { useToggleAppreciation } from "~/features/routes/user-page/useToggleAppreciation";
 import { useToggleProfile } from "~/features/routes/user-page/useToggleProfile";
 import type { Appreciation } from "~/model/appreciation";
-import type { User } from "~/model/user";
+import type { User, UserInfo } from "~/model/user";
 
 type UserPageClientProps = {
-	user: User;
+	user: UserInfo;
 	isOwnUser: boolean;
 	isNotificationEnabled: boolean;
 	appreciationList: Appreciation[];
@@ -48,7 +48,7 @@ export const UserPageClient: React.FC<UserPageClientProps> = ({
 			<Stack direction={"row"} gap={"16px"} p={"24px"} overflowY={"hidden"}>
 				<Stack direction={"column"} gap={"8px"} width={"800px"}>
 					<UserProfile
-						userID={user.discordUserID}
+						globalName={user.discordGlobalName}
 						userName={user.discordUserName}
 						avatarUrl={user.discordAvatar}
 						isNotificationEnabled={isNotificationEnabled}
@@ -81,7 +81,10 @@ export const UserPageClient: React.FC<UserPageClientProps> = ({
 							</Stack>
 						</>
 					) : (
-						<AppreciationForm users={allUsers} remainingPoints={0} />
+						<AppreciationForm
+							users={allUsers}
+							remainingPoints={user.remainingPoints}
+						/>
 					)}
 				</Stack>
 				<Stack

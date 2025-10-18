@@ -34,13 +34,18 @@ export const toAppreciations = (
 	);
 };
 
-export const toAllUsers = (response: GetAllUsersResponse): User[] => {
-	return response.users.map((user) => ({
-		discordUserID: user.discordUserID,
-		discordUserName: user.discordUserName,
-		discordGlobalName: user.discordGlobalName,
-		discordAvatar: user.discordAvatar,
-	}));
+export const toAllUsers = (
+	response: GetAllUsersResponse,
+	currentUserID: string
+): User[] => {
+	return response.users
+		.map((user) => ({
+			discordUserID: user.discordUserID,
+			discordUserName: user.discordUserName,
+			discordGlobalName: user.discordGlobalName,
+			discordAvatar: `https://cdn.discordapp.com/avatars/${user.discordUserID}/${user.discordAvatar}.png`,
+		}))
+		.filter((user) => user.discordUserID !== currentUserID);
 };
 
 export const toUserInfo = (response: UserInfoResponse): UserInfo => {
@@ -48,7 +53,7 @@ export const toUserInfo = (response: UserInfoResponse): UserInfo => {
 		discordUserID: response.discordUserID,
 		discordUserName: response.discordUserName,
 		discordGlobalName: response.discordGlobalName,
-		discordAvatar: response.discordAvatar,
+		discordAvatar: `https://cdn.discordapp.com/avatars/${response.discordUserID}/${response.discordAvatar}.png`,
 		remainingPoints: response.remainingPoints,
 	} satisfies UserInfo;
 };

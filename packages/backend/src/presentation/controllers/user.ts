@@ -41,6 +41,17 @@ export class UserController implements UserControllerInterface {
   async getUserInfo(c: Context): Promise<Response> {
     const responseCreator = new UserInfoQueryServiceErrorResponseCreator();
 
+    // クエリパラメータからnameを取得
+    const userName = c.req.query("name");
+
+    if (userName) {
+      // userNameで検索
+      const userInfo =
+        await this.getUserInfoUseCase.getUserInfoByName(userName);
+      return responseCreator.fromResult(userInfo).respond(c);
+    }
+
+    // パスパラメータからdiscordUserIDを取得
     const discordUserID = c.req.param("discordUserID");
     const userInfo = await this.getUserInfoUseCase.getUserInfo(
       DiscordUserID.from(discordUserID)

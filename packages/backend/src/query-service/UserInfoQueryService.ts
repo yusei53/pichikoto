@@ -26,19 +26,56 @@ export class UserInfoQueryService {
         await this.calculateTotalPointConsumption(discordUserID);
 
       // 残ポイント = 400 - 消費ポイント
-      const remainingPoint = Math.max(0, 400 - totalConsumption);
+      const remainingPoints = Math.max(0, 400 - totalConsumption);
 
       return ok({
         discordUserID: DiscordUserID.from(user.discordUserId).value,
         discordUserName: user.discordUserName,
         discordGlobalName: user.discordGlobalName,
         discordAvatar: user.discordAvatar,
-        remainingPoint
+        remainingPoints
       });
     } catch (error) {
       return err(
         new UserInfoQueryServiceError(
           "Failed to fetch user info",
+          error instanceof Error ? error : new Error(String(error))
+        )
+      );
+    }
+  }
+
+  async getUserInfoByName(
+    userName: string
+  ): Promise<Result<UserInfo, UserInfoQueryServiceError>> {
+    try {
+      const user = await db().query.user.findFirst({
+        where: eq(userSchema.discordUserName, userName)
+      });
+      if (!user) {
+        return err(new UserInfoQueryServiceError("User not found"));
+      }
+
+      const discordUserID = DiscordUserID.from(user.discordUserId);
+
+      // 総消費ポイントを計算
+      const totalConsumption =
+        await this.calculateTotalPointConsumption(discordUserID);
+
+      // 残ポイント = 400 - 消費ポイント
+      const remainingPoints = Math.max(0, 400 - totalConsumption);
+
+      return ok({
+        discordUserID: discordUserID.value,
+        discordUserName: user.discordUserName,
+        discordGlobalName: user.discordGlobalName,
+        discordAvatar: user.discordAvatar,
+        remainingPoints
+      });
+    } catch (error) {
+      return err(
+        new UserInfoQueryServiceError(
+          "Failed to fetch user info by name",
           error instanceof Error ? error : new Error(String(error))
         )
       );
@@ -73,7 +110,7 @@ type UserInfo = {
   discordUserName: string;
   discordGlobalName: string | null;
   discordAvatar: string;
-  remainingPoint: number;
+  remainingPoints: number;
 };
 
 export class UserInfoQueryServiceError extends Error {

@@ -46,7 +46,7 @@ export const useAppreciationForm = ({
 		return createListCollection({
 			items: users.map((user) => ({
 				value: user.discordUserID,
-				label: user.discordUserName,
+				label: user.discordGlobalName ?? user.discordUserName,
 				avatarUrl: user.discordAvatar,
 			})),
 		});

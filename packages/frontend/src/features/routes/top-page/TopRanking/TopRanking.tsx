@@ -1,4 +1,5 @@
 import { Crown } from "lucide-react";
+import Link from "next/link";
 import { Box, Divider, Stack } from "styled-system/jsx";
 import { Avatar } from "~/components/ui/avatar";
 import { Icon } from "~/components/ui/icon";
@@ -30,22 +31,24 @@ export const TopRanking: React.FC<TopRankingProps> = ({
 			</Stack>
 			<Stack direction={"row"} gap={"24px"} alignItems={"center"}>
 				{rankingUsers.map((user, index) => (
-					<Stack
-						key={user.userID}
-						direction={"column"}
-						alignItems={"center"}
-						mt={"auto"}
-					>
-						<Icon>
-							<Crown />
-						</Icon>
-						<Box>
-							<Avatar size={getAvatarSize(index)} src={user.discordAvatar} />
-						</Box>
-						<Box mt={"auto"} fontWeight={"bold"}>
-							{user.totalPoints}pt
-						</Box>
-					</Stack>
+					<Link href={`/${user.discordUserName}`} key={user.userID}>
+						<Stack
+							direction={"column"}
+							alignItems={"center"}
+							mt={"auto"}
+							cursor="pointer"
+						>
+							<Icon>
+								<Crown />
+							</Icon>
+							<Box>
+								<Avatar size={getAvatarSize(index)} src={user.discordAvatar} />
+							</Box>
+							<Box mt={"auto"} fontWeight={"bold"}>
+								{user.totalPoints}pt
+							</Box>
+						</Stack>
+					</Link>
 				))}
 			</Stack>
 		</Stack>

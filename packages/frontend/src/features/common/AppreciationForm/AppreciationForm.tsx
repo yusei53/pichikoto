@@ -80,7 +80,6 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 												>
 													<Avatar size={"sm"} src={item.avatarUrl} />
 													<Combobox.ItemText>{item.label}</Combobox.ItemText>
-													<Combobox.ItemText>{item.value}</Combobox.ItemText>
 													<Combobox.ItemIndicator>
 														<CheckIcon />
 													</Combobox.ItemIndicator>
@@ -107,7 +106,7 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 										whiteSpace="nowrap"
 										fontSize="sm"
 									>
-										{user.discordUserName}
+										{user.discordGlobalName ?? user.discordUserName}
 									</Box>
 								</Stack>
 							))}

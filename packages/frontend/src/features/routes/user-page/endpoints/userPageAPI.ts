@@ -43,6 +43,6 @@ export const userPageAPI = {
 				tags: ["users"],
 			},
 		});
-		return toAllUsers(result);
+		return toAllUsers(result, "");
 	},
 };

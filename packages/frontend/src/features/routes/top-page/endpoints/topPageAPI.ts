@@ -34,7 +34,7 @@ export const topPageAPI = {
 				tags: ["users"],
 			},
 		});
-		return toAllUsers(result);
+		return toAllUsers(result, "");
 	},
 	async getPointLeaders(): Promise<PointLeaders> {
 		const result = await apiClient.request<GetWeeklyPointLeadersResponse>(
@@ -46,7 +46,6 @@ export const topPageAPI = {
 				},
 			}
 		);
-		console.log(result);
 		return toPointLeaders(result);
 	},
 };

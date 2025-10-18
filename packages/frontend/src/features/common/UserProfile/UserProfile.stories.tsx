@@ -10,7 +10,7 @@ type Story = StoryObj<typeof UserProfile>;
 
 export const Default: Story = {
 	args: {
-		userID: "test.id",
+		globalName: "test.id",
 		userName: "テストユーザー#1234",
 		avatarUrl: "https://example.com/avatar.jpg",
 		isNotificationEnabled: false,
@@ -19,7 +19,7 @@ export const Default: Story = {
 
 export const WithNotification: Story = {
 	args: {
-		userID: "test.id",
+		globalName: "test.id",
 		userName: "テストユーザー#1234",
 		isNotificationEnabled: true,
 		avatarUrl: "https://example.com/avatar.jpg",
