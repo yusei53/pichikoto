@@ -27,7 +27,8 @@ describe("UserController", () => {
     mockContext = {
       json: vi.fn(),
       req: {
-        param: vi.fn()
+        param: vi.fn(),
+        query: vi.fn()
       }
     } as any;
 
@@ -107,6 +108,7 @@ describe("UserController", () => {
         remainingPoint: 350
       };
 
+      vi.mocked(mockContext.req.query).mockReturnValue(undefined);
       vi.mocked(mockContext.req.param).mockReturnValue(discordUserID);
       vi.mocked(mockUserInfoQueryService.getUserInfo).mockResolvedValue(
         ok(mockUserInfo)
@@ -116,6 +118,7 @@ describe("UserController", () => {
       await controller.getUserInfo(mockContext);
 
       // Assert
+      expect(mockContext.req.query).toHaveBeenCalledWith("name");
       expect(mockContext.req.param).toHaveBeenCalledWith("discordUserID");
       expect(mockUserInfoQueryService.getUserInfo).toHaveBeenCalledWith(
         DiscordUserID.from(discordUserID)
@@ -127,6 +130,7 @@ describe("UserController", () => {
       const discordUserID = "123456789012345678";
       const error = new UserInfoQueryServiceError("User not found");
 
+      vi.mocked(mockContext.req.query).mockReturnValue(undefined);
       vi.mocked(mockContext.req.param).mockReturnValue(discordUserID);
       vi.mocked(mockUserInfoQueryService.getUserInfo).mockResolvedValue(
         err(error)
@@ -136,6 +140,7 @@ describe("UserController", () => {
       await controller.getUserInfo(mockContext);
 
       // Assert
+      expect(mockContext.req.query).toHaveBeenCalledWith("name");
       expect(mockContext.req.param).toHaveBeenCalledWith("discordUserID");
       expect(mockUserInfoQueryService.getUserInfo).toHaveBeenCalledWith(
         DiscordUserID.from(discordUserID)
@@ -145,10 +150,12 @@ describe("UserController", () => {
     it("不正なDiscordUserIDの場合はエラーが発生する", async () => {
       // Arrange
       const invalidDiscordUserID = "invalid-id";
+      vi.mocked(mockContext.req.query).mockReturnValue(undefined);
       vi.mocked(mockContext.req.param).mockReturnValue(invalidDiscordUserID);
 
       // Act & Assert
       await expect(controller.getUserInfo(mockContext)).rejects.toThrow();
+      expect(mockContext.req.query).toHaveBeenCalledWith("name");
       expect(mockContext.req.param).toHaveBeenCalledWith("discordUserID");
     });
   });

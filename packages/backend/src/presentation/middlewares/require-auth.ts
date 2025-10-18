@@ -21,5 +21,3 @@ export async function requireAuth(c: Context, next: Next) {
   c.set("discordUserID", sub);
   return next();
 }
-
-
