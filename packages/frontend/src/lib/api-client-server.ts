@@ -81,7 +81,13 @@ class ApiClientServer {
 				throw apiError;
 			}
 
-			return response.json();
+			// レスポンスボディが空の場合に対応
+			const text = await response.text();
+			if (!text || text.trim() === "") {
+				return undefined as T;
+			}
+
+			return JSON.parse(text);
 		} catch (error) {
 			if (error instanceof Error && error.message.includes("fetch")) {
 				throw new Error("ネットワークエラーが発生しました");

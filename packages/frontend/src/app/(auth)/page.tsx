@@ -1,8 +1,10 @@
 import { topPageAPIServer } from "~/features/routes/top-page/endpoints/topPageAPI.server";
 import { ClientTopPage } from "./page.client";
 
-// NOTE: プリレンダリングを無効化してビルド時のAPIコールエラーを回避
-export const dynamic = "force-dynamic";
+// ISR（Incremental Static Regeneration）を使用
+// 60秒間キャッシュを保持し、その後バックグラウンドで再生成
+// Server ActionのrevalidateTagで即座にキャッシュを無効化することも可能
+export const revalidate = 60;
 
 const TopPage = async () => {
 	const appreciationList = await topPageAPIServer.getAppreciationList();
@@ -12,7 +14,6 @@ const TopPage = async () => {
 	return (
 		<ClientTopPage
 			userInfo={userInfo}
-			// 1stでは落とす
 			isNotificationEnabled={false}
 			allUsers={allUsers}
 			sendPointRanking={pointLeaders.topSenders}

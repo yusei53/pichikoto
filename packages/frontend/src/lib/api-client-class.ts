@@ -94,9 +94,9 @@ class ApiClient {
 
 	async request<T = any>(
 		url: string,
-		options: RequestInit & { skipAuth?: boolean } = {}
+		options: RequestInit & { skipAuth?: boolean; _retry?: boolean } = {}
 	): Promise<T> {
-		const { skipAuth = false, ...fetchOptions } = options;
+		const { skipAuth = false, _retry = false, ...fetchOptions } = options;
 
 		let accessToken: string | null = null;
 		if (!skipAuth) {
@@ -130,12 +130,24 @@ class ApiClient {
 
 			if (response.status !== 401 || skipAuth) {
 				if (!response.ok) {
-					const errorData = await response.json().catch(() => ({}));
+					const errorBody = await response.json();
+
 					const apiError: ApiError = {
-						error: errorData.error || `HTTP ${response.status}`,
+						error:
+							errorBody?.error ||
+							response.statusText ||
+							`HTTP ${response.status}`,
 						status: response.status,
 					};
 					throw apiError;
+				}
+				// 204 No Content や非JSONレスポンスを安全に処理
+				if (response.status === 204) {
+					return undefined as unknown as T;
+				}
+				const contentType = response.headers.get("content-type") || "";
+				if (!contentType.includes("application/json")) {
+					return undefined as unknown as T;
 				}
 				return response.json();
 			}
@@ -149,6 +161,7 @@ class ApiClient {
 							// リフレッシュ完了後、新しいトークンで自動的に再リクエスト実行
 							this.request<T>(url, {
 								...options,
+								_retry: true,
 								headers: {
 									...fetchOptions.headers,
 									Authorization: `Bearer ${token}`,
@@ -160,6 +173,12 @@ class ApiClient {
 						reject,
 					});
 				});
+			}
+
+			// 既に一度リトライ済みで401 → 無限リトライ防止
+			if (_retry) {
+				cookieUtils.auth.clearAuth();
+				throw new Error("Unauthorized");
 			}
 
 			// 最初にエラーになったリクエストがトークンリフレッシュを実行
@@ -174,6 +193,7 @@ class ApiClient {
 				// 最初のリクエスト（このリクエスト）も新しいトークンで再実行
 				return this.request<T>(url, {
 					...options,
+					_retry: true,
 					headers: {
 						...fetchOptions.headers,
 						Authorization: `Bearer ${newAccessToken}`,

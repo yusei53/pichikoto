@@ -1,5 +1,6 @@
 import { SendHorizontal } from "lucide-react";
 import Link from "next/link";
+import { css } from "styled-system/css";
 import { Box, Stack } from "styled-system/jsx";
 import { Avatar } from "~/components/ui/avatar";
 import { Card } from "~/components/ui/card";
@@ -9,7 +10,6 @@ import { usePopover } from "~/components/ui/usePopover";
 import { formatDate } from "~/lib/date-helper";
 import type { Appreciation } from "~/model/appreciation";
 import useDisplayReceivedUsers from "./useDisplayReceivedUsers";
-import { css } from "styled-system/css";
 
 type AppreciationCardProps = {
 	appreciation: Appreciation;

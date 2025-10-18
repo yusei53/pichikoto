@@ -11,6 +11,7 @@ import { AppreciationsQueryService } from "../../query-service/AppreciationsQuer
 import { ReceivedAppreciationsQueryService } from "../../query-service/ReceivedAppreciationsQueryService";
 import { SentAppreciationsQueryService } from "../../query-service/SentAppreciationsQueryService";
 import { AppreciationController } from "../controllers/appreciation";
+import { requireAuth } from "../middlewares/require-auth";
 
 const appreciationControllerFactory = (c: Context) => {
   const dbClient = new DbClient();
@@ -47,6 +48,9 @@ const appreciationControllerFactory = (c: Context) => {
 };
 
 export const appreciation = new Hono<{ Bindings: Env }>();
+
+// 認証が必要なルートにミドルウェアを適用
+appreciation.use("/", requireAuth);
 
 appreciation.get("/", async (c: Context) => {
   const controller = appreciationControllerFactory(c);

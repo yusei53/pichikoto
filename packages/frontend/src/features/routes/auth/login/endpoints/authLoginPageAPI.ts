@@ -33,7 +33,6 @@ export const authLoginPageAPI = {
 		}
 
 		const data: CallbackResponse = await response.json();
-		console.log(data);
 		return data;
 	},
 };

@@ -1,5 +1,6 @@
 import type {
 	AllAppreciationsResponse,
+	CreateAppreciationRequest,
 	GetAllUsersResponse,
 } from "@pichikoto/http-contracts";
 import { apiClient } from "~/lib/api-client-class";
@@ -17,6 +18,12 @@ export const userPageAPI = {
 	async getUserById(userId: string): Promise<User | null> {
 		const found = mockUsers.find((u) => u.discordUserID === userId);
 		return found ?? null;
+	},
+
+	async postAppreciation(
+		appreciation: CreateAppreciationRequest
+	): Promise<void> {
+		await apiClient.post<void>("/appreciations", appreciation);
 	},
 
 	async getUser(): Promise<User> {

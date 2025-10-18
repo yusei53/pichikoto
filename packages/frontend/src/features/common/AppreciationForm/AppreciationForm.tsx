@@ -30,7 +30,7 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 		errors,
 		usersCollection,
 		pointsCollection,
-		currentSendUsers,
+		currentReceiverUsers,
 		currentPoints,
 	} = useAppreciationForm({ users, remainingPoints });
 
@@ -52,7 +52,7 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 							collection={usersCollection}
 							onValueChange={onSendUserChange}
 						>
-							<Field.Root invalid={!!errors.sendUserID}>
+							<Field.Root invalid={!!errors.receiverIDs}>
 								<Combobox.Control>
 									<Combobox.Input placeholder="送る人を選択" asChild>
 										<Field.Input asChild>
@@ -65,7 +65,7 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 										</IconButton>
 									</Combobox.Trigger>
 								</Combobox.Control>
-								<Field.ErrorText>{errors.sendUserID?.message}</Field.ErrorText>
+								<Field.ErrorText>{errors.receiverIDs?.message}</Field.ErrorText>
 							</Field.Root>
 							<Combobox.Positioner>
 								<Combobox.Content>
@@ -91,7 +91,7 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 							</Combobox.Positioner>
 						</Combobox.Root>
 						<Stack direction={"row"} alignItems={"center"} gap={"16px"}>
-							{currentSendUsers.map((user) => (
+							{currentReceiverUsers.map((user) => (
 								<Stack
 									direction={"column"}
 									alignItems={"center"}
@@ -141,7 +141,7 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 									collection={pointsCollection}
 									onValueChange={onPointsChange}
 								>
-									<Field.Root invalid={!!errors.points}>
+									<Field.Root invalid={!!errors.pointPerReceiver}>
 										<Field.Label fontSize={"sm"} fontWeight={"semibold"}>
 											送るポイント（1人あたり）
 										</Field.Label>
@@ -160,7 +160,9 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 												</IconButton>
 											</Combobox.Trigger>
 										</Combobox.Control>
-										<Field.ErrorText>{errors.points?.message}</Field.ErrorText>
+										<Field.ErrorText>
+											{errors.pointPerReceiver?.message}
+										</Field.ErrorText>
 									</Field.Root>
 									<Combobox.Positioner>
 										<Combobox.Content>
@@ -191,7 +193,7 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 									合計:
 								</Box>
 								<Box fontWeight={"bold"} fontSize={"2xl"} color={"accent.fg"}>
-									{currentPoints * currentSendUsers.length}pt
+									{currentPoints * currentReceiverUsers.length}pt
 								</Box>
 							</Stack>
 						</Box>
@@ -199,7 +201,9 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 							type="submit"
 							variant="outline"
 							size={"lg"}
-							disabled={currentSendUsers.length === 0 || currentPoints === 0}
+							disabled={
+								currentReceiverUsers.length === 0 || currentPoints === 0
+							}
 						>
 							<Icon color="blush">
 								<SendHorizontal />

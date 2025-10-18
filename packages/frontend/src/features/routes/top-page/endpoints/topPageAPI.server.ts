@@ -22,6 +22,7 @@ export const topPageAPIServer = {
 			{
 				next: {
 					tags: ["appreciations"],
+					revalidate: 30, // 30秒キャッシュ（頻繁に更新される）
 				},
 			}
 		);
@@ -33,6 +34,7 @@ export const topPageAPIServer = {
 		const result = await apiClientServer.get<GetAllUsersResponse>("/users", {
 			next: {
 				tags: ["users"],
+				revalidate: 300, // 5分キャッシュ（ユーザー情報は変わりにくい）
 			},
 		});
 		return toAllUsers(result, userID);
@@ -42,6 +44,7 @@ export const topPageAPIServer = {
 		const result = await apiClientServer.get(`/users/${userID}`, {
 			next: {
 				tags: ["users", userID],
+				revalidate: 60, // 1分キャッシュ（ポイントが変わる）
 			},
 		});
 		return toUserInfo(result);
@@ -52,6 +55,7 @@ export const topPageAPIServer = {
 			{
 				next: {
 					tags: ["point-leaders"],
+					revalidate: 60, // 1分キャッシュ
 				},
 			}
 		);

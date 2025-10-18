@@ -69,7 +69,6 @@ export const cookieUtils = {
 
 			try {
 				const payload = decodeJwt(token);
-				console.log(payload);
 				return typeof payload.sub === "string" ? payload.sub : null;
 			} catch {
 				return null;

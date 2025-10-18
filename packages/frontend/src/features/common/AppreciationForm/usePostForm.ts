@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { toaster } from "~/components/shared/AppToaster/AppToaster";
 import type { ValueChangeDetails } from "~/components/ui/styled/combobox";
 import type { User } from "~/model/user";
+import { createAppreciationAction } from "./actions/createAppreciationAction";
 import type { AppreciationValues } from "./endpoints/appreciationSchema";
 import { createAppreciationSchema } from "./endpoints/appreciationSchema";
 
@@ -28,19 +29,20 @@ export const useAppreciationForm = ({
 		handleSubmit,
 		watch,
 		trigger,
+		reset,
 		formState: { isValid, errors },
 	} = useForm<AppreciationValues>({
 		resolver: zodResolver(postSchema),
 		mode: "onChange",
 		defaultValues: {
-			sendUserID: [],
+			receiverIDs: [],
 			message: "",
-			points: 0,
+			pointPerReceiver: 0,
 		},
 	});
 
-	const sendUserID = watch("sendUserID");
-	const currentPoints = watch("points");
+	const receiverIDs = watch("receiverIDs");
+	const currentPoints = watch("pointPerReceiver");
 
 	const usersCollection = useMemo(() => {
 		return createListCollection({
@@ -52,24 +54,45 @@ export const useAppreciationForm = ({
 		});
 	}, [users]);
 
-	const currentSendUsers = useMemo(() => {
-		return users.filter((user) => sendUserID.includes(user.discordUserID));
-	}, [sendUserID, users]);
+	const currentReceiverUsers = useMemo(() => {
+		return users.filter((user) => receiverIDs.includes(user.discordUserID));
+	}, [receiverIDs, users]);
 
 	const totalPoints = useMemo(() => {
-		return currentPoints * currentSendUsers.length;
-	}, [currentPoints, currentSendUsers]);
+		return currentPoints * currentReceiverUsers.length;
+	}, [currentPoints, currentReceiverUsers]);
 
 	const onSubmit = useCallback(
-		handleSubmit((data) => {
-			toaster.create({
-				title: "成功",
-				description: "ポストを送信しました",
-				type: "success",
-			});
-			console.log(data);
+		handleSubmit(async (data) => {
+			try {
+				const result = await createAppreciationAction(data);
+
+				if (result.success) {
+					reset();
+					toaster.create({
+						title: "成功",
+						description: "ポストを送信しました",
+						type: "success",
+					});
+				} else {
+					toaster.create({
+						title: "エラー",
+						description: result.error || "ポストを送信できませんでした",
+						type: "error",
+					});
+				}
+			} catch (error) {
+				toaster.create({
+					title: "エラー",
+					description:
+						error instanceof Error
+							? error.message
+							: "ポストを送信できませんでした",
+					type: "error",
+				});
+			}
 		}),
-		[handleSubmit]
+		[handleSubmit, reset]
 	);
 
 	const calculatePoints = useCallback(
@@ -83,23 +106,23 @@ export const useAppreciationForm = ({
 	const pointsCollection = useMemo(() => {
 		return createListCollection({
 			items: initialPoints.map((point) => ({
-				value: calculatePoints(point, currentSendUsers.length),
-				label: `${calculatePoints(point, currentSendUsers.length)}pt`,
+				value: calculatePoints(point, currentReceiverUsers.length),
+				label: `${calculatePoints(point, currentReceiverUsers.length)}pt`,
 				disabled:
-					calculatePoints(point, currentSendUsers.length) *
-						currentSendUsers.length >
+					calculatePoints(point, currentReceiverUsers.length) *
+						currentReceiverUsers.length >
 					remainingPoints,
 			})),
 		});
-	}, [calculatePoints, currentSendUsers.length, remainingPoints]);
+	}, [calculatePoints, currentReceiverUsers.length, remainingPoints]);
 
 	const onSendUserChange = useCallback(
 		(value: ValueChangeDetails<{ value: string; label: string }>) => {
 			setValue(
-				"sendUserID",
+				"receiverIDs",
 				value.items.map((item) => item.value)
 			);
-			trigger("sendUserID");
+			trigger("receiverIDs");
 		},
 		[setValue, trigger]
 	);
@@ -112,8 +135,8 @@ export const useAppreciationForm = ({
 				disabled: boolean;
 			}>
 		) => {
-			setValue("points", value.items[0].value);
-			trigger("points");
+			setValue("pointPerReceiver", value.items[0].value);
+			trigger("pointPerReceiver");
 		},
 		[setValue, trigger]
 	);
@@ -126,7 +149,7 @@ export const useAppreciationForm = ({
 		errors,
 		usersCollection,
 		pointsCollection,
-		currentSendUsers,
+		currentReceiverUsers,
 		currentPoints,
 		totalPoints,
 		isValid,

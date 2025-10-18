@@ -21,13 +21,13 @@ export const toAppreciations = (
 					discordUserID: appreciation.sender.id,
 					discordGlobalName: appreciation.sender.discordGlobalName,
 					discordUserName: appreciation.sender.discordUserName,
-					discordAvatar: appreciation.sender.discordAvatar,
+					discordAvatar: `https://cdn.discordapp.com/avatars/${appreciation.sender.id}/${appreciation.sender.discordAvatar}.png`,
 				},
 				receivers: appreciation.receivers.map((receiver) => ({
 					discordUserID: receiver.id,
 					discordGlobalName: receiver.discordGlobalName,
 					discordUserName: receiver.discordUserName,
-					discordAvatar: receiver.discordAvatar,
+					discordAvatar: `https://cdn.discordapp.com/avatars/${receiver.id}/${receiver.discordAvatar}.png`,
 				})),
 				pointPerReceiver: appreciation.pointPerReceiver,
 			}) satisfies Appreciation
@@ -66,13 +66,13 @@ export const toPointLeaders = (
 			userID: sender.id,
 			totalPoints: sender.totalPoints,
 			discordUserName: sender.discordUserName,
-			discordAvatar: sender.discordAvatar,
+			discordAvatar: `https://cdn.discordapp.com/avatars/${sender.id}/${sender.discordAvatar}.png`,
 		})),
 		topReceivers: response.topReceivers.map((receiver) => ({
 			userID: receiver.id,
 			totalPoints: receiver.totalPoints,
 			discordUserName: receiver.discordUserName,
-			discordAvatar: receiver.discordAvatar,
+			discordAvatar: `https://cdn.discordapp.com/avatars/${receiver.id}/${receiver.discordAvatar}.png`,
 		})),
 	} satisfies PointLeaders;
 };
