@@ -101,14 +101,13 @@ describe("UserController", () => {
       // Arrange
       const discordUserID = "123456789012345678";
       const mockUserInfo = {
-        discordUserID: DiscordUserID.from(discordUserID),
+        discordUserID: DiscordUserID.from(discordUserID).value,
         discordUserName: "testuser",
         discordGlobalName: "Test User",
         discordAvatar: "avatar.png",
-        remainingPoint: 350
+        remainingPoints: 350
       };
 
-      vi.mocked(mockContext.req.query).mockReturnValue(undefined);
       vi.mocked(mockContext.req.param).mockReturnValue(discordUserID);
       vi.mocked(mockUserInfoQueryService.getUserInfo).mockResolvedValue(
         ok(mockUserInfo)
@@ -130,7 +129,6 @@ describe("UserController", () => {
       const discordUserID = "123456789012345678";
       const error = new UserInfoQueryServiceError("User not found");
 
-      vi.mocked(mockContext.req.query).mockReturnValue(undefined);
       vi.mocked(mockContext.req.param).mockReturnValue(discordUserID);
       vi.mocked(mockUserInfoQueryService.getUserInfo).mockResolvedValue(
         err(error)
@@ -150,7 +148,6 @@ describe("UserController", () => {
     it("不正なDiscordUserIDの場合はエラーが発生する", async () => {
       // Arrange
       const invalidDiscordUserID = "invalid-id";
-      vi.mocked(mockContext.req.query).mockReturnValue(undefined);
       vi.mocked(mockContext.req.param).mockReturnValue(invalidDiscordUserID);
 
       // Act & Assert
