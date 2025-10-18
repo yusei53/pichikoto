@@ -24,7 +24,7 @@
     "@pichikoto/http-contracts": "workspace:*",
     "@types/pg": "^8.15.5",
     "drizzle-orm": "^0.44.2",
-    "hono": "^4.9.9",
+    "hono": "^4.10.1",
     "jose": "^6.1.0",
     "neverthrow": "^8.2.0",
     "pg": "^8.16.3",
