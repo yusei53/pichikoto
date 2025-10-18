@@ -114,11 +114,14 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 						</Stack>
 						<Divider />
 						<Field.Root invalid={!!errors.message}>
+							<Field.Label fontSize={"sm"} fontWeight={"semibold"}>
+								感謝のメッセージ
+							</Field.Label>
 							<Field.Input asChild>
 								<Textarea
 									minH={"175px"}
 									{...register("message")}
-									placeholder="感謝の気持ちを伝えよう✨"
+									placeholder="具体的なエピソードがあるとより伝わります✨"
 								/>
 							</Field.Input>
 							<Field.ErrorText>{errors.message?.message}</Field.ErrorText>
@@ -127,8 +130,12 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 						<Stack direction={"column"} gap={"8px"}>
 							<Stack direction={"column"} gap={"4px"}>
 								<Stack direction={"row"} alignItems={"center"} gap={"16px"}>
-									<Box>今週残ポイント</Box>
-									<Box ml={"auto"}>{remainingPoints}pt</Box>
+									<Box fontWeight={"semibold"} fontSize={"sm"}>
+										今週残ポイント
+									</Box>
+									<Box ml={"auto"} fontWeight={"semibold"} fontSize={"lg"}>
+										{remainingPoints}pt
+									</Box>
 								</Stack>
 								<Divider mb={"8px"} />
 								<Combobox.Root
@@ -136,10 +143,13 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 									onValueChange={onPointsChange}
 								>
 									<Field.Root invalid={!!errors.points}>
+										<Field.Label fontSize={"sm"} fontWeight={"semibold"}>
+											送るポイント（1人あたり）
+										</Field.Label>
 										<Combobox.Control>
 											<Field.Input asChild>
 												<Combobox.Input
-													placeholder="ポイントを選択（1人あたり）"
+													placeholder="ポイントを選択してください"
 													asChild
 												>
 													<Input />
@@ -170,34 +180,34 @@ export const AppreciationForm: React.FC<AppreciationFormProps> = ({
 					</Stack>
 				</Card.Body>
 				<Card.Footer>
-					<Stack direction={"row"} mr={"auto"}>
-						{/* <Box
-							border={"1px solid"}
-							borderColor={"border"}
-							borderRadius={"8px"}
-							px={"8px"}
-						>
-							{currentPoints}pt
-						</Box> */}
+					<Stack
+						direction={"row"}
+						alignItems={"center"}
+						justifyContent={"space-between"}
+						width={"100%"}
+					>
 						<Box>
-							合計:{" "}
-							<span
-								className={css({
-									fontWeight: "bold",
-									fontSize: "3xl",
-								})}
-							>
-								{currentPoints * currentSendUsers.length}pt
-							</span>
+							<Stack direction={"row"} alignItems={"center"} gap={"8px"}>
+								<Box fontSize={"sm"} color={"fg.muted"}>
+									合計:
+								</Box>
+								<Box fontWeight={"bold"} fontSize={"2xl"} color={"accent.fg"}>
+									{currentPoints * currentSendUsers.length}pt
+								</Box>
+							</Stack>
 						</Box>
+						<Button
+							type="submit"
+							variant="outline"
+							size={"lg"}
+							disabled={currentSendUsers.length === 0 || currentPoints === 0}
+						>
+							<Icon color="blush">
+								<SendHorizontal />
+							</Icon>
+							感謝を送る
+						</Button>
 					</Stack>
-					{/* TODO: disabled */}
-					<Button type="submit" variant="outline">
-						<Icon color="blush">
-							<SendHorizontal />
-						</Icon>
-						投稿する
-					</Button>
 				</Card.Footer>
 			</Card.Root>
 		</form>

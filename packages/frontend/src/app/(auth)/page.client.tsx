@@ -7,6 +7,7 @@ import { Icon } from "~/components/ui/icon";
 import { AppreciationCard } from "~/features/common/AppreciationCard/AppreciationCard";
 import { AppreciationForm } from "~/features/common/AppreciationForm/AppreciationForm";
 import { UserProfile } from "~/features/common/UserProfile/UserProfile";
+import { OnboardingSection } from "~/features/routes/top-page/OnboardingSection";
 import { TopRanking } from "~/features/routes/top-page/TopRanking/TopRanking";
 import type { Appreciation } from "~/model/appreciation";
 import type { PointLeaderUser } from "~/model/point-leader";
@@ -32,13 +33,14 @@ export const ClientTopPage: React.FC<ClientTopPageProps> = ({
 	return (
 		<>
 			<Stack direction={"row"} gap={"16px"} p={"24px"} overflowY={"hidden"}>
-				<Stack direction={"column"} gap={"24px"} width={"800px"}>
+				<Stack direction={"column"} gap={"8px"} width={"800px"}>
 					<UserProfile
 						userID={userInfo.discordUserID}
 						userName={userInfo.discordUserName}
 						avatarUrl={userInfo.discordAvatar}
 						isNotificationEnabled={isNotificationEnabled}
 					/>
+					<OnboardingSection />
 					<AppreciationForm
 						users={allUsers}
 						remainingPoints={userInfo.remainingPoints}

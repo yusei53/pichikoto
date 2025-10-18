@@ -4,8 +4,8 @@ import { MobileNotice } from "~/components/shared/MobileNotice/MobileNotice";
 import "./globals.css";
 
 export const metadata: Metadata = {
-	title: "monorepo-app",
-	description: "monorepo-app",
+	title: "hugnote",
+	description: "PeachTechのための感謝の気持ちを伝えるプラットフォーム",
 };
 
 export default function RootLayout({
@@ -15,6 +15,9 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
+			<head>
+				<meta name="apple-mobile-web-app-title" content="hagnote" />
+			</head>
 			<body style={{ margin: 0 }}>
 				<MobileNotice />
 				<Box
