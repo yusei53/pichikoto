@@ -1,5 +1,5 @@
 import { topPageAPI } from "~/features/routes/top-page/endpoints/topPageAPI";
-import { mockUser } from "~/mock/user";
+import { mockUserInfo } from "~/mock/user/user";
 import { ClientTopPage } from "./page.client";
 
 // NOTE: プリレンダリングを無効化してビルド時のAPIコールエラーを回避
@@ -11,10 +11,9 @@ const TopPage = async () => {
 	const pointLeaders = await topPageAPI.getPointLeaders();
 	return (
 		<ClientTopPage
-			user={mockUser}
+			userInfo={mockUserInfo}
 			// 1stでは落とす
 			isNotificationEnabled={false}
-			remainingPoints={100}
 			allUsers={allUsers}
 			sendPointRanking={pointLeaders.topSenders}
 			receivedPointRanking={pointLeaders.topReceivers}

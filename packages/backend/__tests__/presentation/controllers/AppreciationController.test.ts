@@ -44,7 +44,7 @@ describe("AppreciationController Tests", () => {
       {} as any, // UpdateAppreciationMessageUseCaseは別テストで扱うため、ダミーを渡す
       {} as any, // AppreciationsQueryServiceもダミーを渡す
       {} as any, // SentAppreciationsQueryService
-      {} as any  // ReceivedAppreciationsQueryService
+      {} as any // ReceivedAppreciationsQueryService
     );
   });
 

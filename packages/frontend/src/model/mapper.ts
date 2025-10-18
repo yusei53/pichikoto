@@ -2,9 +2,10 @@ import type {
 	AllAppreciationsResponse,
 	GetAllUsersResponse,
 	GetWeeklyPointLeadersResponse,
+	UserInfoResponse,
 } from "@pichikoto/http-contracts";
 import type { Appreciation } from "~/model/appreciation";
-import type { User } from "~/model/user";
+import type { User, UserInfo } from "~/model/user";
 import type { PointLeaders } from "./point-leader";
 
 export const toAppreciations = (
@@ -18,11 +19,13 @@ export const toAppreciations = (
 				createdAt: new Date(appreciation.createdAt),
 				sender: {
 					discordUserID: appreciation.sender.id,
+					discordGlobalName: appreciation.sender.discordGlobalName,
 					discordUserName: appreciation.sender.discordUserName,
 					discordAvatar: appreciation.sender.discordAvatar,
 				},
 				receivers: appreciation.receivers.map((receiver) => ({
 					discordUserID: receiver.id,
+					discordGlobalName: receiver.discordGlobalName,
 					discordUserName: receiver.discordUserName,
 					discordAvatar: receiver.discordAvatar,
 				})),
@@ -35,8 +38,19 @@ export const toAllUsers = (response: GetAllUsersResponse): User[] => {
 	return response.users.map((user) => ({
 		discordUserID: user.discordUserID,
 		discordUserName: user.discordUserName,
+		discordGlobalName: user.discordGlobalName,
 		discordAvatar: user.discordAvatar,
 	}));
+};
+
+export const toUserInfo = (response: UserInfoResponse): UserInfo => {
+	return {
+		discordUserID: response.discordUserID,
+		discordUserName: response.discordUserName,
+		discordGlobalName: response.discordGlobalName,
+		discordAvatar: response.discordAvatar,
+		remainingPoints: response.remainingPoints,
+	} satisfies UserInfo;
 };
 
 export const toPointLeaders = (

@@ -29,7 +29,7 @@ export class UserInfoQueryService {
       const remainingPoint = Math.max(0, 400 - totalConsumption);
 
       return ok({
-        discordUserID: DiscordUserID.from(user.discordUserId),
+        discordUserID: DiscordUserID.from(user.discordUserId).value,
         discordUserName: user.discordUserName,
         discordGlobalName: user.discordGlobalName,
         discordAvatar: user.discordAvatar,
@@ -69,7 +69,7 @@ export class UserInfoQueryService {
 }
 
 type UserInfo = {
-  discordUserID: DiscordUserID;
+  discordUserID: string;
   discordUserName: string;
   discordGlobalName: string | null;
   discordAvatar: string;

@@ -40,8 +40,11 @@ export const AppreciationCard: React.FC<AppreciationCardProps> = ({
 				<Stack direction={"row"} alignItems={"center"} gap={"24px"}>
 					<Stack direction={"column"} alignItems={"center"} gap={"4px"}>
 						<Avatar size={"xl"} src={appreciation.sender.discordAvatar} />
-						{/* <Box>{globalUserName}</Box> */}
-						<Box>{appreciation.sender.discordUserName}</Box>
+						{appreciation.sender.discordGlobalName !== null ? (
+							<Box>{appreciation.sender.discordGlobalName}</Box>
+						) : (
+							<Box>{appreciation.sender.discordUserName}</Box>
+						)}
 					</Stack>
 					<Icon size={"lg"}>
 						<SendHorizontal />
@@ -68,7 +71,11 @@ export const AppreciationCard: React.FC<AppreciationCardProps> = ({
 										key={user.discordUserID}
 									>
 										<Avatar size={"xl"} src={user.discordAvatar} />
-										<Box>{user.discordUserName}</Box>
+										{user.discordGlobalName !== null ? (
+											<Box>{user.discordGlobalName}</Box>
+										) : (
+											<Box>{user.discordUserName}</Box>
+										)}
 									</Stack>
 								))}
 								{hiddenReceivedUsersCount > 0 && (
@@ -115,8 +122,11 @@ export const AppreciationCard: React.FC<AppreciationCardProps> = ({
 										>
 											<Avatar size={"xl"} src={user.discordAvatar} />
 											<Stack direction={"column"} gap={"8px"}>
-												{/* <Box>{globalName}</Box> */}
-												<Box>{user.discordUserName}</Box>
+												{user.discordGlobalName !== null ? (
+													<Box>{user.discordGlobalName}</Box>
+												) : (
+													<Box>{user.discordUserName}</Box>
+												)}
 											</Stack>
 										</Stack>
 									))}

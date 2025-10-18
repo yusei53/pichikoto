@@ -10,11 +10,10 @@ import { UserProfile } from "~/features/common/UserProfile/UserProfile";
 import { TopRanking } from "~/features/routes/top-page/TopRanking/TopRanking";
 import type { Appreciation } from "~/model/appreciation";
 import type { PointLeaderUser } from "~/model/point-leader";
-import type { User } from "~/model/user";
+import type { User, UserInfo } from "~/model/user";
 
 type ClientTopPageProps = {
-	user: User;
-	remainingPoints: number;
+	userInfo: UserInfo;
 	allUsers: User[];
 	appreciationList: Appreciation[];
 	receivedPointRanking: PointLeaderUser[];
@@ -23,9 +22,8 @@ type ClientTopPageProps = {
 };
 
 export const ClientTopPage: React.FC<ClientTopPageProps> = ({
-	user,
+	userInfo,
 	appreciationList,
-	remainingPoints,
 	allUsers,
 	receivedPointRanking,
 	sendPointRanking,
@@ -36,14 +34,14 @@ export const ClientTopPage: React.FC<ClientTopPageProps> = ({
 			<Stack direction={"row"} gap={"16px"} p={"24px"} overflowY={"hidden"}>
 				<Stack direction={"column"} gap={"24px"} width={"800px"}>
 					<UserProfile
-						userID={user.discordUserID}
-						userName={user.discordUserName}
-						avatarUrl={user.discordAvatar}
+						userID={userInfo.discordUserID}
+						userName={userInfo.discordUserName}
+						avatarUrl={userInfo.discordAvatar}
 						isNotificationEnabled={isNotificationEnabled}
 					/>
 					<AppreciationForm
 						users={allUsers}
-						remainingPoints={remainingPoints}
+						remainingPoints={userInfo.remainingPoints}
 					/>
 				</Stack>
 				<Stack
@@ -52,7 +50,6 @@ export const ClientTopPage: React.FC<ClientTopPageProps> = ({
 					height={"calc(100vh - 40px)"}
 					overflowY={"auto"}
 				>
-					{/* <AppreciationListHeader onSearchChange={() => { }}> */}
 					<Stack direction={"row"} gap={"16px"}>
 						<TopRanking
 							titleIcon={

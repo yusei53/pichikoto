@@ -1,3 +1,5 @@
+import { decodeJwt } from "jose";
+
 export const cookieUtils = {
 	set: (
 		name: string,
@@ -59,6 +61,19 @@ export const cookieUtils = {
 
 		getAccessToken: (): string | null => {
 			return cookieUtils.get("accessToken");
+		},
+
+		getUserId: (): string | null => {
+			const token = cookieUtils.auth.getAccessToken();
+			if (!token) return null;
+
+			try {
+				const payload = decodeJwt(token);
+				console.log(payload);
+				return typeof payload.sub === "string" ? payload.sub : null;
+			} catch {
+				return null;
+			}
 		},
 
 		setRefreshToken: (refreshToken: string) => {
